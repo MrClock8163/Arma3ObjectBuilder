@@ -22,9 +22,19 @@ class Settings:
 
 #   ---------------------------------------- LOGIC -----------------------------------------
     
+import importlib
+
 import bpy
 
-from Arma3ObjectBuilder.utilities import data
+name = None
+for addon in bpy.context.preferences.addons.keys():
+    if addon.endswith("Arma3ObjectBuilder"):
+        name = addon
+        break
+else:
+    raise Exception("Arma 3 Object Builder could not be found")
+
+data = importlib.import_module(name).utilities.data
 
 
 def main():

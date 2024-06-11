@@ -1,5 +1,15 @@
 # Changelog
 
+## [v2.3.4](https://github.com/MrClock8163/Arma3ObjectBuilder/releases/tag/v2.3.4) (Blender 2.90 -> 4.2)
+
+### Added
+
+- extension manifest `blender_manifest.toml`
+
+### Changed
+
+- updated internal references for compatibility with **Blender 4.2**+
+
 ## [v2.3.3](https://github.com/MrClock8163/Arma3ObjectBuilder/releases/tag/v2.3.3) (Blender 2.90 -> 4.1)
 
 ### Fixed

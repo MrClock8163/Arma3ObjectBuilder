@@ -36,10 +36,24 @@ class Settings:
 #   ---------------------------------------- LOGIC -----------------------------------------
 
 import os
+import importlib
 
-from Arma3ObjectBuilder.io import data_rtm as rtm
-from Arma3ObjectBuilder.utilities import data
-from Arma3ObjectBuilder.utilities.logger import ProcessLogger
+import bpy
+
+name = None
+for addon in bpy.context.preferences.addons.keys():
+    if addon.endswith("Arma3ObjectBuilder"):
+        name = addon
+        break
+else:
+    raise Exception("Arma 3 Object Builder could not be found")
+
+a3ob_utils = importlib.import_module(addon).utilities
+a3ob_io = importlib.import_module(addon).io
+
+rtm = a3ob_io.data_rtm
+data = a3ob_utils.data
+ProcessLogger = a3ob_utils.logger.ProcessLogger
 
 
 def get_input_output():

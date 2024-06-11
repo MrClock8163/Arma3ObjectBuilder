@@ -32,15 +32,27 @@ class Settings:
 #   ---------------------------------------- LOGIC -----------------------------------------
 
 import math
+import importlib
 
 import bpy
 
-from Arma3ObjectBuilder.utilities import generic as utils
-from Arma3ObjectBuilder.utilities import structure as structutils
-from Arma3ObjectBuilder.utilities import lod as lodutils
-from Arma3ObjectBuilder.utilities.logger import ProcessLogger
-from Arma3ObjectBuilder.io.data_p3d import P3D_LOD_Resolution as LOD
-from Arma3ObjectBuilder.io import import_p3d
+name = None
+for addon in bpy.context.preferences.addons.keys():
+    if addon.endswith("Arma3ObjectBuilder"):
+        name = addon
+        break
+else:
+    raise Exception("Arma 3 Object Builder could not be found")
+
+a3ob_utils = importlib.import_module(addon).utilities
+a3ob_io = importlib.import_module(addon).io
+
+utils = a3ob_utils.generic
+structutils = a3ob_utils.structure
+lodutils = a3ob_utils.lod
+ProcessLogger = a3ob_utils.logger.ProcessLogger
+LOD = a3ob_io.data_p3d.P3D_LOD_Resolution
+import_p3d = a3ob_io
 
 
 LOD_TYPE_MAPPING = {

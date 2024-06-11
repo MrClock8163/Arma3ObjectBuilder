@@ -17,6 +17,7 @@
 
 import bpy
 
+
 for obj in [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']:
     for group in obj.vertex_groups:
         group.name = group.name.lower()

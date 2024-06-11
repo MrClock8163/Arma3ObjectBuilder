@@ -45,10 +45,19 @@ class Settings:
 #   ---------------------------------------- LOGIC -----------------------------------------
 
 import os
+import importlib
 
 import bpy
-from Arma3ObjectBuilder.io.import_rtm import import_file
 
+name = None
+for addon in bpy.context.preferences.addons.keys():
+    if addon.endswith("Arma3ObjectBuilder"):
+        name = addon
+        break
+else:
+    raise Exception("Arma 3 Object Builder could not be found")
+
+import_file = importlib.import_module(addon).io.import_rtm.import_file
 
 
 def main():

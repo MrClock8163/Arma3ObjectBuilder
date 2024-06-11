@@ -10,6 +10,7 @@ import bpy
 import bpy_extras.mesh_utils as meshutils
 import bmesh
 
+from .. import __package__ as addon_name
 from . import data
 
 
@@ -46,7 +47,7 @@ def strip_extension(path):
 
 
 def get_addon_preferences():
-    return bpy.context.preferences.addons["Arma3ObjectBuilder"].preferences
+    return bpy.context.preferences.addons[addon_name].preferences
 
 
 def is_valid_idx(index, subscriptable):

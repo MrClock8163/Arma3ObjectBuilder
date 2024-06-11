@@ -2,7 +2,7 @@ bl_info = {
     "name": "Arma 3 Object Builder",
     "description": "Collection of tools for editing Arma 3 content",
     "author": "MrClock (present add-on), Hans-Joerg \"Alwarren\" Frieden (original ArmaToolbox add-on)",
-    "version": (2, 3, 3),
+    "version": (2, 3, 4),
     "blender": (2, 90, 0),
     "location": "Object Builder panels",
     "warning": "",
@@ -52,7 +52,7 @@ class A3OB_OT_prefs_find_a3_tools(bpy.types.Operator):
             from winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER
             key = OpenKey(HKEY_CURRENT_USER, r"software\bohemia interactive\arma 3 tools")
             value, _type = QueryValueEx(key, "path")
-            prefs = context.preferences.addons["Arma3ObjectBuilder"].preferences
+            prefs = context.preferences.addons[__package__].preferences
             prefs.a3_tools = value
             
         except Exception:
@@ -123,13 +123,13 @@ class A3OB_OT_prefs_edit_flag_vertex(bpy.types.Operator):
         return True
     
     def invoke(self, context, event):
-        prefs = context.preferences.addons["Arma3ObjectBuilder"].preferences
+        prefs = context.preferences.addons[__package__].preferences
         flagutils.set_flag_vertex(self, prefs.flag_vertex)
 
         return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
-        prefs = context.preferences.addons["Arma3ObjectBuilder"].preferences
+        prefs = context.preferences.addons[__package__].preferences
         prefs.flag_vertex = flagutils.get_flag_vertex(self)
 
         return {'FINISHED'}
@@ -175,20 +175,20 @@ class A3OB_OT_prefs_edit_flag_face(bpy.types.Operator):
         return True
     
     def invoke(self, context, event):
-        prefs = context.preferences.addons["Arma3ObjectBuilder"].preferences
+        prefs = context.preferences.addons[__package__].preferences
         flagutils.set_flag_face(self, prefs.flag_face)
 
         return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
-        prefs = context.preferences.addons["Arma3ObjectBuilder"].preferences
+        prefs = context.preferences.addons[__package__].preferences
         prefs.flag_face = flagutils.get_flag_face(self)
 
         return {'FINISHED'}
 
 
 class A3OB_AT_preferences(bpy.types.AddonPreferences):
-    bl_idname = __name__
+    bl_idname = __package__
     
     tabs: bpy.props.EnumProperty(
         name = "Tabs",
@@ -348,7 +348,7 @@ def register():
     from bpy.utils import register_class
     from .utilities import generic
         
-    print("Registering Arma 3 Object Builder ( '" + __name__ + "' )")
+    print("Registering Arma 3 Object Builder ( '" + __package__ + "' )")
     
     for cls in classes:
         register_class(cls)
@@ -365,7 +365,7 @@ def unregister():
     from bpy.utils import unregister_class
     from .utilities import generic
 
-    print("Unregistering Arma 3 Object Builder ( '" + __name__ + "' )")
+    print("Unregistering Arma 3 Object Builder ( '" + __package__ + "' )")
     
     generic.unregister_icons()
     

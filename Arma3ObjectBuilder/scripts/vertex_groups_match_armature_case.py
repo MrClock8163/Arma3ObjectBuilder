@@ -19,6 +19,7 @@
 
 import bpy
 
+
 armature = bpy.context.active_object
 meshes = [obj for obj in bpy.context.selected_objects if obj is not armature and obj.type == 'MESH']
 

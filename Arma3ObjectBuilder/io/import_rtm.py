@@ -4,7 +4,6 @@
 
 
 import os
-from math import floor, ceil
 from itertools import chain
 
 import bpy
