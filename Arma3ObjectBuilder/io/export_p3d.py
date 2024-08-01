@@ -353,10 +353,10 @@ def get_lod_data(operator, context, validator, temp_collection):
         is_valid_copies = []
         for copy in main_obj.a3ob_properties_object.copies:
             with temporary_component(operator, main_obj):
-                is_valid_copies.append(is_valid and validator.validate_lod(main_obj, copy.lod, True, operator.validate_lods_warning_errors, operator.relative_paths))
+                is_valid_copies.append(is_valid and validator.validate_lod(main_obj, copy.lod, True, operator.validate_lods_warning_errors and operator.validate_lods, operator.relative_paths))
 
         with temporary_component(operator, main_obj):
-            is_valid &= validator.validate_lod(main_obj, main_obj.a3ob_properties_object.lod, True, operator.validate_lods_warning_errors, operator.relative_paths)
+            is_valid &= validator.validate_lod(main_obj, main_obj.a3ob_properties_object.lod, True, operator.validate_lods_warning_errors and operator.validate_lods, operator.relative_paths)
 
         proxy_lookup = merge_proxy_objects(main_obj, proxy_objects, operator.relative_paths)
 

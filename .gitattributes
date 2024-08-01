@@ -1,3 +1,7 @@
 * text=auto
 
 * text eol=lf
+
+*.png binary
+*.p3d binary
+*.blend binary
