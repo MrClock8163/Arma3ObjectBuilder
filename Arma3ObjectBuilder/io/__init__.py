@@ -39,6 +39,8 @@ if "binary_handler" in locals():
         reload(import_rtm)
     if "import_tbcsv" in locals():
         reload(import_tbcsv)
+    if "import_paa" in locals():
+        reload(import_paa)
 
 
 from . import binary_handler
@@ -60,3 +62,4 @@ from . import import_mcfg
 from . import import_p3d
 from . import import_rtm
 from . import import_tbcsv
+from . import import_paa
