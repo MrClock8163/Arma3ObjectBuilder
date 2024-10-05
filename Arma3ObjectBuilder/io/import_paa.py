@@ -101,7 +101,7 @@ def import_file(operator, context, file):
 
         data.append(rows)
 
-    img = bpy.data.images.new(os.path.basename(operator.filepath), mip.width, mip.height, alpha=alpha)
+    img = bpy.data.images.new(os.path.basename(operator.filepath), mip.width, mip.height, alpha=alpha, is_data=operator.color_space == 'DATA')
     img.filepath_raw = operator.filepath
     if alpha:
         img.alpha_mode = 'PREMUL'

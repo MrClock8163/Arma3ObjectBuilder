@@ -17,9 +17,22 @@ class A3OB_OP_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
         default = "*.paa",
         options = {'HIDDEN'}
     )
+    color_space: bpy.props.EnumProperty(
+        name = "Mode",
+        description = "How to interpret the color data in the imported texture",
+        items = (
+            ('SRGB', "sRGB", "File contains a color texture (CO, CA, MC, etc.)"),
+            ('DATA', "Data", "File contains non-color data (NOHQ, SMDI, AS, etc.)")
+        ),
+        default='SRGB'
+    )
 
     def draw(self, context):
-        pass
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        layout.prop(self, "color_space", expand=True)
     
     def execute(self, context):
         with open(self.filepath, "rb") as file:
