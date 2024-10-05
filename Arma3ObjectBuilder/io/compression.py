@@ -136,6 +136,8 @@ class DXT_Error(Exception):
 # Implementations are based on the publicly available descriptions of the format:
 # https://en.wikipedia.org/wiki/S3_Texture_Compression
 # https://www.khronos.org/opengl/wiki/S3_Texture_Compression
+# The decompression serves the channel data in bottom to top row order, conforming
+# to the OpenGL standard that Blender expects.
 def dxt5_decompress(file, width, height):
     if width % 4 != 0 or height % 4 != 0:
         raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
@@ -146,6 +148,7 @@ def dxt5_decompress(file, width, height):
     alpha = array('f', bytearray(width * height * 4))
     struct_block_color = struct.Struct('<HHI')
     struct_block_alpha = struct.Struct('BB')
+    struct_block_atable = struct.Struct('<Q')
 
     # Interpolation coefficients
     acoef67 = 6/7
@@ -170,7 +173,7 @@ def dxt5_decompress(file, width, height):
     for brow in range(block_count_h):
         for bcol in range(block_count_w):
             a0, a1, = struct_block_alpha.unpack(file.read(2))
-            atable = struct.unpack('<Q', file.read(6) + b"\x00\x00")[0]
+            atable = struct_block_atable.unpack(file.read(6) + b"\x00\x00")[0]
             v0, v1, table = struct_block_color.unpack(file.read(8))
 
             # Expanding directly stored colors
@@ -266,14 +269,15 @@ def dxt5_decompress(file, width, height):
             alut = (a0, a1, a2, a3, a4, a5, a6, a7)
 
             # Block interpretation
-            bstartrow = brow * 4
-            bstartcol = bcol * 4
+            bstartrow = height - brow * 4 # index of the starting row of the block
+            bstartcol = bcol * 4 # index of the starting column of the block
             for row in range(4):
+                current_row_col = (bstartrow - row - 1) * width + bstartcol # flattened index of the first pixel in the row
                 for col in range(4):
                     pix = row * 4 + col # pixel index inside current flattened block
                     r, g, b = lut[codes[pix]]
                     a = alut[acodes[pix]]
-                    idx = ((bstartrow + row) * width) + bstartcol + col # target index in flattened channel arrays
+                    idx = current_row_col + col # flattened intdex of the current pixel
                     red[idx] = r
                     green[idx] = g
                     blue[idx] = b
@@ -361,12 +365,13 @@ def dxt1_decompress(file, width, height):
             )
 
             # Block interpretation
-            bstartrow = brow * 4
-            bstartcol = bcol * 4
+            bstartrow = height - brow * 4 # index of the starting row of the block
+            bstartcol = bcol * 4 # index of the starting column of the block
             for row in range(4):
+                current_row_col = (bstartrow - row - 1) * width + bstartcol # flattened index of the first pixel in the row
                 for col in range(4):
                     r, g, b, a = lut[codes[row * 4 + col]]
-                    idx = ((bstartrow + row) * width) + bstartcol + col # target index in flattened channel arrays
+                    idx = current_row_col + col # flattened intdex of the current pixel
                     red[idx] = r
                     green[idx] = g
                     blue[idx] = b

@@ -88,24 +88,11 @@ def import_file(operator, context, file):
             continue
         r, g, b, a = swizzle(r, g, b, a, tagg.data)
 
-    # For some God forsaken reason, the Blender image data format goes against the practices of decades of digital image
-    # handling, and stores the pixel rows from bottom->top, instead of the standard top->bottom. The rows have to be 
-    # manually reorderd...
-    data = []
-    for i in range(mip.height):
-        rows = []
-        idx = i * mip.width
-        idx_end = idx + mip.width
-        for c in zip(r[idx:idx_end], g[idx:idx_end], b[idx:idx_end], a[idx:idx_end]):
-            rows.extend(c)
-
-        data.append(rows)
-
     img = bpy.data.images.new(os.path.basename(operator.filepath), mip.width, mip.height, alpha=alpha, is_data=operator.color_space == 'DATA')
     img.filepath_raw = operator.filepath
     if alpha:
         img.alpha_mode = 'PREMUL'
-    img.pixels[:] = [value for row in reversed(data) for value in row][:]
+    img.pixels = [value for c in zip(r, g, b, a) for value in c]
     img.update()
     img.pack()
 
