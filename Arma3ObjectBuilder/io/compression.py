@@ -22,49 +22,33 @@ def lzo1x_decompress(file, expected):
     start = file.tell()
     output = bytearray()
 
+    struct_le16 = struct.Struct('<H')
+
     def check_free_space(length):
         free_space = expected - len(output)
         if free_space < length:
             raise LZO_Error("Output overrun (free buffer: %d, match length: %d)" % (free_space, length))
 
-    def read1():
-        return struct.unpack('B', file.read(1))[0]
-
-    def read(size):
-        return struct.unpack('%dB' % size, file.read(size))
-    
-    def read_le16():
-        return struct.unpack('<H', file.read(2))[0]
-    
-    def extend(items):
-        nonlocal output
-        output.extend(items)
-
     def copy_literal(length):
         check_free_space(length)
-        extend(read(length))
+        output.extend(file.read(length))
     
     def copy_match(distance, length):
-        output_length = len(output)
-
-        if output_length < distance:
-            raise LZO_Error("Invalid back pointer (buffer: %d, pointer: %d)" % (output_length, -distance))
-        
         check_free_space(length)
         
         # It is valid to have length that is longer than the back pointer distance, which creates a repeating pattern,
         # copying the same bytes that were copied in this same command.
         # For this reason, we cannot simply take a slice of the output at the given point with the given length, as
         # some of the bytes might not yet be there. We have to copy in chunks with size of the backpointer distance.
-        start = output_length - distance
-        extend(output[start:] * (length // distance)) # copy as many whole chunks as possible
-        extend(output[start:(start + (length % distance))]) # copy remainder
+        start = len(output) - distance
+        output.extend(output[start:] * (length // distance)) # copy as many whole chunks as possible
+        output.extend(output[start:(start + (length % distance))]) # copy remainder
     
     def get_length(x, mask):
         length = x & mask
         if not length:
             while True:
-                x = read1()
+                x = file.read(1)[0]
                 if x:
                     break
                 
@@ -73,12 +57,12 @@ def lzo1x_decompress(file, expected):
         return length
     
     # # First byte is handled separately, as the output buffer is empty at this point.
-    x = read1()
+    x = file.read(1)[0]
     if x > 17:
         length = x - 17
         copy_literal(length)
         state = min(4, length)
-        x = read1()
+        x = file.read(1)[0]
     
     while True:
         if x <= 15:
@@ -89,37 +73,37 @@ def lzo1x_decompress(file, expected):
             elif state < 4:
                 length = 2
                 state = x & 3
-                distance = (read1() << 2) + (x >> 2) + 1
+                distance = (file.read(1)[0] << 2) + (x >> 2) + 1
                 copy_match(distance, length)
                 copy_literal(state)
             elif state == 4:
                 length = 3
                 state = x & 3
-                distance = (read1() << 2) + (x >> 2) + 2049
+                distance = (file.read(1)[0] << 2) + (x >> 2) + 2049
                 copy_match(distance, length)
                 copy_literal(state)
         elif x > 127:
             state = x & 3
             length = 5 + ((x >> 5) & 3)
-            distance = (read1() << 3) + ((x >> 2) & 7) + 1
+            distance = (file.read(1)[0] << 3) + ((x >> 2) & 7) + 1
             copy_match(distance, length)
             copy_literal(state)
         elif x > 63:
             state = x & 3
             length = 3 + ((x >> 5) & 1)
-            distance = (read1() << 3) + ((x >> 2) & 7) + 1
+            distance = (file.read(1)[0] << 3) + ((x >> 2) & 7) + 1
             copy_match(distance, length)
             copy_literal(state)
         elif x > 31:
             length = 2 + get_length(x, 31)
-            extra = read_le16()
+            extra = struct_le16.unpack(file.read(2))[0]
             distance = (extra >> 2) + 1
             state = extra & 3
             copy_match(distance, length)
             copy_literal(state)
         else:
             length = 2 + get_length(x, 7)
-            extra = read_le16()
+            extra = struct_le16.unpack(file.read(2))[0]
             distance = 16384 + ((x & 8) << 11) + (extra >> 2)
             state = extra & 3
             if distance == 16384:
@@ -131,7 +115,7 @@ def lzo1x_decompress(file, expected):
             copy_match(distance, length)
             copy_literal(state)
 
-        x = read1()
+        x = file.read(1)[0]
 
     if expected - len(output):
         raise LZO_Error("Stream provided shorter output than expected (expected: %d, got: %d)" % (expected, len(output)))
