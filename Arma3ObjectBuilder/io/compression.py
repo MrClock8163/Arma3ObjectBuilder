@@ -132,6 +132,10 @@ class DXT_Error(Exception):
         return "DXT - %s" % super().__str__()
 
 
+# Decompression algorithms for textures compressed with the S3TC DXT1 and DXT5 algorithms.
+# Implementations are based on the publicly available descriptions of the format:
+# https://en.wikipedia.org/wiki/S3_Texture_Compression
+# https://www.khronos.org/opengl/wiki/S3_Texture_Compression
 def dxt5_decompress(file, width, height):
     if width % 4 != 0 or height % 4 != 0:
         raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
@@ -143,6 +147,7 @@ def dxt5_decompress(file, width, height):
     struct_block_color = struct.Struct('<HHI')
     struct_block_alpha = struct.Struct('BB')
 
+    # Interpolation coefficients
     acoef67 = 6/7
     acoef17 = 1/7
     acoef57 = 5/7
@@ -161,12 +166,14 @@ def dxt5_decompress(file, width, height):
     block_count_w = width // 4
     block_count_h = height // 4
 
+    # Decompression of blocks from left->right, top->bottom
     for brow in range(block_count_h):
         for bcol in range(block_count_w):
             a0, a1, = struct_block_alpha.unpack(file.read(2))
             atable = struct.unpack('<Q', file.read(6) + b"\x00\x00")[0]
             v0, v1, table = struct_block_color.unpack(file.read(8))
 
+            # Expanding directly stored colors
             r0 = (v0 >> 11) / 31
             g0 = ((v0 >> 5) & 0x3f) / 63
             b0 = (v0 & 0x1f) / 31
@@ -175,6 +182,7 @@ def dxt5_decompress(file, width, height):
             g1 = ((v1 >> 5) & 0x3f) / 63
             b1 = (v1 & 0x1f) / 31
             
+            # Color interpolation
             if v0 > v1:
                 r2 = coef23 * r0 + coef13 * r1
                 g2 = coef23 * g0 + coef13 * g1
@@ -189,6 +197,7 @@ def dxt5_decompress(file, width, height):
                 b2 = 0.5 * (b0 + b1)
                 r3 = g3 = b3 = 0
             
+            # Alpha interpolation
             if a0 > a1:
                 a0 /= 255
                 a1 /= 255
@@ -208,7 +217,8 @@ def dxt5_decompress(file, width, height):
                 a6 = 0
                 a7 = 1
             
-            pos = (
+            # Color code
+            codes = (
                 table & 0x3,
                 table >> 2 & 0x3,
                 table >> 4 & 0x3,
@@ -226,7 +236,8 @@ def dxt5_decompress(file, width, height):
                 table >> 28 & 0x3,
                 table >> 30 & 0x3
             )
-            apos = (
+            # Alpha codes
+            acodes = (
                 atable & 0x7,
                 atable >> 3 & 0x7,
                 atable >> 6 & 0x7,
@@ -244,24 +255,25 @@ def dxt5_decompress(file, width, height):
                 atable >> 42 & 0x7,
                 atable >> 45 & 0x7
             )
-            
-            lookup = (
+            # Color lookup
+            lut = (
                 (r0, g0, b0),
                 (r1, g1, b1),
                 (r2, g2, b2),
                 (r3, g3, b3)
             )
+            # Alpha lookup
+            alut = (a0, a1, a2, a3, a4, a5, a6, a7)
 
-            alookup = (a0, a1, a2, a3, a4, a5, a6, a7)
-
+            # Block interpretation
             bstartrow = brow * 4
             bstartcol = bcol * 4
             for row in range(4):
                 for col in range(4):
-                    pix = row*4 + col
-                    r, g, b = lookup[pos[pix]]
-                    a = alookup[apos[pix]]
-                    idx = ((bstartrow + row) * width) + bstartcol + col
+                    pix = row * 4 + col # pixel index inside current flattened block
+                    r, g, b = lut[codes[pix]]
+                    a = alut[acodes[pix]]
+                    idx = ((bstartrow + row) * width) + bstartcol + col # target index in flattened channel arrays
                     red[idx] = r
                     green[idx] = g
                     blue[idx] = b
@@ -279,6 +291,8 @@ def dxt1_decompress(file, width, height):
     blue = array('f', bytearray(width * height * 4))
     alpha = array('f', bytearray(width * height * 4))
     struct_block = struct.Struct('<HHI')
+
+    # Interpolation coefficients
     coef0 = 2/3
     coef1 = 1/3
     
@@ -287,10 +301,12 @@ def dxt1_decompress(file, width, height):
 
     a0 = a1 = a2 = 1
 
+    # Decompression of blocks from left->right, top->bottom
     for brow in range(block_count_h):
         for bcol in range(block_count_w):
             v0, v1, table = struct_block.unpack(file.read(8))
-        
+
+            # Expanding directly stored colors
             r0 = (v0 >> 11) / 31
             g0 = ((v0 >> 5) & 0x3f) / 63
             b0 = (v0 & 0x1f) / 31
@@ -299,6 +315,7 @@ def dxt1_decompress(file, width, height):
             g1 = ((v1 >> 5) & 0x3f) / 63
             b1 = (v1 & 0x1f) / 31
             
+            # Color interpolation
             if v0 > v1:
                 r2 = coef0 * r0 + coef1 * r1
                 g2 = coef0 * g0 + coef1 * g1
@@ -316,7 +333,8 @@ def dxt1_decompress(file, width, height):
 
                 r3 = g3 = b3 = a3 = 0
             
-            pos = (
+            # Color codes
+            codes = (
                 table & 0x3,
                 table >> 2 & 0x3,
                 table >> 4 & 0x3,
@@ -334,20 +352,21 @@ def dxt1_decompress(file, width, height):
                 table >> 28 & 0x3,
                 table >> 30 & 0x3
             )
-            
-            lookup = (
+            # Color lookup
+            lut = (
                 (r0, g0, b0, a0),
                 (r1, g1, b1, a1),
                 (r2, g2, b2, a2),
                 (r3, g3, b3, a3)
             )
 
+            # Block interpretation
             bstartrow = brow * 4
             bstartcol = bcol * 4
             for row in range(4):
                 for col in range(4):
-                    r, g, b, a = lookup[pos[row * 4 + col]]
-                    idx = ((bstartrow + row) * width) + bstartcol + col
+                    r, g, b, a = lut[codes[row * 4 + col]]
+                    idx = ((bstartrow + row) * width) + bstartcol + col # target index in flattened channel arrays
                     red[idx] = r
                     green[idx] = g
                     blue[idx] = b

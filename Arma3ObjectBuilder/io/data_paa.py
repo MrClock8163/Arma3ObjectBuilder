@@ -1,3 +1,9 @@
+# Class structure, read-write methods and conversion functions for handling
+# the PAA binary data structure. Format specifications
+# can be found on the community wiki (although not withoug errors):
+# https://community.bistudio.com/wiki/PAA_File_Format
+
+
 import struct
 from enum import IntEnum
 

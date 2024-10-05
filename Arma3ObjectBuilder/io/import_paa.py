@@ -1,3 +1,7 @@
+# Processing functions to import a PAA texture file as an image data block.
+# The actual file handling is implemented in the data_paa module.
+
+
 import os
 import time
 from io import BytesIO, BufferedReader
@@ -84,6 +88,9 @@ def import_file(operator, context, file):
             continue
         r, g, b, a = swizzle(r, g, b, a, tagg.data)
 
+    # For some God forsaken reason, the Blender image data format goes against the practices of decades of digital image
+    # handling, and stores the pixel rows from bottom->top, instead of the standard top->bottom. The rows have to be 
+    # manually reorderd...
     data = []
     for i in range(mip.height):
         rows = []
