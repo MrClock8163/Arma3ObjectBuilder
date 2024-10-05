@@ -28,10 +28,6 @@ def lzo1x_decompress(file, expected):
         free_space = expected - len(output)
         if free_space < length:
             raise LZO_Error("Output overrun (free buffer: %d, match length: %d)" % (free_space, length))
-
-    def copy_literal(length):
-        check_free_space(length)
-        output.extend(file.read(length))
     
     def copy_match(distance, length):
         check_free_space(length)
@@ -60,7 +56,8 @@ def lzo1x_decompress(file, expected):
     x = file.read(1)[0]
     if x > 17:
         length = x - 17
-        copy_literal(length)
+        check_free_space(length)
+        output.extend(file.read(length))
         state = min(4, length)
         x = file.read(1)[0]
     
@@ -68,39 +65,45 @@ def lzo1x_decompress(file, expected):
         if x <= 15:
             if not state:
                 length = 3 + get_length(x, 15)
-                copy_literal(length)
+                check_free_space(length)
+                output.extend(file.read(length))
                 state = 4
             elif state < 4:
                 length = 2
                 state = x & 3
                 distance = (file.read(1)[0] << 2) + (x >> 2) + 1
                 copy_match(distance, length)
-                copy_literal(state)
+                check_free_space(state)
+                output.extend(file.read(state))
             elif state == 4:
                 length = 3
                 state = x & 3
                 distance = (file.read(1)[0] << 2) + (x >> 2) + 2049
                 copy_match(distance, length)
-                copy_literal(state)
+                check_free_space(state)
+                output.extend(file.read(state))
         elif x > 127:
             state = x & 3
             length = 5 + ((x >> 5) & 3)
             distance = (file.read(1)[0] << 3) + ((x >> 2) & 7) + 1
             copy_match(distance, length)
-            copy_literal(state)
+            check_free_space(state)
+            output.extend(file.read(state))
         elif x > 63:
             state = x & 3
             length = 3 + ((x >> 5) & 1)
             distance = (file.read(1)[0] << 3) + ((x >> 2) & 7) + 1
             copy_match(distance, length)
-            copy_literal(state)
+            check_free_space(state)
+            output.extend(file.read(state))
         elif x > 31:
             length = 2 + get_length(x, 31)
             extra = struct_le16.unpack(file.read(2))[0]
             distance = (extra >> 2) + 1
             state = extra & 3
             copy_match(distance, length)
-            copy_literal(state)
+            check_free_space(state)
+            output.extend(file.read(state))
         else:
             length = 2 + get_length(x, 7)
             extra = struct_le16.unpack(file.read(2))[0]
@@ -113,7 +116,8 @@ def lzo1x_decompress(file, expected):
                 break
             
             copy_match(distance, length)
-            copy_literal(state)
+            check_free_space(state)
+            output.extend(file.read(state))
 
         x = file.read(1)[0]
 
