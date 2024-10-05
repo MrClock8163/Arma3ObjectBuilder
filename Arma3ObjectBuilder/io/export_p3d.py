@@ -491,7 +491,7 @@ def process_tagg_sharp(bm):
         output.data.edges = [(edge.verts[0].index, edge.verts[1].index) for edge in bm.edges if not edge.smooth and edge.is_contiguous]
 
     if len(output.data.edges) == 0:
-        output.active = False
+        None
 
     return output
 
@@ -526,15 +526,15 @@ def process_tagg_mass(bm, layer):
 
 
 def process_taggs_selections(obj, bm):
-    output = {}
+    output = []
 
-    for i, group in enumerate(obj.vertex_groups):
+    for group in obj.vertex_groups:
         new_tagg = p3d.P3D_TAGG()
         new_tagg.name = group.name
         new_tagg.data = p3d.P3D_TAGG_DataSelection()
         new_tagg.data.count_verts = len(bm.verts)
         new_tagg.data.count_faces = len(bm.faces)
-        output[i] = new_tagg
+        output.append(new_tagg)
 
     bm.verts.layers.deform.verify()
     layer = bm.verts.layers.deform.active
@@ -551,14 +551,16 @@ def process_taggs_selections(obj, bm):
         for idx in unique:
             if indices.count(idx) == len(face.loops):
                 output[idx].data.weight_faces.append((face.index, 1))
-
-    return output.values()
+    
+    return output
 
 
 def process_taggs(obj, bm, logger):
     object_props = obj.a3ob_properties_object
-    taggs = [process_tagg_sharp(bm)]
-    if taggs[0].active:
+    taggs = []
+    tagg_sharps = process_tagg_sharp(bm)
+    if tagg_sharps is not None:
+        taggs.append(tagg_sharps)
         logger.log("Collected sharp edges")
 
     uv_index = 0
@@ -724,6 +726,7 @@ def write_file(operator, context, file, temp_collection):
     mlod.write(file)
     
     logger.level_down()
+    wm.progress_end()
     logger.step("P3D export finished in %f sec" % (time.time() - time_file_start))
 
     return len(lod_list), len(mlod_lods)

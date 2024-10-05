@@ -12,7 +12,7 @@ def read_byte(file):
     return struct.unpack('B', file.read(1))[0]
     
 def read_bytes(file, count = 1):
-    return [read_byte(file) for i in range(count)]
+    return struct.unpack('<%dB' % count, file.read(count))
 
 def read_bool(file):
     return read_byte(file) != 0
