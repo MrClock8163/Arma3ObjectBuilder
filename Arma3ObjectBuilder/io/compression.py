@@ -134,7 +134,7 @@ class DXT_Error(Exception):
 
 def dxt5_decompress(file, width, height):
     if width % 4 != 0 or height % 4 != 0:
-        raise DXT_Error("Expected resolution: %d x %d" % (width, height))
+        raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
 
     red = array('f', bytearray(width * height * 4))
     green = array('f', bytearray(width * height * 4))
@@ -155,128 +155,124 @@ def dxt5_decompress(file, width, height):
     acoef35 = 3/5
     acoef25 = 2/5
 
-    coef0 = 2/3
-    coef1 = 1/3
-
-    def decompress_block(brow, bcol):
-        nonlocal red, green, blue, alpha
-
-        a0, a1, = struct_block_alpha.unpack(file.read(2))
-        atable = struct.unpack('<Q', file.read(6) + b"\x00\x00")[0]
-        v0, v1, table = struct_block_color.unpack(file.read(8))
-
-        r0 = (v0 >> 11) / 31
-        g0 = ((v0 >> 5) & 0x3f) / 63
-        b0 = (v0 & 0x1f) / 31
-        
-        r1 = (v1 >> 11) / 31
-        g1 = ((v1 >> 5) & 0x3f) / 63
-        b1 = (v1 & 0x1f) / 31
-        
-        if v0 > v1:
-            r2 = coef0 * r0 + coef1 * r1
-            g2 = coef0 * g0 + coef1 * g1
-            b2 = coef0 * b0 + coef1 * b1
-
-            r3 = coef1 * r0 + coef0 * r1
-            g3 = coef1 * g0 + coef0 * g1
-            b3 = coef1 * b0 + coef0 * b1
-        else:
-            r2 = 0.5 * (r0 + r1)
-            g2 = 0.5 * (g0 + g1)
-            b2 = 0.5 * (b0 + b1)
-            r3 = g3 = b3 = 0
-        
-        if a0 > a1:
-            a0 /= 255
-            a1 /= 255
-            a2 = acoef67 * a0 + acoef17 * a1
-            a3 = acoef57 * a0 + acoef27 * a1
-            a4 = acoef47 * a0 + acoef37 * a1
-            a5 = acoef37 * a0 + acoef47 * a1
-            a6 = acoef27 * a0 + acoef57 * a1
-            a7 = acoef17 * a0 + acoef67 * a1
-        else:
-            a0 /= 255
-            a1 /= 255
-            a2 = acoef45 * a0 + acoef15 * a1
-            a3 = acoef35 * a0 + acoef25 * a1
-            a4 = acoef25 * a0 + acoef35 * a1
-            a5 = acoef15 * a0 + acoef45 * a1
-            a6 = 0
-            a7 = 1
-        
-        pos = (
-            table & 0x3,
-            table >> 2 & 0x3,
-            table >> 4 & 0x3,
-            table >> 6 & 0x3,
-            table >> 8 & 0x3,
-            table >> 10 & 0x3,
-            table >> 12 & 0x3,
-            table >> 14 & 0x3,
-            table >> 16 & 0x3,
-            table >> 18 & 0x3,
-            table >> 20 & 0x3,
-            table >> 22 & 0x3,
-            table >> 24 & 0x3,
-            table >> 26 & 0x3,
-            table >> 28 & 0x3,
-            table >> 30 & 0x3
-        )
-        apos = (
-            atable & 0x7,
-            atable >> 3 & 0x7,
-            atable >> 6 & 0x7,
-            atable >> 9 & 0x7,
-            atable >> 12 & 0x7,
-            atable >> 15 & 0x7,
-            atable >> 18 & 0x7,
-            atable >> 21 & 0x7,
-            atable >> 24 & 0x7,
-            atable >> 27 & 0x7,
-            atable >> 30 & 0x7,
-            atable >> 33 & 0x7,
-            atable >> 36 & 0x7,
-            atable >> 39 & 0x7,
-            atable >> 42 & 0x7,
-            atable >> 45 & 0x7
-        )
-        
-        lookup = (
-            (r0, g0, b0),
-            (r1, g1, b1),
-            (r2, g2, b2),
-            (r3, g3, b3)
-        )
-
-        alookup = (a0, a1, a2, a3, a4, a5, a6, a7)
-
-        for row in range(4):
-            for col in range(4):
-                pix = row*4 + col
-                r, g, b = lookup[pos[pix]]
-                a = alookup[apos[pix]]
-                idx = (((brow * 4) + row) * width) + bcol * 4 + col
-                red[idx] = r
-                green[idx] = g
-                blue[idx] = b
-                alpha[idx] = a
-
+    coef23 = 2/3
+    coef13 = 1/3
 
     block_count_w = width // 4
     block_count_h = height // 4
 
-    for row in range(block_count_h):
-        for col in range(block_count_w):
-            decompress_block(row, col)
+    for brow in range(block_count_h):
+        for bcol in range(block_count_w):
+            a0, a1, = struct_block_alpha.unpack(file.read(2))
+            atable = struct.unpack('<Q', file.read(6) + b"\x00\x00")[0]
+            v0, v1, table = struct_block_color.unpack(file.read(8))
+
+            r0 = (v0 >> 11) / 31
+            g0 = ((v0 >> 5) & 0x3f) / 63
+            b0 = (v0 & 0x1f) / 31
+            
+            r1 = (v1 >> 11) / 31
+            g1 = ((v1 >> 5) & 0x3f) / 63
+            b1 = (v1 & 0x1f) / 31
+            
+            if v0 > v1:
+                r2 = coef23 * r0 + coef13 * r1
+                g2 = coef23 * g0 + coef13 * g1
+                b2 = coef23 * b0 + coef13 * b1
+
+                r3 = coef13 * r0 + coef23 * r1
+                g3 = coef13 * g0 + coef23 * g1
+                b3 = coef13 * b0 + coef23 * b1
+            else:
+                r2 = 0.5 * (r0 + r1)
+                g2 = 0.5 * (g0 + g1)
+                b2 = 0.5 * (b0 + b1)
+                r3 = g3 = b3 = 0
+            
+            if a0 > a1:
+                a0 /= 255
+                a1 /= 255
+                a2 = acoef67 * a0 + acoef17 * a1
+                a3 = acoef57 * a0 + acoef27 * a1
+                a4 = acoef47 * a0 + acoef37 * a1
+                a5 = acoef37 * a0 + acoef47 * a1
+                a6 = acoef27 * a0 + acoef57 * a1
+                a7 = acoef17 * a0 + acoef67 * a1
+            else:
+                a0 /= 255
+                a1 /= 255
+                a2 = acoef45 * a0 + acoef15 * a1
+                a3 = acoef35 * a0 + acoef25 * a1
+                a4 = acoef25 * a0 + acoef35 * a1
+                a5 = acoef15 * a0 + acoef45 * a1
+                a6 = 0
+                a7 = 1
+            
+            pos = (
+                table & 0x3,
+                table >> 2 & 0x3,
+                table >> 4 & 0x3,
+                table >> 6 & 0x3,
+                table >> 8 & 0x3,
+                table >> 10 & 0x3,
+                table >> 12 & 0x3,
+                table >> 14 & 0x3,
+                table >> 16 & 0x3,
+                table >> 18 & 0x3,
+                table >> 20 & 0x3,
+                table >> 22 & 0x3,
+                table >> 24 & 0x3,
+                table >> 26 & 0x3,
+                table >> 28 & 0x3,
+                table >> 30 & 0x3
+            )
+            apos = (
+                atable & 0x7,
+                atable >> 3 & 0x7,
+                atable >> 6 & 0x7,
+                atable >> 9 & 0x7,
+                atable >> 12 & 0x7,
+                atable >> 15 & 0x7,
+                atable >> 18 & 0x7,
+                atable >> 21 & 0x7,
+                atable >> 24 & 0x7,
+                atable >> 27 & 0x7,
+                atable >> 30 & 0x7,
+                atable >> 33 & 0x7,
+                atable >> 36 & 0x7,
+                atable >> 39 & 0x7,
+                atable >> 42 & 0x7,
+                atable >> 45 & 0x7
+            )
+            
+            lookup = (
+                (r0, g0, b0),
+                (r1, g1, b1),
+                (r2, g2, b2),
+                (r3, g3, b3)
+            )
+
+            alookup = (a0, a1, a2, a3, a4, a5, a6, a7)
+
+            bstartrow = brow * 4
+            bstartcol = bcol * 4
+            for row in range(4):
+                for col in range(4):
+                    pix = row*4 + col
+                    r, g, b = lookup[pos[pix]]
+                    a = alookup[apos[pix]]
+                    idx = ((bstartrow + row) * width) + bstartcol + col
+                    red[idx] = r
+                    green[idx] = g
+                    blue[idx] = b
+                    alpha[idx] = a
 
     return red, green, blue, alpha
 
 
 def dxt1_decompress(file, width, height):
     if width % 4 != 0 or height % 4 != 0:
-        raise DXT_Error("Expected resolution: %d x %d" % (width, height))
+        raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
 
     red = array('f', bytearray(width * height * 4))
     green = array('f', bytearray(width * height * 4))
@@ -285,80 +281,76 @@ def dxt1_decompress(file, width, height):
     struct_block = struct.Struct('<HHI')
     coef0 = 2/3
     coef1 = 1/3
-
-    def decompress_block(brow, bcol):
-        nonlocal red, green, blue, alpha
-
-        v0, v1, table = struct_block.unpack(file.read(8))
-        
-        r0 = (v0 >> 11) / 31
-        g0 = ((v0 >> 5) & 0x3f) / 63
-        b0 = (v0 & 0x1f) / 31
-        
-        r1 = (v1 >> 11) / 31
-        g1 = ((v1 >> 5) & 0x3f) / 63
-        b1 = (v1 & 0x1f) / 31
-
-        a0 = a1 = 1
-        
-        if v0 > v1:
-            r2 = coef0 * r0 + coef1 * r1
-            g2 = coef0 * g0 + coef1 * g1
-            b2 = coef0 * b0 + coef1 * b1
-
-            r3 = coef1 * r0 + coef0 * r1
-            g3 = coef1 * g0 + coef0 * g1
-            b3 = coef1 * b0 + coef0 * b1
-            
-            a2 = a3 = 1
-        else:
-            r2 = 0.5 * (r0 + r1)
-            g2 = 0.5 * (g0 + g1)
-            b2 = 0.5 * (b0 + b1)
-            a2 = 1
-
-            r3 = g3 = b3 = a3 = 0
-        
-        pos = (
-            table & 0x3,
-            table >> 2 & 0x3,
-            table >> 4 & 0x3,
-            table >> 6 & 0x3,
-            table >> 8 & 0x3,
-            table >> 10 & 0x3,
-            table >> 12 & 0x3,
-            table >> 14 & 0x3,
-            table >> 16 & 0x3,
-            table >> 18 & 0x3,
-            table >> 20 & 0x3,
-            table >> 22 & 0x3,
-            table >> 24 & 0x3,
-            table >> 26 & 0x3,
-            table >> 28 & 0x3,
-            table >> 30 & 0x3
-        )
-        
-        lookup = (
-            (r0, g0, b0, a0),
-            (r1, g1, b1, a1),
-            (r2, g2, b2, a2),
-            (r3, g3, b3, a3)
-        )
-
-        for row in range(4):
-            for col in range(4):
-                r, g, b, a = lookup[pos[row*4 + col]]
-                idx = (((brow * 4) + row) * width) + bcol * 4 + col
-                red[idx] = r
-                green[idx] = g
-                blue[idx] = b
-                alpha[idx] = a
-
+    
     block_count_w = width // 4
     block_count_h = height // 4
 
-    for row in range(block_count_h):
-        for col in range(block_count_w):
-            decompress_block(row, col)
+    a0 = a1 = a2 = 1
+
+    for brow in range(block_count_h):
+        for bcol in range(block_count_w):
+            v0, v1, table = struct_block.unpack(file.read(8))
+        
+            r0 = (v0 >> 11) / 31
+            g0 = ((v0 >> 5) & 0x3f) / 63
+            b0 = (v0 & 0x1f) / 31
+            
+            r1 = (v1 >> 11) / 31
+            g1 = ((v1 >> 5) & 0x3f) / 63
+            b1 = (v1 & 0x1f) / 31
+            
+            if v0 > v1:
+                r2 = coef0 * r0 + coef1 * r1
+                g2 = coef0 * g0 + coef1 * g1
+                b2 = coef0 * b0 + coef1 * b1
+
+                r3 = coef1 * r0 + coef0 * r1
+                g3 = coef1 * g0 + coef0 * g1
+                b3 = coef1 * b0 + coef0 * b1
+                
+                a3 = 1
+            else:
+                r2 = 0.5 * (r0 + r1)
+                g2 = 0.5 * (g0 + g1)
+                b2 = 0.5 * (b0 + b1)
+
+                r3 = g3 = b3 = a3 = 0
+            
+            pos = (
+                table & 0x3,
+                table >> 2 & 0x3,
+                table >> 4 & 0x3,
+                table >> 6 & 0x3,
+                table >> 8 & 0x3,
+                table >> 10 & 0x3,
+                table >> 12 & 0x3,
+                table >> 14 & 0x3,
+                table >> 16 & 0x3,
+                table >> 18 & 0x3,
+                table >> 20 & 0x3,
+                table >> 22 & 0x3,
+                table >> 24 & 0x3,
+                table >> 26 & 0x3,
+                table >> 28 & 0x3,
+                table >> 30 & 0x3
+            )
+            
+            lookup = (
+                (r0, g0, b0, a0),
+                (r1, g1, b1, a1),
+                (r2, g2, b2, a2),
+                (r3, g3, b3, a3)
+            )
+
+            bstartrow = brow * 4
+            bstartcol = bcol * 4
+            for row in range(4):
+                for col in range(4):
+                    r, g, b, a = lookup[pos[row * 4 + col]]
+                    idx = ((bstartrow + row) * width) + bstartcol + col
+                    red[idx] = r
+                    green[idx] = g
+                    blue[idx] = b
+                    alpha[idx] = a
 
     return red, green, blue, alpha
