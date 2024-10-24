@@ -1,6 +1,6 @@
 # Class structure, read-write methods and conversion functions for handling
 # the MLOD P3D binary data structure. Format specifications
-# can be found on the community wiki (although not withoug errors):
+# can be found on the community wiki (although not without errors):
 # https://community.bistudio.com/wiki/P3D_File_Format_-_MLOD
 
 

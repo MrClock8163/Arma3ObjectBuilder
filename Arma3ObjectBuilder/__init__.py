@@ -356,6 +356,7 @@ modules = (
     ui.import_export_armature,
     ui.import_export_tbcsv,
     ui.import_export_asc,
+    ui.import_export_paa,
     ui.tool_outliner,
     ui.tool_mass,
     ui.tool_materials,
