@@ -436,7 +436,7 @@ class A3OB_OT_rigging_weights_select_unnormalized(bpy.types.Operator):
 
 
 class A3OB_OT_rigging_weights_select_overdetermined(bpy.types.Operator):
-    """Select vertices with more than 3 deform bones assigned"""
+    """Select vertices with more than 4 deform bones assigned"""
     
     bl_idname = "a3ob.rigging_weights_select_overdetermined"
     bl_label = "Select Overdetermined"

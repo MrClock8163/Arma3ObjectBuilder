@@ -69,13 +69,13 @@ def select_vertices_overdetermined(obj, bone_indices):
                 
                 bones += 1
             
-            vert.select_set(bones > 3)
+            vert.select_set(bones > 4)
 
 
-# If a vertex has overdetermined weighting (more than 3 bones affecting it),
+# If a vertex has overdetermined weighting (more than 4 bones affecting it),
 # we might want to prune the excess bones. For each vertex of the mesh,
 # the weights of bone selections are summed up, and the groups are sorted.
-# Only the groups with the top 3 influence sum are left, rest are removed.
+# Only the groups with the top 4 influence sum are left, rest are removed.
 def prune_overdetermined(obj, bone_indices):
     with utils.edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
@@ -92,14 +92,14 @@ def prune_overdetermined(obj, bone_indices):
                 
                 bones.append((key, vert[deform][key]))
             
-            if len(bones) <= 3:
+            if len(bones) <= 4:
                 continue
             
             pruned += 1
             bones.sort(reverse=True, key=lambda item: item[1])
             
             vert[deform].clear()
-            for id, weight in (bones[0:3] + sections):
+            for id, weight in (bones[0:4] + sections):
                 vert[deform][id] = weight
     
     return pruned

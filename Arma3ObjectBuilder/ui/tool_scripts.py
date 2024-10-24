@@ -22,7 +22,8 @@ scripts = {
     },
     "misc": {
         "Convert ATBX to A3OB": "convert_atbx_to_a3ob.py",
-        "Convert BMTR to plain RTM": "convert_bmtr_to_rtm.py"
+        "Convert BMTR to plain RTM": "convert_bmtr_to_rtm.py",
+        "Create dummy P3D": "create_dummy_p3d.py"
     }
 }
 

@@ -464,7 +464,7 @@ def read_file(operator, context, file):
         wm.progress_update(i + 1)
 
     logger.level_down()
-
+    wm.progress_end()
     logger.step("P3D import finished in %f sec" % (time.time() - time_file_start))
     
     return lod_objects
