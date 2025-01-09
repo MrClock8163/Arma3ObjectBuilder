@@ -2,10 +2,10 @@ bl_info = {
     "name": "Arma 3 Object Builder",
     "description": "Collection of tools for editing Arma 3 content",
     "author": "MrClock (present add-on), Hans-Joerg \"Alwarren\" Frieden (original ArmaToolbox add-on)",
-    "version": (2, 5, 0),
+    "version": (2, 5, 1, "dev"),
     "blender": (2, 90, 0),
     "location": "Object Builder panels",
-    "warning": "",
+    "warning": "Development",
     "doc_url": "https://mrcmodding.gitbook.io/arma-3-object-builder/home",
     "tracker_url": "https://github.com/MrClock8163/Arma3ObjectBuilder/issues",
     "category": "Import-Export"
