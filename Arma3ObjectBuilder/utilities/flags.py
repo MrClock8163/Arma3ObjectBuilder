@@ -138,13 +138,14 @@ def assign_group_vertex(obj, group_id):
 
 
 def select_group_vertex(obj, group_id, select = True):
+    group_count = len(obj.a3ob_properties_object_flags.vertex)
     with utils.edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         
         layer = get_layer_flags_vertex(bm)
-        
         for vertex in bm.verts:
-            if vertex[layer] == group_id:
+            value = vertex[layer]
+            if value == group_id or (group_id == 0 and not (0 <= value < group_count)):
                 vertex.select = select
 
 
@@ -178,13 +179,14 @@ def assign_group_face(obj, group_id):
 
 
 def select_group_face(obj, group_id, select = True):
+    group_count = len(obj.a3ob_properties_object_flags.face)
     with utils.edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
         
         layer = get_layer_flags_face(bm)
-        
         for face in bm.faces:
-            if face[layer] == group_id:
+            value = face[layer]
+            if value == group_id or (group_id == 0 and not (0 <= value < group_count)):
                 face.select = select
 
 
