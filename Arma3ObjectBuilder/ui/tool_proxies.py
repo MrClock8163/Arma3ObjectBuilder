@@ -9,7 +9,7 @@ from .. import get_icon
 from ..utilities import generic as utils
 from ..utilities import lod as lodutils
 from ..utilities import compat as computils
-from ..io import import_p3d
+from ..p3d import importer
 
 
 class A3OB_OT_proxy_realign_ocs(bpy.types.Operator):
@@ -26,7 +26,7 @@ class A3OB_OT_proxy_realign_ocs(bpy.types.Operator):
     
     def execute(self, context):
         obj = context.active_object
-        import_p3d.transform_proxy(obj)
+        importer.transform_proxy(obj)
             
         return {'FINISHED'}
 
@@ -137,7 +137,7 @@ class A3OB_OT_proxy_extract(bpy.types.Operator):
         self.filepath = utils.abspath(proxy_object.a3ob_properties_object_proxy.proxy_path)
         with open(self.filepath, "rb") as file:
             try:
-                lod_objects = import_p3d.read_file(self, context, file)
+                lod_objects = importer.read_file(self, context, file)
                 imported_object = lod_objects[0]
                 imported_object.matrix_world = proxy_object.matrix_world
                 imported_object.name = os.path.basename(self.filepath)

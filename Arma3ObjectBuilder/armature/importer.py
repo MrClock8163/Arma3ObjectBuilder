@@ -5,7 +5,7 @@
 import bpy
 from mathutils import Vector
 
-from ..io import data_p3d
+from ..p3d import data
 from ..utilities.logger import ProcessLogger
 
 
@@ -54,8 +54,8 @@ def fake_pivot_coords(unknown, pivots):
 
 
 def read_pivots(pivots_path):
-    p3d_data = data_p3d.P3D_MLOD.read_file(pivots_path)
-    memory = p3d_data.find_lod(data_p3d.P3D_LOD_Resolution.MEMORY)
+    p3d_data = data.P3D_MLOD.read_file(pivots_path)
+    memory = p3d_data.find_lod(data.P3D_LOD_Resolution.MEMORY)
     if not memory:
         return {}
     

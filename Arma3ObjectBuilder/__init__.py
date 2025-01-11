@@ -19,8 +19,6 @@ if "bpy" in locals():
     
     if "utilities" in locals():
         reload(utilities)
-    if "io" in locals():
-        reload(io)
     if "props" in locals():
         reload(props)
     if "ui" in locals():
@@ -46,7 +44,6 @@ def get_prefs():
 
 
 from . import utilities
-from . import io
 from . import props
 from . import ui
 

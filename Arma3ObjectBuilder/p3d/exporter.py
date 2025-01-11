@@ -10,7 +10,7 @@ from contextlib import contextmanager
 import bpy
 import bmesh
 
-from . import data_p3d as p3d
+from . import data as p3d
 from .. import get_prefs
 from ..utilities import generic as utils
 from ..utilities import flags as flagutils

@@ -8,7 +8,7 @@ import struct
 import math
 import re
 
-from . import binary_handler as binary
+from .. import binary
 
 
 class P3D_Error(Exception):

@@ -2,7 +2,7 @@ import bpy
 import bpy_extras
 
 from .. import get_prefs
-from ..io import import_p3d, export_p3d
+from ..p3d import importer, exporter
 from ..utilities import generic as utils
 
 
@@ -98,7 +98,7 @@ class A3OB_OP_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     
     def execute(self, context):        
         with open(self.filepath, "rb") as file:
-            lod_objects = import_p3d.read_file(self, context, file)
+            lod_objects = importer.read_file(self, context, file)
             utils.op_report(self, {'INFO'}, "Successfully imported %d LODs (check the logs in the system console)" % len(lod_objects))
         
         return {'FINISHED'}
@@ -318,16 +318,16 @@ class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         pass
     
     def execute(self, context):        
-        if not export_p3d.can_export(self, context):
+        if not exporter.can_export(self, context):
             utils.op_report(self, {'ERROR'}, "There are no LODs to export")
             return {'FINISHED'}
         
-        temp_collection = export_p3d.create_temp_collection(context)
+        temp_collection = exporter.create_temp_collection(context)
 
         with utils.ExportFileHandler(self.filepath, "wb") as file:
             # The export needs to be put inside a try-catch block in order to do the temporary object cleanup.
             try:
-                lod_count, exported_count = export_p3d.write_file(self, context, file, temp_collection)
+                lod_count, exported_count = exporter.write_file(self, context, file, temp_collection)
 
                 if lod_count == exported_count:
                     utils.op_report(self, {'INFO'}, "Successfully exported all %d LODs (check the logs in the system console)" % exported_count)
@@ -336,7 +336,7 @@ class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
 
             finally:
                 if not get_prefs().preserve_preprocessed_lods:
-                    export_p3d.cleanup_temp_collection(temp_collection) 
+                    exporter.cleanup_temp_collection(temp_collection) 
         
         return {'FINISHED'}
 
