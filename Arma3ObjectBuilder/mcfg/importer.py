@@ -7,7 +7,7 @@ import tempfile
 import subprocess
 
 from .. import get_prefs
-from . import config
+from .. import config
 from ..utilities.logger import ProcessLogger
 
 

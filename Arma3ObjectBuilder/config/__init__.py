@@ -2,19 +2,6 @@
 # internal data structures, and IO operations.
 
 
-from importlib import reload
-
-
-if "data" in locals():
-    reload(data)
-if "tokenizer" in locals():
-    reload(tokenizer)
-if "parser" in locals():
-    reload(parser)
-if "derapifier" in locals():
-    reload(derapifier)
-
-
 from . import data
 from . import tokenizer
 from . import parser

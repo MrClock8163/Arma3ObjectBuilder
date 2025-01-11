@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..io import import_mcfg, export_mcfg
+from ..mcfg import importer, exporter
 from ..utilities import generic as utils
 from ..utilities.validator import Validator
 from ..utilities.logger import ProcessLoggerNull
@@ -38,7 +38,7 @@ class A3OB_OP_import_mcfg(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         pass
 
     def execute(self, context):
-        count_skeletons = import_mcfg.read_file(self, context)
+        count_skeletons = importer.read_file(self, context)
         
         if count_skeletons > 0:
             utils.op_report(self, {'INFO'}, "Successfully imported %d skeleton(s)" % count_skeletons)
@@ -112,7 +112,7 @@ class A3OB_OP_export_mcfg(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
             return {'FINISHED'}
         
         with utils.ExportFileHandler(self.filepath, "w") as file:
-            export_mcfg.write_file(self, skeleton, file)
+            exporter.write_file(self, skeleton, file)
             utils.op_report(self, {'INFO'}, "Successfuly exported %s" % skeleton.name)
 
         return {'FINISHED'}

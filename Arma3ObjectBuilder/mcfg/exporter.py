@@ -1,7 +1,7 @@
 # Writer functions to export text formatted model.cfg file.
 
 
-from . import config
+from .. import config
 from ..utilities import rigging as riggingutils
 from ..utilities.logger import ProcessLogger
 

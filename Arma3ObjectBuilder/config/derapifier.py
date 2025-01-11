@@ -3,7 +3,7 @@
 
 
 from . import data
-from .. import binary_handler as binary
+from .. import binary
 
 
 class RAP_Error(Exception):
