@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..io import import_armature as arm
+from ..armature import importer
 from ..utilities import rigging as riggingutils
 from ..utilities import generic as utils
 
@@ -47,7 +47,7 @@ class A3OB_OP_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelp
             utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
             return {'FINISHED'}
 
-        arm.import_armature(self, skeleton)
+        importer.import_armature(self, skeleton)
 
         return {'FINISHED'}
 
