@@ -7,7 +7,7 @@ import time
 
 import bpy
 
-from . import data_paa as paa
+from ..paa import data as paa
 from ..utilities.logger import ProcessLogger
 
 

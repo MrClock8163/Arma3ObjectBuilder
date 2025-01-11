@@ -9,8 +9,8 @@ from enum import IntEnum
 from io import BytesIO, BufferedReader
 from copy import deepcopy
 
-from . import binary_handler as binary
-from .compression import dxt1_decompress, dxt5_decompress, lzo1x_decompress
+from .. import binary
+from ..compression import dxt1_decompress, dxt5_decompress, lzo1x_decompress
 
 
 class PAA_Error(Exception):

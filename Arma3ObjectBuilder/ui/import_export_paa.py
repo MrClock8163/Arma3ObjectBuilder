@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..io import import_paa
+from ..paa import importer
 from ..utilities import generic as utils
 
 
@@ -36,7 +36,7 @@ class A3OB_OP_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
     
     def execute(self, context):
         with open(self.filepath, "rb") as file:
-            img, tex = import_paa.import_file(self, context, file)
+            img, tex = importer.import_file(self, context, file)
         
         if img is not None:
             utils.op_report(self, {'INFO'}, "Texture successfully imported as %s" % img.name)
