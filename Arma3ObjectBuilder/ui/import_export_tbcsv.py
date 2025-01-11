@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..tbcsv import importer, exporter
+from ..io_tbcsv import importer, exporter
 from ..utilities import generic as utils
 
 

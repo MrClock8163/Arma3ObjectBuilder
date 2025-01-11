@@ -5,7 +5,7 @@
 import bpy
 from mathutils import Vector
 
-from ..p3d import data
+from ..io_p3d import data
 from ..logger import ProcessLogger
 
 

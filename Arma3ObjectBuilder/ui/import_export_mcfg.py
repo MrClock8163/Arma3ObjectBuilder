@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..mcfg import importer, exporter
+from ..io_mcfg import importer, exporter
 from ..utilities import generic as utils
 from ..utilities.validator import Validator
 from ..logger import ProcessLoggerNull

@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..armature import importer
+from ..io_armature import importer
 from ..utilities import rigging as riggingutils
 from ..utilities import generic as utils
 

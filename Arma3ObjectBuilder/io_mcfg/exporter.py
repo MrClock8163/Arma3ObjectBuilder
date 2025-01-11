@@ -1,7 +1,7 @@
 # Writer functions to export text formatted model.cfg file.
 
 
-from .. import config
+from .. import io_config
 from ..utilities import rigging as riggingutils
 from ..logger import ProcessLogger
 
@@ -37,7 +37,7 @@ def write_file(operator, skeleton, file):
         }
     }
 
-    cfg = config.from_dict(data)
+    cfg = io_config.from_dict(data)
     file.write(cfg.format())
 
     logger.step("Wrote formatted file")

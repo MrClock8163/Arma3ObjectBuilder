@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..rtm import importer, exporter
+from ..io_rtm import importer, exporter
 from ..utilities import generic as utils
 from ..utilities.validator import Validator
 from ..logger import ProcessLoggerNull

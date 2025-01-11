@@ -7,7 +7,7 @@ import tempfile
 import subprocess
 
 from .. import get_prefs
-from .. import config
+from .. import io_config
 from ..logger import ProcessLogger
 
 
@@ -66,9 +66,9 @@ def cfgconvert(filepath, exepath):
 def read_mcfg(filepath, logger):
     data = None
     try:
-        tokens = config.tokenize_file(filepath)
-        tokens = config.wrap(tokens, "root")
-        data = config.parse(tokens)
+        tokens = io_config.tokenize_file(filepath)
+        tokens = io_config.wrap(tokens, "root")
+        data = io_config.parse(tokens)
         return data
     except:
         logger.step("Failed to directly parse model.cfg -> attempting rapification")
@@ -85,7 +85,7 @@ def read_mcfg(filepath, logger):
             logger.step("Failed to rapify file")
             return None
         
-        data = config.derapify_file(temppath)
+        data = io_config.derapify_file(temppath)
         os.remove(temppath)
         return data
     except:

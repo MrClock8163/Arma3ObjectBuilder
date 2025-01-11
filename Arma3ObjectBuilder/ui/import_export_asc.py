@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..asc import importer, exporter
+from ..io_asc import importer, exporter
 from ..utilities import generic as utils
 
 

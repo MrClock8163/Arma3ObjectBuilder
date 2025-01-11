@@ -9,7 +9,7 @@ from .. import get_icon
 from ..utilities import generic as utils
 from ..utilities import lod as lodutils
 from ..utilities import compat as computils
-from ..p3d import importer
+from ..io_p3d import importer
 
 
 class A3OB_OT_proxy_realign_ocs(bpy.types.Operator):

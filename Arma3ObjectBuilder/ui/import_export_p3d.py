@@ -2,7 +2,7 @@ import bpy
 import bpy_extras
 
 from .. import get_prefs
-from ..p3d import importer, exporter
+from ..io_p3d import importer, exporter
 from ..utilities import generic as utils
 
 
