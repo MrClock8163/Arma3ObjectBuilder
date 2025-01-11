@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..io import import_asc, export_asc
+from ..asc import importer, exporter
 from ..utilities import generic as utils
 
 
@@ -35,7 +35,7 @@ class A3OB_OP_import_asc(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     
     def execute(self, context):        
         with open(self.filepath) as file:
-            import_asc.read_file(self, context, file)
+            importer.read_file(self, context, file)
             utils.op_report(self, {'INFO'}, "Successfully imported DTM")
         
         return {'FINISHED'}
@@ -115,7 +115,7 @@ class A3OB_OP_export_asc(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         obj = context.active_object
         
         with utils.ExportFileHandler(self.filepath, "wt") as file:
-            export_asc.write_file(self, context, file, obj)
+            exporter.write_file(self, context, file, obj)
             utils.op_report(self, {'INFO'}, "Successfuly exported DTM")
         
         return {'FINISHED'}

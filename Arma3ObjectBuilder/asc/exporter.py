@@ -5,7 +5,7 @@
 import math
 import time
 
-from . import data_asc as asc
+from . import data as asc
 from ..utilities.logger import ProcessLogger
 
 
