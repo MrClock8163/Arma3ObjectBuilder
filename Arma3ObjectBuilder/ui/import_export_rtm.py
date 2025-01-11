@@ -1,7 +1,7 @@
 import bpy
 import bpy_extras
 
-from ..io import export_rtm, import_rtm
+from ..rtm import importer, exporter
 from ..utilities import generic as utils
 from ..utilities.validator import Validator
 from ..utilities.logger import ProcessLoggerNull
@@ -102,7 +102,7 @@ class A3OB_OP_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
             return {'FINISHED'}
 
         with utils.ExportFileHandler(self.filepath, "wb") as file:
-            static, frame_count = export_rtm.write_file(self, context, file, obj, action)
+            static, frame_count = exporter.write_file(self, context, file, obj, action)
         
             if not self.static_pose and static:
                 utils.op_report(self, {'INFO'}, "Exported as static pose")
@@ -259,7 +259,7 @@ class A3OB_OP_import_rtm(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     
     def execute(self, context):
         with open(self.filepath, "rb") as file:
-            count_frames = import_rtm.import_file(self, context, file)
+            count_frames = importer.import_file(self, context, file)
         
         if count_frames > 0:
             utils.op_report(self, {'INFO'}, "Successfully imported %d frame(s)" % count_frames)

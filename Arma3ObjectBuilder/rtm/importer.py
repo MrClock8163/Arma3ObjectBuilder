@@ -9,7 +9,7 @@ from itertools import chain
 import bpy
 from mathutils import Matrix, Vector
 
-from . import data_rtm as rtm
+from . import data as rtm
 from ..utilities.logger import ProcessLogger
 
 

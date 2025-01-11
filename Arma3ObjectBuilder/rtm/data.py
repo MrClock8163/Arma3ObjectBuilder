@@ -9,8 +9,8 @@ import struct
 from io import BytesIO, BufferedReader
 import numpy as np
 
-from . import binary_handler as binary
-from .compression import lzo1x_decompress, LZO_Error
+from .. import binary
+from ..compression import lzo1x_decompress, LZO_Error
 
 
 class RTM_Error(Exception):

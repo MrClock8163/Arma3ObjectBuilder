@@ -5,7 +5,7 @@
 import time
 import mathutils
 
-from . import data_rtm as rtm
+from . import data as rtm
 from ..utilities.logger import ProcessLogger
 
 
