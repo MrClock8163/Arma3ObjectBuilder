@@ -2,8 +2,8 @@ import bpy
 import bpy_extras
 
 from ..io_rtm import importer, exporter
+from ..io_mcfg.validator import SkeletonValidator
 from ..utilities import generic as utils
-from ..utilities.validator import Validator
 from ..logger import ProcessLoggerNull
 
 
@@ -96,8 +96,8 @@ class A3OB_OP_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         
         scene_props = context.scene.a3ob_rigging
         skeleton = scene_props.skeletons[self.skeleton_index]
-        validator = Validator(ProcessLoggerNull())
-        if not validator.validate_skeleton(skeleton, True, True):
+        validator = SkeletonValidator(ProcessLoggerNull())
+        if not validator.validate(skeleton, True, True):
             utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
             return {'FINISHED'}
 

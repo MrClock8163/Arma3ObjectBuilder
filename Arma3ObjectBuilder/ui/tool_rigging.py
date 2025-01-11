@@ -2,10 +2,10 @@ import bpy
 
 from .. import get_icon
 from ..logger import ProcessLogger
+from ..io_mcfg.validator import SkeletonValidator
 from ..utilities import generic as utils
 from ..utilities import rigging as riggingutils
 from ..utilities import data
-from ..utilities.validator import Validator
 
 
 def get_skeleton(scene_props):
@@ -211,8 +211,8 @@ class A3OB_OT_rigging_skeletons_validate(bpy.types.Operator):
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = scene_props.skeletons[scene_props.skeletons_index]
-        validator = Validator(ProcessLogger())
-        success = validator.validate_skeleton(skeleton, self.for_rtm)
+        validator = SkeletonValidator(ProcessLogger())
+        success = validator.validate(skeleton, self.for_rtm)
 
         if success:
             self.report({'INFO'}, "Validation succeeded")
