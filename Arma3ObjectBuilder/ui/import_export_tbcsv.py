@@ -1,8 +1,7 @@
 import bpy
 import bpy_extras
 
-
-from ..io import import_tbcsv, export_tbcsv
+from ..tbcsv import importer, exporter
 from ..utilities import generic as utils
 
 
@@ -58,7 +57,7 @@ class A3OB_OP_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper)
 
     def execute(self, context):
         with open(self.filepath, "rt") as file:
-            count_read, count_found = import_tbcsv.read_file(self, context, file)
+            count_read, count_found = importer.read_file(self, context, file)
 
         if count_found > 0:
             utils.op_report(self, {'INFO'}, "Successfully imported %d/%d object positions (check the logs in the system console)" % (count_found, count_read))
@@ -142,7 +141,7 @@ class A3OB_OP_export_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ExportHelper)
             return {'FINISHED'}
         
         with utils.ExportFileHandler(self.filepath, "wt") as file:
-            count = export_tbcsv.write_file(self, context, file)
+            count = exporter.write_file(self, context, file)
 
         if count > 0:
             utils.op_report(self, {'INFO'}, "Successfully exported %d object positions (check the logs in the system console)" % count)

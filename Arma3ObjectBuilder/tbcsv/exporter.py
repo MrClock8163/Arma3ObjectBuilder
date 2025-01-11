@@ -8,7 +8,7 @@ import math
 
 import bpy
 
-from . import data_tbcsv as tb
+from . import data as tb
 from ..utilities.logger import ProcessLogger
 
 
