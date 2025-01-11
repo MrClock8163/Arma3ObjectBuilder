@@ -18,7 +18,7 @@ from ..utilities import proxy as proxyutils
 from ..utilities import flags as flagutils
 from ..utilities import structure as structutils
 from ..utilities import data
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def categorize_lods(operator, context, mlod):

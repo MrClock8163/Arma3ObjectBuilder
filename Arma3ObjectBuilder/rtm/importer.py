@@ -10,7 +10,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 from . import data as rtm
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def mute_constraints(obj, bones):

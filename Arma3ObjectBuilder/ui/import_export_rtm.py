@@ -4,7 +4,7 @@ import bpy_extras
 from ..rtm import importer, exporter
 from ..utilities import generic as utils
 from ..utilities.validator import Validator
-from ..utilities.logger import ProcessLoggerNull
+from ..logger import ProcessLoggerNull
 
 
 class A3OB_OP_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):

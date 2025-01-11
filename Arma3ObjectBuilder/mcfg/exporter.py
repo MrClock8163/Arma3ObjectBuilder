@@ -3,7 +3,7 @@
 
 from .. import config
 from ..utilities import rigging as riggingutils
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def write_file(operator, skeleton, file):

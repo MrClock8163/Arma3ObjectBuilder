@@ -6,7 +6,7 @@ import bpy
 from mathutils import Vector
 
 from ..p3d import data
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def vector_average(vectors):

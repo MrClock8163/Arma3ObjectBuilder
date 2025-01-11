@@ -9,7 +9,7 @@ import math
 import bpy
 
 from . import data as tb
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def include_object(obj, operator):

@@ -1,11 +1,11 @@
 import bpy
 
 from .. import get_icon
+from ..logger import ProcessLogger
 from ..utilities import generic as utils
 from ..utilities import rigging as riggingutils
 from ..utilities import data
 from ..utilities.validator import Validator
-from ..utilities.logger import ProcessLogger
 
 
 def get_skeleton(scene_props):

@@ -10,7 +10,7 @@ import bpy
 import mathutils
 
 from . import data as tb
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def object_records(operator, tbcsv):    

@@ -7,7 +7,7 @@ import time
 import bpy
 
 from . import data as asc
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
     
     
 def build_points(raster, hscale = 1, vscale = 1):

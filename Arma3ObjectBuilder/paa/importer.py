@@ -8,7 +8,7 @@ import time
 import bpy
 
 from ..paa import data as paa
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def import_file(operator, context, file):

@@ -3,7 +3,7 @@ import bpy
 from .. import get_icon
 from ..utilities import generic as utils
 from ..utilities.validator import Validator
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 class A3OB_OT_validate_lod(bpy.types.Operator):

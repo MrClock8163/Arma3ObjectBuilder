@@ -6,7 +6,7 @@ import math
 import time
 
 from . import data as asc
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def calc_resolution(operator, count_vertex):

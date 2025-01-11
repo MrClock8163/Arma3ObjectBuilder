@@ -6,7 +6,7 @@ import time
 import mathutils
 
 from . import data as rtm
-from ..utilities.logger import ProcessLogger
+from ..logger import ProcessLogger
 
 
 def build_frame_list(operator, action):

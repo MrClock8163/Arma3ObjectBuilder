@@ -17,8 +17,8 @@ from ..utilities import flags as flagutils
 from ..utilities import compat as computils
 from ..utilities import structure as structutils
 from ..utilities import data
-from ..utilities.logger import ProcessLogger, ProcessLoggerNull
 from ..utilities.validator import Validator
+from ..logger import ProcessLogger, ProcessLoggerNull
 
 
 # Simple check to not even start the export if there are

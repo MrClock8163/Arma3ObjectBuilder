@@ -3,8 +3,6 @@ if "data" in locals():
     
     if "data" in locals():
         reload(data)
-    if "logger" in locals():
-        reload(logger)
     if "compat" in locals():
         reload(compat)
     if "clouds" in locals():
@@ -35,7 +33,6 @@ if "data" in locals():
 
 # In order of dependency
 from . import data
-from . import logger
 from . import compat
 from . import clouds
 from . import colors
