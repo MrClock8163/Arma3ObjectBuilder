@@ -2,7 +2,7 @@ import bpy
 import bpy_extras
 
 from ..io_paa import importer
-from ..utilities import generic as utils
+from .. import utils
 
 
 class A3OB_OP_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):

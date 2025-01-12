@@ -5,7 +5,7 @@ import re
 
 import bpy
 
-from . import generic as utils
+from .. import utils
 from . import compat as computils
 
 

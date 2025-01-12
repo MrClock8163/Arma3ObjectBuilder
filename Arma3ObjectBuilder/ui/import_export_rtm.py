@@ -3,7 +3,8 @@ import bpy_extras
 
 from ..io_rtm import importer, exporter
 from ..io_mcfg.validator import SkeletonValidator
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 from ..logger import ProcessLoggerNull
 
 
@@ -101,7 +102,7 @@ class A3OB_OP_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
             utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
             return {'FINISHED'}
 
-        with utils.ExportFileHandler(self.filepath, "wb") as file:
+        with utils_io.ExportFileHandler(self.filepath, "wb") as file:
             static, frame_count = exporter.write_file(self, context, file, obj, action)
         
             if not self.static_pose and static:

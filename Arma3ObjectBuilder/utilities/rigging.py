@@ -3,7 +3,7 @@
 
 import bpy
 
-from . import generic as utils
+from .. import utils
 
 
 # It's easier to prepare a list of the vertex group indices that

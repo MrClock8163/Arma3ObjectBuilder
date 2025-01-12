@@ -3,7 +3,7 @@ import bpy
 from .. import get_icon
 from ..logger import ProcessLogger
 from ..io_mcfg.validator import SkeletonValidator
-from ..utilities import generic as utils
+from .. import utils
 from ..utilities import rigging as riggingutils
 from ..utilities import data
 

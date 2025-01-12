@@ -1,6 +1,6 @@
 import bpy
 
-from ..utilities import generic as utils
+from .. import utils
 
 
 class A3OB_OT_paste_common_material(bpy.types.Operator):

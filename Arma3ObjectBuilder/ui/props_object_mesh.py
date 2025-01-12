@@ -1,7 +1,7 @@
 import bpy
 
 from .. import get_prefs, get_icon
-from ..utilities import generic as utils
+from .. import utils
 from ..utilities import data
 from ..utilities import proxy as proxyutils
 from ..utilities import flags as flagutils

@@ -2,7 +2,7 @@
 
 
 from . import data
-from . import generic as utils
+from .. import utils
 
 
 def get_layer_flags_vertex(bm, create = True):

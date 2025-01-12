@@ -6,7 +6,8 @@ import bpy
 import mathutils
 
 from .. import get_icon
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 from ..utilities import lod as lodutils
 from ..utilities import compat as computils
 from ..io_p3d import importer
@@ -129,12 +130,12 @@ class A3OB_OT_proxy_extract(bpy.types.Operator):
         if not obj:
             return False
             
-        path = utils.abspath(obj.a3ob_properties_object_proxy.proxy_path)
+        path = utils_io.abspath(obj.a3ob_properties_object_proxy.proxy_path)
         return obj.type == 'MESH' and len(context.selected_objects) == 1 and obj.a3ob_properties_object_proxy.is_a3_proxy and os.path.exists(path) and os.path.splitext(path)[1].lower() == '.p3d'
     
     def execute(self, context):
         proxy_object = context.active_object
-        self.filepath = utils.abspath(proxy_object.a3ob_properties_object_proxy.proxy_path)
+        self.filepath = utils_io.abspath(proxy_object.a3ob_properties_object_proxy.proxy_path)
         with open(self.filepath, "rb") as file:
             try:
                 lod_objects = importer.read_file(self, context, file)

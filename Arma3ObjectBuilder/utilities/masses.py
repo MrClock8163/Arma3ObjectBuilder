@@ -8,7 +8,7 @@ import bmesh
 from mathutils import Vector
 from mathutils.kdtree import KDTree
 
-from . import generic as utils
+from .. import utils
 
 
 def can_edit_mass(context):

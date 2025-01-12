@@ -3,7 +3,8 @@ import bpy_extras
 
 from .. import get_prefs
 from ..io_p3d import importer, exporter
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 
 
 class A3OB_OP_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -324,7 +325,7 @@ class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         
         temp_collection = exporter.create_temp_collection(context)
 
-        with utils.ExportFileHandler(self.filepath, "wb") as file:
+        with utils_io.ExportFileHandler(self.filepath, "wb") as file:
             # The export needs to be put inside a try-catch block in order to do the temporary object cleanup.
             try:
                 lod_count, exported_count = exporter.write_file(self, context, file, temp_collection)

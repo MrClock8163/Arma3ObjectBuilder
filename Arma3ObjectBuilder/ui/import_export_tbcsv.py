@@ -2,7 +2,8 @@ import bpy
 import bpy_extras
 
 from ..io_tbcsv import importer, exporter
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 
 
 class A3OB_OP_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -140,7 +141,7 @@ class A3OB_OP_export_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ExportHelper)
             utils.op_report(self, {'ERROR'}, "Collection name can only be used when exporting a collection")
             return {'FINISHED'}
         
-        with utils.ExportFileHandler(self.filepath, "wt") as file:
+        with utils_io.ExportFileHandler(self.filepath, "wt") as file:
             count = exporter.write_file(self, context, file)
 
         if count > 0:

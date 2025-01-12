@@ -2,8 +2,8 @@ import bpy
 import bpy_extras
 
 from ..io_armature import importer
+from .. import utils
 from ..utilities import rigging as riggingutils
-from ..utilities import generic as utils
 
 
 class A3OB_OP_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):

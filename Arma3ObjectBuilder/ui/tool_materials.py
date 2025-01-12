@@ -3,7 +3,7 @@ import os
 import bpy
 
 from .. import get_prefs, get_icon
-from ..utilities import generic as utils
+from .. import utils
 from ..utilities import materials as matutils
 
 

@@ -4,7 +4,8 @@ import bpy
 from bpy.app.handlers import persistent
 
 from .. import get_prefs
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 from ..utilities import masses as massutils
 from ..utilities import lod as lodutils
 from ..utilities import flags as flagutils
@@ -256,14 +257,14 @@ class A3OB_PG_properties_object_proxy(bpy.types.PropertyGroup):
     )
     
     def to_placeholder(self, relative):
-        path = utils.format_path(utils.abspath(self.proxy_path), utils.abspath(get_prefs().project_root), relative, False)
+        path = utils_io.format_path(utils_io.abspath(self.proxy_path), utils_io.abspath(get_prefs().project_root), relative, False)
         if relative and len(path) > 0 and path[0] != "\\":
             path = "\\" + path
         
         return path, self.proxy_index
     
     def get_name(self):
-        name = os.path.basename(os.path.splitext(utils.abspath(self.proxy_path))[0]).strip()
+        name = os.path.basename(os.path.splitext(utils_io.abspath(self.proxy_path))[0]).strip()
         if name == "":
             name = "unknown"
             

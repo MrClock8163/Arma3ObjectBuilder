@@ -1,7 +1,7 @@
 import bpy
 
 from .. import get_icon
-from ..utilities import generic as utils
+from .. import utils
 from ..utilities.validator import Validator
 from ..logger import ProcessLogger
 

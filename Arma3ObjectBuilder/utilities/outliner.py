@@ -1,7 +1,7 @@
 # Backend functions for the LOD object outliner panel.
 
 
-from . import generic as utils
+from .. import utils
 
 
 def update_outliner(scene):

@@ -2,7 +2,7 @@ from math import floor, ceil
 
 import bpy
 
-from ..utilities import generic as utils
+from .. import utils
 
 
 def get_action(obj):

@@ -2,7 +2,7 @@ import bpy
 from bpy.app.handlers import persistent
 
 from .. import get_prefs
-from ..utilities import generic as utils
+from .. import utils
 from ..utilities import outliner as linerutils
 
 

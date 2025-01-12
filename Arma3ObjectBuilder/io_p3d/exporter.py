@@ -11,8 +11,9 @@ import bpy
 import bmesh
 
 from . import data as p3d
+from . import utils as p3d_utils
 from .. import get_prefs
-from ..utilities import generic as utils
+from .. import utils
 from ..utilities import flags as flagutils
 from ..utilities import compat as computils
 from ..utilities import structure as structutils
@@ -186,10 +187,10 @@ def merge_proxy_objects(main_obj, proxy_objects, relative):
             face.use_smooth = False
 
         placeholder = "@proxy_%d" % i
-        utils.create_selection(proxy, placeholder)
+        p3d_utils.create_selection(proxy, placeholder)
         proxy_lookup[placeholder] = proxy.a3ob_properties_object_proxy.to_placeholder(relative)
 
-        utils.clear_uvs(proxy)
+        p3d_utils.clear_uvs(proxy)
 
     all_objects = proxy_objects + [main_obj]
     for obj in proxy_objects:
@@ -274,7 +275,7 @@ def sort_sections(obj):
 
 def cleanup_uvs(obj):
     if int(obj.a3ob_properties_object.lod) not in data.lod_allow_uvs:
-        utils.clear_uvs(obj)
+        p3d_utils.clear_uvs(obj)
 
 
 def cleanup_normals(operator, obj):

@@ -2,7 +2,8 @@ import bpy
 import bpy_extras
 
 from ..io_asc import importer, exporter
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 
 
 class A3OB_OP_import_asc(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -114,7 +115,7 @@ class A3OB_OP_export_asc(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     def execute(self, context):        
         obj = context.active_object
         
-        with utils.ExportFileHandler(self.filepath, "wt") as file:
+        with utils_io.ExportFileHandler(self.filepath, "wt") as file:
             exporter.write_file(self, context, file, obj)
             utils.op_report(self, {'INFO'}, "Successfuly exported DTM")
         

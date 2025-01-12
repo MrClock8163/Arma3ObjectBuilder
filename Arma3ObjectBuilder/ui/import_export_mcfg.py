@@ -3,7 +3,8 @@ import bpy_extras
 
 from ..io_mcfg import importer, exporter
 from ..io_mcfg.validator import SkeletonValidator
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 from ..logger import ProcessLoggerNull
 
 
@@ -111,7 +112,7 @@ class A3OB_OP_export_mcfg(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
             utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for more info")
             return {'FINISHED'}
         
-        with utils.ExportFileHandler(self.filepath, "w") as file:
+        with utils_io.ExportFileHandler(self.filepath, "w") as file:
             exporter.write_file(self, skeleton, file)
             utils.op_report(self, {'INFO'}, "Successfuly exported %s" % skeleton.name)
 

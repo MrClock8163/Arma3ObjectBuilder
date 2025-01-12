@@ -11,7 +11,8 @@ import bmesh
 import mathutils
 
 from . import data as p3d
-from ..utilities import generic as utils
+from .. import utils
+from .. import utils_io
 from ..utilities import lod as lodutils
 from ..utilities import compat as computils
 from ..utilities import proxy as proxyutils
@@ -257,7 +258,7 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             
             path, index = proxy_lookup[vgroup.name]
             proxy_obj.vertex_groups.remove(vgroup)
-            proxy_obj.a3ob_properties_object_proxy.proxy_path = utils.restore_absolute(path, ".p3d") if operator.absolute_paths else path
+            proxy_obj.a3ob_properties_object_proxy.proxy_path = utils_io.restore_absolute(path, ".p3d") if operator.absolute_paths else path
             proxy_obj.a3ob_properties_object_proxy.proxy_index = index
 
             proxy_obj.a3ob_properties_object_flags.vertex.clear()
