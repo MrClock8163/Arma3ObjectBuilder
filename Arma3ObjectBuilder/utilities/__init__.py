@@ -11,8 +11,6 @@ if "data" in locals():
         reload(proxy)
     if "renaming" in locals():
         reload(renaming)
-    if "validator" in locals():
-        reload(validator)
     if "flags" in locals():
         reload(flags)
     if "lod" in locals():
@@ -33,7 +31,6 @@ from . import clouds
 from . import colors
 from . import proxy
 from . import renaming
-from . import validator
 from . import flags
 from . import lod
 from . import masses

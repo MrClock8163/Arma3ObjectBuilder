@@ -2,7 +2,7 @@ import bpy
 
 from .. import get_icon
 from .. import utils
-from ..utilities.validator import Validator
+from ..io_p3d.validator import LODValidator
 from ..logger import ProcessLogger
 
 
@@ -32,11 +32,11 @@ class A3OB_OT_validate_lod(bpy.types.Operator):
                 self.report({'ERROR'}, "No validation rules for detected LOD type")
                 return {'FINISHED'}
         
-        processor = Validator(ProcessLogger())
+        processor = LODValidator(ProcessLogger())
         processor.setup_lod_specific()
-        valid = processor.validate_lod(obj, scene_props.lod, False, scene_props.warning_errors, scene_props.relative_paths)
+        valid = processor.validate(obj, scene_props.lod, False, scene_props.warning_errors, scene_props.relative_paths)
         for proxy in [item for item in obj.children if item.type == 'MESH' and item.a3ob_properties_object_proxy.is_a3_proxy]:
-            valid &= processor.validate_lod(proxy, '1', False, scene_props.warning_errors, scene_props.relative_paths)
+            valid &= processor.validate(proxy, '1', False, scene_props.warning_errors, scene_props.relative_paths)
 
             if len(proxy.data.polygons) != 1 or len(proxy.data.polygons[0].vertices) != 3:
                 print("\tProxy has more than 1 face or the face is not a triangle")

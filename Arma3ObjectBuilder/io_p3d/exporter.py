@@ -12,13 +12,13 @@ import bmesh
 
 from . import data as p3d
 from . import utils as p3d_utils
+from .validator import LODValidator
 from .. import get_prefs
 from .. import utils
 from .. import utils_compat as computils
 from ..utilities import flags as flagutils
 from ..utilities import structure as structutils
 from ..utilities import data
-from ..utilities.validator import Validator
 from ..logger import ProcessLogger, ProcessLoggerNull
 
 
@@ -355,10 +355,10 @@ def get_lod_data(operator, context, validator, temp_collection):
         is_valid_copies = []
         for copy in main_obj.a3ob_properties_object.copies:
             with temporary_component(operator, main_obj):
-                is_valid_copies.append(is_valid and validator.validate_lod(main_obj, copy.lod, True, operator.validate_lods_warning_errors and operator.validate_lods, operator.relative_paths))
+                is_valid_copies.append(is_valid and validator.validate(main_obj, copy.lod, True, operator.validate_lods_warning_errors and operator.validate_lods, operator.relative_paths))
 
         with temporary_component(operator, main_obj):
-            is_valid &= validator.validate_lod(main_obj, main_obj.a3ob_properties_object.lod, True, operator.validate_lods_warning_errors and operator.validate_lods, operator.relative_paths)
+            is_valid &= validator.validate(main_obj, main_obj.a3ob_properties_object.lod, True, operator.validate_lods_warning_errors and operator.validate_lods, operator.relative_paths)
 
         proxy_lookup = merge_proxy_objects(main_obj, proxy_objects, operator.relative_paths)
 
@@ -675,7 +675,7 @@ def write_file(operator, context, file, temp_collection):
     wm.progress_begin(0, 1000)
     wm.progress_update(0)
     
-    validator = Validator(ProcessLoggerNull())
+    validator = LODValidator(ProcessLoggerNull())
     if operator.validate_lods:
         validator.setup_lod_specific()
     
