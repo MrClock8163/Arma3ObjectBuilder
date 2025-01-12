@@ -6,7 +6,7 @@ import re
 import bpy
 
 from .. import utils
-from . import compat as computils
+from ..utils_compat import call_operator_ctx
 
 
 def clear_components(obj):
@@ -62,7 +62,7 @@ def component_convex_hull(obj):
             "selected_editable_objects": components,
             "active_object": obj
         }
-        computils.call_operator_ctx(bpy.ops.object.join, ctx)
+        call_operator_ctx(bpy.ops.object.join, ctx)
         
     bpy.context.view_layer.objects.active = obj
     

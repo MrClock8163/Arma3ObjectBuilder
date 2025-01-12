@@ -8,8 +8,8 @@ import mathutils
 from .. import get_icon
 from .. import utils
 from .. import utils_io
+from ..utils_compat import call_operator_ctx
 from ..utilities import lod as lodutils
-from ..utilities import compat as computils
 from ..io_p3d import importer
 
 
@@ -249,21 +249,21 @@ class A3OB_OT_proxy_copy_all(bpy.types.Operator):
                 "selected_editable_objects": [new_proxy]
             }
             if self.keep_transform:
-                computils.call_operator_ctx(bpy.ops.object.parent_clear, ctx, type='CLEAR_KEEP_TRANSFORM')
+                call_operator_ctx(bpy.ops.object.parent_clear, ctx, type='CLEAR_KEEP_TRANSFORM')
                 ctx.update({
                     "active_object": target,
                     "selected_objects": [target, new_proxy],
                     "selected_editable_objects": [target, new_proxy]
                 })
-                computils.call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT', keep_transform=True)
+                call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT', keep_transform=True)
             else:
-                computils.call_operator_ctx(bpy.ops.object.parent_clear, ctx)
+                call_operator_ctx(bpy.ops.object.parent_clear, ctx)
                 ctx.update({
                     "active_object": target,
                     "selected_objects": [target, new_proxy],
                     "selected_editable_objects": [target, new_proxy]
                 })
-                computils.call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT')
+                call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT')
         
         return {'FINISHED'}
 
@@ -298,21 +298,21 @@ class A3OB_OT_proxy_transfer(bpy.types.Operator):
                 "selected_editable_objects": [item]
             }
             if self.keep_transform:
-                computils.call_operator_ctx(bpy.ops.object.parent_clear, ctx, type='CLEAR_KEEP_TRANSFORM')
+                call_operator_ctx(bpy.ops.object.parent_clear, ctx, type='CLEAR_KEEP_TRANSFORM')
                 ctx.update({
                     "active_object": target,
                     "selected_objects": [target, item],
                     "selected_editable_objects": [target, item]
                 })
-                computils.call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT', keep_transform=True)
+                call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT', keep_transform=True)
             else:
-                computils.call_operator_ctx(bpy.ops.object.parent_clear, ctx)
+                call_operator_ctx(bpy.ops.object.parent_clear, ctx)
                 ctx.update({
                     "active_object": target,
                     "selected_objects": [target, item],
                     "selected_editable_objects": [target, item]
                 })
-                computils.call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT')
+                call_operator_ctx(bpy.ops.object.parent_set, ctx, type='OBJECT')
         
         return {'FINISHED'}
     

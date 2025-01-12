@@ -13,8 +13,8 @@ import mathutils
 from . import data as p3d
 from .. import utils
 from .. import utils_io
+from .. import utils_compat as computils
 from ..utilities import lod as lodutils
-from ..utilities import compat as computils
 from ..utilities import proxy as proxyutils
 from ..utilities import flags as flagutils
 from ..utilities import structure as structutils

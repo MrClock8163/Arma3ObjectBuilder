@@ -14,8 +14,8 @@ from . import data as p3d
 from . import utils as p3d_utils
 from .. import get_prefs
 from .. import utils
+from .. import utils_compat as computils
 from ..utilities import flags as flagutils
-from ..utilities import compat as computils
 from ..utilities import structure as structutils
 from ..utilities import data
 from ..utilities.validator import Validator
