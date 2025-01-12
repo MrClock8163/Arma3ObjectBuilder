@@ -2,15 +2,18 @@
 
 
 from .. import io_config
-from ..utilities import rigging as riggingutils
 from ..logger import ProcessLogger
+
+
+def bones_from_skeleton(skeleton):
+    return {bone.name: bone.parent for bone in skeleton.bones}
 
 
 def write_file(operator, skeleton, file):
     logger = ProcessLogger()
     logger.start_subproc("Skeleton definition export to %s" % operator.filepath)
     logger.step("Skeleton definition: %s" % skeleton.name)
-    bones_parents = riggingutils.bone_order_from_skeleton(skeleton)
+    bones_parents = bones_from_skeleton(skeleton)
     
     if operator.force_lowercase:
         logger.step("Force lowercase")
