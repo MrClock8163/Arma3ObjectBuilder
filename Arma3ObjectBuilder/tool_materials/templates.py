@@ -32,6 +32,7 @@ class RVMATTemplateField:
         
         return self.default
 
+
 class RVMATTemplate:
     RE_STAGE = re.compile(r"<.*>")
 

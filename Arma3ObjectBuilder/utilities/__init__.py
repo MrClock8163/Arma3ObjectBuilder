@@ -1,6 +1,5 @@
 # In order of dependency
 from . import clouds
-from . import colors
 from . import proxy
 from . import renaming
 from . import masses

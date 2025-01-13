@@ -14,16 +14,6 @@ bl_info = {
 
 import os
 
-if "bpy" in locals():
-    from importlib import reload
-    
-    if "utilities" in locals():
-        reload(utilities)
-    if "props" in locals():
-        reload(props)
-    if "ui" in locals():
-        reload(ui)
-
 import bpy
 
 
@@ -46,6 +36,8 @@ def get_prefs():
 from . import utilities
 from . import props
 from . import ui
+
+from . import tool_materials
 
 
 def outliner_enable_update(self, context):
@@ -355,7 +347,7 @@ modules = (
     ui.import_export_paa,
     ui.tool_outliner,
     ui.tool_mass,
-    ui.tool_materials,
+    tool_materials,
     ui.tool_hitpoint,
     ui.tool_paths,
     ui.tool_proxies,

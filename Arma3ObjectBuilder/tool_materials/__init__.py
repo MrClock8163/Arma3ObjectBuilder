@@ -2,9 +2,10 @@ import os
 
 import bpy
 
+from . import props
+from .templates import RVMATTemplate
 from .. import get_prefs, get_icon
 from .. import utils
-from ..utilities import materials as matutils
 
 
 class A3OB_OT_materials_templates_generate(bpy.types.Operator):
@@ -27,7 +28,7 @@ class A3OB_OT_materials_templates_generate(bpy.types.Operator):
             return {'FINISHED'}
 
         path = scene_props.templates[scene_props.templates_index].path
-        template = matutils.RVMATTemplate(path)
+        template = RVMATTemplate(path)
         success = template.write_output(get_prefs().project_root, scene_props.folder, scene_props.basename, scene_props.check_files_exist)
 
         if success:
@@ -171,14 +172,18 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    print("\t" + "UI: Materials")
+    print("\t" + "Tool: Materials")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    
+    props.unregister_props()
 
-    print("\t" + "UI: Materials")
+    print("\t" + "Tool: Materials")
