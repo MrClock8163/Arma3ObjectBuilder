@@ -12,13 +12,12 @@ import bmesh
 
 from . import data as p3d
 from . import utils as p3d_utils
+from . import flags as p3d_flags
 from .validator import LODValidator
 from .. import get_prefs
 from .. import utils
 from .. import utils_compat as computils
-from ..utilities import flags as flagutils
 from ..utilities import structure as structutils
-from ..utilities import data
 from ..logger import ProcessLogger, ProcessLoggerNull
 
 
@@ -106,7 +105,7 @@ def bake_flags_vertex(obj):
     with utils.edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
 
-        layer = flagutils.get_layer_flags_vertex(bm)
+        layer = p3d_flags.get_layer_flags_vertex(bm)
         flags_vertex = {i: item.get_flag() for i, item in enumerate(obj.a3ob_properties_object_flags.vertex)}
         if len(flags_vertex) == 0:
             default_flag = get_prefs().flag_vertex
@@ -122,7 +121,7 @@ def bake_flags_face(obj):
     with utils.edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
 
-        layer = flagutils.get_layer_flags_face(bm)
+        layer = p3d_flags.get_layer_flags_face(bm)
         flags_face = {i: item.get_flag() for i, item in enumerate(obj.a3ob_properties_object_flags.face)}
         if len(flags_face) == 0:
             default_flag = get_prefs().flag_face
@@ -137,7 +136,7 @@ def bake_flags_face(obj):
 def blank_flags_vertex(obj):
     with utils.edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
-        layer = flagutils.get_layer_flags_vertex(bm)
+        layer = p3d_flags.get_layer_flags_vertex(bm)
 
         for vert in bm.verts:
             vert[layer] = 0
@@ -146,7 +145,7 @@ def blank_flags_vertex(obj):
 def blank_flags_face(obj):
     with utils.edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
-        layer = flagutils.get_layer_flags_face(bm)
+        layer = p3d_flags.get_layer_flags_face(bm)
 
         for face in bm.faces:
             face[layer] = 0
@@ -274,12 +273,12 @@ def sort_sections(obj):
 
 
 def cleanup_uvs(obj):
-    if int(obj.a3ob_properties_object.lod) not in data.lod_allow_uvs:
+    if int(obj.a3ob_properties_object.lod) not in p3d.P3D_LOD_Resolution.LODS_ALLOW_UV:
         p3d_utils.clear_uvs(obj)
 
 
 def cleanup_normals(operator, obj):
-    if not operator.preserve_normals or int(obj.a3ob_properties_object.lod) not in data.lod_visuals:
+    if not operator.preserve_normals or int(obj.a3ob_properties_object.lod) not in p3d.P3D_LOD_Resolution.LODS_VISUAL:
         ctx = {
             "active_object": obj,
             "object": obj
@@ -293,7 +292,7 @@ def cleanup_normals(operator, obj):
 
 
 def generate_components(operator, obj):
-    if not operator.generate_components or int(obj.a3ob_properties_object.lod) not in data.lod_geometries:
+    if not operator.generate_components or int(obj.a3ob_properties_object.lod) not in p3d.P3D_LOD_Resolution.LODS_GEOMETRY:
         return
     
     re_component = re.compile(r"component\d+", re.IGNORECASE)
@@ -397,7 +396,7 @@ def get_lod_data(operator, context, validator, temp_collection):
 
 # Produce the vertex list from the bmesh data.
 def process_vertices(bm):
-    layer = flagutils.get_layer_flags_vertex(bm)
+    layer = p3d_flags.get_layer_flags_vertex(bm)
     output = [(*vert.co, vert[layer]) for vert in bm.verts]
 
     return output
@@ -448,7 +447,7 @@ def process_faces(obj, bm, normals_lookup, relative):
     if len(bm.loops.layers.uv.values()) > 0: # 1st UV set needs to be written into the face data section too
         uv_layer = bm.loops.layers.uv.values()[0]
     
-    flag_layer = flagutils.get_layer_flags_face(bm)
+    flag_layer = p3d_flags.get_layer_flags_face(bm)
     
     for face in bm.faces:
         verts = []
@@ -589,11 +588,6 @@ def process_taggs(obj, bm, logger):
     return taggs
 
 
-def translate_selections(p3dm):
-    for tagg in p3dm.taggs:
-        tagg.name = data.translations_english_czech.get(tagg.name.lower(), tagg.name)
-
-
 def process_lod(operator, obj, proxy_lookup, is_valid, processed_signatures, logger):
     object_props = obj.a3ob_properties_object
     lod_name = object_props.get_name()
@@ -607,7 +601,7 @@ def process_lod(operator, obj, proxy_lookup, is_valid, processed_signatures, log
     logger.start_subproc("Processing data:")
     output = p3d.P3D_LOD()
     lod_idx = int(object_props.lod)
-    if lod_idx != data.lod_unknown:
+    if lod_idx != p3d.P3D_LOD_Resolution.UNKNOWN:
         output.resolution.set(lod_idx, object_props.resolution)
     else:
         output.resolution.set(lod_idx, object_props.resolution_float)
@@ -646,7 +640,7 @@ def process_lod(operator, obj, proxy_lookup, is_valid, processed_signatures, log
         logger.step("Renumbered component selections")
     
     if operator.translate_selections:
-        translate_selections(output)
+        output.selections_to_czech()
         logger.step("Translated selections to czech")
 
     bm.free()

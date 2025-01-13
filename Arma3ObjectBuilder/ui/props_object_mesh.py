@@ -2,9 +2,9 @@ import bpy
 
 from .. import get_prefs, get_icon
 from .. import utils
-from ..utilities import data
 from ..utilities import proxy as proxyutils
-from ..utilities import flags as flagutils
+from ..io_p3d.data import P3D_LOD_Resolution as LODRes
+from ..io_p3d import flags as p3d_flags
 
 
 bl_version = bpy.app.version
@@ -296,7 +296,7 @@ class A3OB_OT_flags_vertex_remove(bpy.types.Operator):
         flag_props.vertex.remove(index)
         flag_props.vertex_index = len(flag_props.vertex) - 1            
     
-        flagutils.remove_group_vertex(obj, index)
+        p3d_flags.remove_group_vertex(obj, index)
         
         return {'FINISHED'}
 
@@ -316,7 +316,7 @@ class A3OB_OT_flags_vertex_assign(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         flag_props = obj.a3ob_properties_object_flags
-        flagutils.assign_group_vertex(obj, flag_props.vertex_index)
+        p3d_flags.assign_group_vertex(obj, flag_props.vertex_index)
         
         return {'FINISHED'}
 
@@ -336,7 +336,7 @@ class A3OB_OT_flags_vertex_select(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         flag_props = obj.a3ob_properties_object_flags
-        flagutils.select_group_vertex(obj, flag_props.vertex_index)
+        p3d_flags.select_group_vertex(obj, flag_props.vertex_index)
         bpy.ops.mesh.select_mode(type='VERT')
         
         return {'FINISHED'}
@@ -357,7 +357,7 @@ class A3OB_OT_flags_vertex_deselect(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         flag_props = obj.a3ob_properties_object_flags
-        flagutils.select_group_vertex(obj, flag_props.vertex_index, False)
+        p3d_flags.select_group_vertex(obj, flag_props.vertex_index, False)
         bpy.ops.mesh.select_mode(type='VERT')
         
         return {'FINISHED'}
@@ -377,7 +377,7 @@ class A3OB_OT_flags_vertex_clear(bpy.types.Operator):
     
     def execute(self, context):
         obj = context.object
-        flagutils.clear_groups_vertex(obj)
+        p3d_flags.clear_groups_vertex(obj)
 
         return {'FINISHED'}
 
@@ -425,7 +425,7 @@ class A3OB_OT_flags_face_remove(bpy.types.Operator):
         flag_props.face.remove(index)
         flag_props.face_index = len(flag_props.face) - 1            
         
-        flagutils.remove_group_face(obj, index)
+        p3d_flags.remove_group_face(obj, index)
         
         return {'FINISHED'}
 
@@ -445,7 +445,7 @@ class A3OB_OT_flags_face_assign(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         flag_props = obj.a3ob_properties_object_flags
-        flagutils.assign_group_face(obj, flag_props.face_index)
+        p3d_flags.assign_group_face(obj, flag_props.face_index)
         
         return {'FINISHED'}
 
@@ -465,7 +465,7 @@ class A3OB_OT_flags_face_select(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         flag_props = obj.a3ob_properties_object_flags
-        flagutils.select_group_face(obj, flag_props.face_index)
+        p3d_flags.select_group_face(obj, flag_props.face_index)
         bpy.ops.mesh.select_mode(type='FACE')
         
         return {'FINISHED'}
@@ -486,7 +486,7 @@ class A3OB_OT_flags_face_deselect(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         flag_props = obj.a3ob_properties_object_flags
-        flagutils.select_group_face(obj, flag_props.face_index, False)
+        p3d_flags.select_group_face(obj, flag_props.face_index, False)
         bpy.ops.mesh.select_mode(type='FACE')
         
         return {'FINISHED'}
@@ -506,7 +506,7 @@ class A3OB_OT_flags_face_clear(bpy.types.Operator):
     
     def execute(self, context):
         obj = context.object
-        flagutils.clear_groups_face(obj)
+        p3d_flags.clear_groups_face(obj)
 
         return {'FINISHED'}
 
@@ -525,9 +525,9 @@ class A3OB_UL_lod_copies(bpy.types.UIList):
         layout.alignment = 'LEFT'
         layout.prop(item, "lod", text="", emboss=False)
         lod_idx = int(item.lod)
-        if lod_idx in data.lod_has_resolution:
+        if lod_idx in LODRes.LODS_WITH_RESOLUTION:
             layout.prop(item, "resolution", text="", emboss=False)
-        elif lod_idx == data.lod_unknown:
+        elif lod_idx == LODRes.UNKNOWN:
             layout.prop(item, "resolution_float", text="", emboss=False)
 
 
@@ -597,9 +597,9 @@ class A3OB_PT_object_mesh(bpy.types.Panel):
         if object_props.is_a3_lod:
             layout.prop(object_props, "lod", text="Type")
             lod_idx = int(object_props.lod)
-            if lod_idx in data.lod_has_resolution:
+            if lod_idx in LODRes.LODS_WITH_RESOLUTION:
                 layout.prop(object_props, "resolution")
-            elif lod_idx == data.lod_unknown:
+            elif lod_idx == LODRes.UNKNOWN:
                 layout.prop(object_props, "resolution_float")
 
 

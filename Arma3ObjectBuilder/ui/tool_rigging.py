@@ -1,11 +1,11 @@
 import bpy
 
 from .. import get_icon
+from .. import utils
+from ..ofp2_manskeleton import bone_hierarchy as ofp2_manskeleton
 from ..logger import ProcessLogger
 from ..io_mcfg.validator import SkeletonValidator
-from .. import utils
 from ..utilities import rigging as riggingutils
-from ..utilities import data
 
 
 def get_skeleton(scene_props):
@@ -373,9 +373,9 @@ class A3OB_OT_rigging_skeletons_ofp2manskeleton(bpy.types.Operator):
         skeleton.name = "OFP2_ManSkeleton"
         skeleton.protected = True
 
-        for bone, parent in data.ofp2_manskeleton.items():
+        for name, parent in ofp2_manskeleton:
             item = skeleton.bones.add()
-            item.name = bone
+            item.name = name
             item.parent = parent
         
         return {'FINISHED'}

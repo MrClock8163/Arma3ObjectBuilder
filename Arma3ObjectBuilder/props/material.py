@@ -3,9 +3,7 @@ import re
 import bpy
 
 from .. import get_prefs
-from .. import utils
 from .. import utils_io
-from ..utilities import data
 
 
 class A3OB_PG_properties_material(bpy.types.PropertyGroup):
@@ -36,7 +34,31 @@ class A3OB_PG_properties_material(bpy.types.PropertyGroup):
     color_type: bpy.props.EnumProperty(
         name = "Type",
         description = "Procedural texture type",
-        items = data.enum_texture_types,
+        items = (
+            ('CO', "CO", "Color Value"),
+            ('CA', "CA", "Texture with Alpha"),
+            ('LCO', "LCO", "Terrain Texture Layer Color"),
+            ('SKY', "SKY", "Sky texture"),
+            ('NO', "NO", "Normal Map"),
+            ('NS', "NS", "Normal map specular with Alpha"),
+            ('NOF', "NOF", "Normal map faded"),
+            ('NON', "NON", "Normal map noise"),
+            ('NOHQ', "NOHQ", "Normal map High Quality"),
+            ('NOPX', "NOPX", "Normal Map with paralax"),
+            ('NOVHQ', "NOVHQ", "two-part DXT5 compression"),
+            ('DT', "DT", "Detail Texture"),
+            ('CDT', "CDT", "Colored detail texture"),
+            ('MCO', "MCO", "Multiply color"),
+            ('DTSMDI', "DTSMDI", "Detail SMDI map"),
+            ('MC', "MC", "Macro Texture"),
+            ('AS', "AS", "Ambient Shadow texture"),
+            ('ADS', "ADS", "Ambient Shadow in Blue"),
+            ('PR', "PR", "Ambient shadow from directions"),
+            ('SM', "SM", "Specular Map"),
+            ('SMDI', "SMDI", "Specular Map, optimized"),
+            ('MASK', "MASK", "Mask for multimaterial"),
+            ('TI', "TI", "Thermal imaging map")
+        ),
         default = 'CO'
     )
     color_raw: bpy.props.StringProperty(

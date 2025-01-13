@@ -8,7 +8,7 @@ import bmesh
 import bpy
 
 from ..validation import ValidatorResult, ValidatorComponent, Validator
-from ..utilities.data import LOD
+from .data import P3D_LOD_Resolution as LODRes
 
 
 class ValidatorComponentLOD(ValidatorComponent):
@@ -526,43 +526,43 @@ class LODValidator(Validator):
         self.components = {
             **dict.fromkeys(
                 (
-                    str(LOD.SHADOW),
-                    str(LOD.SHADOW_VIEW_CARGO),
-                    str(LOD.SHADOW_VIEW_PILOT),
-                    str(LOD.SHADOW_VIEW_GUNNER)
+                    str(LODRes.SHADOW),
+                    str(LODRes.SHADOW_VIEW_CARGO),
+                    str(LODRes.SHADOW_VIEW_PILOT),
+                    str(LODRes.SHADOW_VIEW_GUNNER)
                 ), 
                 [ValidatorLODShadow]
             ),
             **dict.fromkeys(
                 (
-                    str(LOD.MEMORY),
-                    str(LOD.LANDCONTACT),
-                    str(LOD.HITPOINTS)
+                    str(LODRes.MEMORY),
+                    str(LODRes.LANDCONTACT),
+                    str(LODRes.HITPOINTS)
                 ),
                 [ValidatorLODPointcloud]
             ),
             **dict.fromkeys(
                 (
-                    str(LOD.GEOMETRY_BUOY),
-                    str(LOD.GEOMETRY_PHYSX),
-                    str(LOD.VIEW_GEOMETRY),
-                    str(LOD.FIRE_GEOMETRY),
-                    str(LOD.VIEW_CARGO_GEOMETRY),
-                    str(LOD.VIEW_CARGO_FIRE_GEOMETRY),
-                    str(LOD.VIEW_COMMANDER_GEOMETRY),
-                    str(LOD.VIEW_COMMANDER_FIRE_GEOMETRY),
-                    str(LOD.VIEW_PILOT_GEOMETRY),
-                    str(LOD.VIEW_PILOT_FIRE_GEOMETRY),
-                    str(LOD.VIEW_GUNNER_GEOMETRY),
-                    str(LOD.VIEW_GUNNER_FIRE_GEOMETRY)
+                    str(LODRes.GEOMETRY_BUOY),
+                    str(LODRes.GEOMETRY_PHYSX),
+                    str(LODRes.VIEW_GEOMETRY),
+                    str(LODRes.FIRE_GEOMETRY),
+                    str(LODRes.VIEW_CARGO_GEOMETRY),
+                    str(LODRes.VIEW_CARGO_FIRE_GEOMETRY),
+                    str(LODRes.VIEW_COMMANDER_GEOMETRY),
+                    str(LODRes.VIEW_COMMANDER_FIRE_GEOMETRY),
+                    str(LODRes.VIEW_PILOT_GEOMETRY),
+                    str(LODRes.VIEW_PILOT_FIRE_GEOMETRY),
+                    str(LODRes.VIEW_GUNNER_GEOMETRY),
+                    str(LODRes.VIEW_GUNNER_FIRE_GEOMETRY)
                 ),
                 [ValidatorLODGeometrySubtype]
             ),
-            str(LOD.GEOMETRY): [ValidatorLODGeometry],
-            str(LOD.ROADWAY): [ValidatorLODRoadway],
-            str(LOD.PATHS): [ValidatorLODPaths],
-            str(LOD.UNDERGROUND): [ValidatorLODUnderground],
-            str(LOD.GROUNDLAYER): [ValidatorLODGroundlayer]
+            str(LODRes.GEOMETRY): [ValidatorLODGeometry],
+            str(LODRes.ROADWAY): [ValidatorLODRoadway],
+            str(LODRes.PATHS): [ValidatorLODPaths],
+            str(LODRes.UNDERGROUND): [ValidatorLODUnderground],
+            str(LODRes.GROUNDLAYER): [ValidatorLODGroundlayer]
         }
 
     def validate(self, obj, lod, lazy = False, warns_errs = True, relative_paths = False):

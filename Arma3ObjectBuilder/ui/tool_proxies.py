@@ -9,8 +9,8 @@ from .. import get_icon
 from .. import utils
 from .. import utils_io
 from ..utils_compat import call_operator_ctx
-from ..utilities import lod as lodutils
 from ..io_p3d import importer
+from ..io_p3d.data import P3D_LOD_Resolution as LODRes
 
 
 class A3OB_OT_proxy_realign_ocs(bpy.types.Operator):
@@ -171,7 +171,7 @@ class A3OB_OT_proxy_copy(bpy.types.Operator):
         scene_props = context.scene.a3ob_proxies
         scene_props.lod_objects.clear()
         
-        object_pool = context.scene.objects
+        object_pool = context.scene.objects # TODO Investiage this unused variable
         
         proxy_object = context.active_object
         parent_object = proxy_object.parent
@@ -184,7 +184,7 @@ class A3OB_OT_proxy_copy(bpy.types.Operator):
             
             item = scene_props.lod_objects.add()
             item.name = obj.name
-            item.lod = lodutils.format_lod_name(int(object_props.lod), object_props.resolution)
+            item.lod = LODRes.build_name(int(object_props.lod), object_props.resolution)
             
             scene_props.lod_objects_index = len(scene_props.lod_objects) - 1
             

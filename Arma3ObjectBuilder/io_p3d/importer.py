@@ -11,14 +11,12 @@ import bmesh
 import mathutils
 
 from . import data as p3d
-from .. import utils
+from . import flags as p3d_flags
+from . import utils
 from .. import utils_io
 from .. import utils_compat as computils
-from ..utilities import lod as lodutils
 from ..utilities import proxy as proxyutils
-from ..utilities import flags as flagutils
 from ..utilities import structure as structutils
-from ..utilities import data
 from ..logger import ProcessLogger
 
 
@@ -38,8 +36,7 @@ def categorize_lods(operator, context, mlod):
     else:
         for lod in mlod.lods:
             lod_index, lod_resolution = lod.resolution.get()
-            group_dict = data.lod_groups[operator.groupby]
-            group_name = group_dict[lod_index]
+            group_name = lod.resolution.get_group_name(operator.groupby)
 
             if group_name not in categories:
                 new_category = bpy.data.collections.new(name=group_name)
@@ -176,7 +173,7 @@ def process_properties(obj, lod):
 def process_flag_groups_vertex(obj, bm, lod):
     groups, values = lod.flag_groups_vertex()
 
-    layer = flagutils.get_layer_flags_vertex(bm)
+    layer = p3d_flags.get_layer_flags_vertex(bm)
     for vert in bm.verts:
         vert[layer] = values[vert.index]
     
@@ -189,7 +186,7 @@ def process_flag_groups_vertex(obj, bm, lod):
 def process_flag_groups_face(obj, bm, lod):
     groups, values = lod.flag_groups_face()
 
-    layer = flagutils.get_layer_flags_face(bm)
+    layer = p3d_flags.get_layer_flags_face(bm)
     for face in bm.faces:
         face[layer] = values[face.index]
     
@@ -270,8 +267,8 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             bm = bmesh.new()
             bm.from_mesh(proxy_obj.data)
 
-            flagutils.clear_layer_flags_vertex(bm)
-            flagutils.clear_layer_flags_face(bm)
+            p3d_flags.clear_layer_flags_vertex(bm)
+            p3d_flags.clear_layer_flags_face(bm)
 
             bm.to_mesh(proxy_obj.data)
             bm.free()
@@ -288,15 +285,10 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             utils.clear_uvs(proxy_obj)
 
 
-def translate_selections(obj):
-    for group in obj.vertex_groups:
-        group.name = data.translations_czech_english.get(group.name.lower(), group.name)
-
-
 def process_lod(operator, logger, lod, materials, materials_lookup, categories, lod_links):
     lod_index = lod_links[0]
     lod_resolution = lod_links[1]
-    lod_name = lodutils.format_lod_name(lod_index, lod_resolution)
+    lod_name = p3d.P3D_LOD_Resolution.build_name(lod_index, lod_resolution)
 
     logger.start_subproc("File report:")
     logger.step("Name: %s" % lod_name)
@@ -324,22 +316,26 @@ def process_lod(operator, logger, lod, materials, materials_lookup, categories, 
     object_props = obj.a3ob_properties_object
     object_props.lod = str(lod_index)
     
-    if lod_index != data.lod_unknown:
+    if lod_index != p3d.P3D_LOD_Resolution.UNKNOWN:
         object_props.resolution = lod_resolution
     else:
         object_props.resolution_float = lod_resolution
 
-    if lod_index not in data.lod_shadows:
+    if lod_index not in p3d.P3D_LOD_Resolution.LODS_SHADOW:
         for face in mesh.polygons:
             face.use_smooth = True
         
         computils.mesh_auto_smooth(mesh)
     
-    if 'NORMALS' in operator.additional_data and lod_index in data.lod_visuals:
+    if 'NORMALS' in operator.additional_data and lod_index in p3d.P3D_LOD_Resolution.LODS_VISUAL:
         if process_normals(mesh, lod):
             logger.step("Applied split normals")
         else:
             logger.step("Could not apply split normals")
+    
+    if operator.translate_selections:
+        lod.selections_to_english()
+        logger.step("Translated selections to english")
     
     # Process TAGGs
     bm = bmesh.new()
@@ -392,10 +388,6 @@ def process_lod(operator, logger, lod, materials, materials_lookup, categories, 
 
     if operator.validate_meshes:
         mesh.validate(clean_customdata=False)
-    
-    if operator.translate_selections:
-        translate_selections(obj)
-        logger.step("Translated selections to english")
     
     if operator.cleanup_empty_selections:
         structutils.cleanup_vertex_groups(obj)

@@ -9,6 +9,7 @@ import math
 import re
 
 from .. import binary
+from . import translations as translate
 
 
 class P3D_Error(Exception):
@@ -291,6 +292,50 @@ class P3D_LOD_Resolution():
     NAVIGATION = 32
     UNKNOWN = -1
 
+    LODS_WITH_RESOLUTION = {
+        VISUAL,
+        VIEW_CARGO,
+        SHADOW,
+        EDIT,
+        VIEW_CARGO_GEOMETRY,
+        SHADOW_VIEW_CARGO
+    }
+
+    LODS_VISUAL = {
+        VISUAL,
+        VIEW_GUNNER,
+        VIEW_PILOT,
+        VIEW_CARGO,
+        VIEW_COMMANDER,
+        UNKNOWN
+    }
+
+    LODS_SHADOW = {
+        SHADOW,
+        SHADOW_VIEW_CARGO,
+        SHADOW_VIEW_PILOT,
+        SHADOW_VIEW_GUNNER
+    }
+
+    LODS_GEOMETRY = {
+        GEOMETRY,
+        GEOMETRY_BUOY,
+        GEOMETRY_PHYSX,
+        VIEW_GEOMETRY,
+        FIRE_GEOMETRY,
+        VIEW_CARGO_GEOMETRY,
+        VIEW_CARGO_FIRE_GEOMETRY,
+        VIEW_COMMANDER_GEOMETRY,
+        VIEW_COMMANDER_FIRE_GEOMETRY,
+        VIEW_PILOT_GEOMETRY,
+        VIEW_PILOT_FIRE_GEOMETRY,
+        VIEW_GUNNER_GEOMETRY,
+        VIEW_GUNNER_FIRE_GEOMETRY,
+        UNDERGROUND
+    }
+
+    LODS_ALLOW_UV = {*LODS_VISUAL, *LODS_SHADOW, GROUNDLAYER}
+
     SIGNATURE_MAP = {
         # "0.000e+00": VISUAL, # (+ resolution)
         "1.000e+03": VIEW_GUNNER,
@@ -327,6 +372,111 @@ class P3D_LOD_Resolution():
         "2.000e+16": SHADOW_VIEW_GUNNER,
         "2.100e+16": WRECKAGE,
         # (-1.0, 0): UNKNOWN
+    }
+
+    INFO_MAP = {
+        VISUAL: ("Resolution", "Visual resolutiion"),
+        VIEW_GUNNER: ("View - Gunner", "Gunner first person view"),
+        VIEW_PILOT: ("View - Pilot", "First person view"),
+        VIEW_CARGO: ("View - Cargo", "Passenger first person view"),
+        SHADOW: ("Shadow Volume", "Shadow casting geometry"),
+        EDIT: ("Edit", "Temporary layer"),
+        GEOMETRY: ("Geometry", "Object collision geometry and occluders"),
+        GEOMETRY_BUOY: ("Geometry Buoyancy", "Buoyant object geometry (Displacement for VBS)"),
+        GEOMETRY_PHYSX: ("Geometry PhysX", "PhysX object collision geometry"),
+        MEMORY: ("Memory", "Hard points and animation axes"),
+        LANDCONTACT: ("Land Contact", "Points of contact with ground"),
+        ROADWAY: ("Roadway", "Walkable surfaces"),
+        PATHS: ("Paths", "AI path finding mesh"),
+        HITPOINTS: ("Hit-points", "Hit point cloud"),
+        VIEW_GEOMETRY: ("View Geometry", "View occlusion for AI"),
+        FIRE_GEOMETRY: ("Fire Geometry", "Hitbox geometry"),
+        VIEW_CARGO_GEOMETRY: ("View - Cargo Geometry", "Passenger view collision geometry and occluders"),
+        VIEW_CARGO_FIRE_GEOMETRY: ("View - Cargo Fire Geometry", "Passenger view hitbox geometry"),
+        VIEW_COMMANDER: ("View - Commander", "Commander first person view"),
+        VIEW_COMMANDER_GEOMETRY: ("View - Commander Geometry", "Commander view collision geometry and occluders"),
+        VIEW_COMMANDER_FIRE_GEOMETRY: ("View - Commander Fire Geometry", "Commander hitbox geometry"),
+        VIEW_PILOT_GEOMETRY: ("View - Pilot Geometry", "First person collision geometry and occluders"),
+        VIEW_PILOT_FIRE_GEOMETRY: ("View - Pilot Fire Geometry", "First person hitbox geometry"),
+        VIEW_GUNNER_GEOMETRY: ("View - Gunner Geometry", "Gunner collision geometry and occluders"),
+        VIEW_GUNNER_FIRE_GEOMETRY: ("View - Gunner Fire Geometry", "Gunner view hitbox geometry"),
+        SUBPARTS: ("Sub Parts", "Obsolete"),
+        SHADOW_VIEW_CARGO: ("Shadow Volume - Cargo View", "Passenger view shadow casting geometry"),
+        SHADOW_VIEW_PILOT: ("Shadow Volume - Pilot View", "First person view shadow casting geometry"),
+        SHADOW_VIEW_GUNNER: ("Shadow Volume - Gunner View", "Gunner view shadow casting geometry"),
+        WRECKAGE: ("Wreckage", "Vehicle wreckage"),
+        UNDERGROUND: ("Underground (VBS)", "Underground volume for VBS (not supported in Arma 3 -> Geometry PhysX Old)"),
+        GROUNDLAYER: ("Groundlayer (VBS)", "Ground deformation data for VBS (not supported in Arma 3 -> Shadow Volume 3000)"),
+        NAVIGATION: ("Navigation (VBS)", "Navigation data for VBS (not supported in Arma 3 -> Geometry / Resolution 5e+013)"),
+        UNKNOWN: ("Unknown", "Unknown model layer")
+    }
+
+    GROUPS_TYPE = {
+        **dict.fromkeys(
+            [
+                VISUAL,
+                VIEW_GUNNER,
+                VIEW_PILOT,
+                VIEW_CARGO,
+                VIEW_COMMANDER
+            ],
+            "Visuals"
+        ),
+        **dict.fromkeys(
+            [
+                SHADOW,
+                SHADOW_VIEW_CARGO,
+                SHADOW_VIEW_PILOT,
+                SHADOW_VIEW_GUNNER
+            ],
+            "Shadows"
+        ),
+        **dict.fromkeys(
+            [
+                GEOMETRY,
+                GEOMETRY_BUOY,
+                GEOMETRY_PHYSX,
+                VIEW_GEOMETRY,
+                FIRE_GEOMETRY,
+                VIEW_CARGO_GEOMETRY,
+                VIEW_CARGO_FIRE_GEOMETRY,
+                VIEW_COMMANDER_GEOMETRY,
+                VIEW_COMMANDER_FIRE_GEOMETRY,
+                VIEW_PILOT_GEOMETRY,
+                VIEW_PILOT_FIRE_GEOMETRY,
+                VIEW_GUNNER_GEOMETRY,
+                VIEW_GUNNER_FIRE_GEOMETRY,
+                UNDERGROUND
+            ],
+            "Geometries"
+        ),
+        **dict.fromkeys(
+            [
+                MEMORY,
+                LANDCONTACT,
+                HITPOINTS
+            ],
+            "Point clouds"
+        ),
+        **dict.fromkeys(
+            [
+                EDIT,
+                ROADWAY,
+                PATHS,
+                SUBPARTS,
+                WRECKAGE,
+                GROUNDLAYER,
+                NAVIGATION,
+                UNKNOWN
+            ],
+            "Misc"
+        )
+    }
+
+    GROUPS = {
+        'TYPE': GROUPS_TYPE,
+        # 'CONTEXT': GROUPS_CONTEXT,
+        'NONE': {}
     }
 
     def __init__(self, lod = 0, res = 0):
@@ -383,7 +533,7 @@ class P3D_LOD_Resolution():
         elif exp == 16:
             return cls.SHADOW_VIEW_CARGO, int(string[3:5])
 
-        print(signature, string)
+        # print(signature, string)
         return cls.UNKNOWN, round(signature)
     
     @classmethod
@@ -402,6 +552,26 @@ class P3D_LOD_Resolution():
     
     def get(self):
         return self.lod, self.res
+    
+    def get_group_name(self, grouping):
+        group_dict = self.GROUPS.get(grouping)
+        if not group_dict:
+            return "Misc"
+        
+        return group_dict.get(self.lod, "Misc")
+    
+    @classmethod
+    def build_name(cls, lod, res):
+        name, _ = cls.INFO_MAP.get(lod, cls.INFO_MAP[cls.UNKNOWN])
+
+        if lod in cls.LODS_WITH_RESOLUTION:
+            return "%s %d" % (name, res)
+        
+        return name
+    
+    def name(self):
+        return self.build_name(self.lod, self.res)
+
 
 
 class P3D_LOD():
@@ -760,6 +930,14 @@ class P3D_LOD():
             elif type(tagg.data) is P3D_TAGG_DataProperty:
                 tagg.data.key = tagg.data.key.lower()
                 tagg.data.value = tagg.data.value.lower()
+
+    def selections_to_english(self):
+        for tagg in self.taggs:
+            tagg.name = translate.czech_to_english.get(tagg.name.lower(), tagg.name)
+
+    def selections_to_czech(self):
+        for tagg in self.taggs:
+            tagg.name = translate.english_to_czech.get(tagg.name.lower(), tagg.name)
 
 
 class P3D_MLOD():

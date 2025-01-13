@@ -1,7 +1,6 @@
 # Utility functions not exclusively related to a specific tool.
 
 
-import os
 import json
 from contextlib import contextmanager
 
@@ -10,7 +9,7 @@ import bpy_extras.mesh_utils as meshutils
 import bmesh
 
 from . import get_prefs
-from .utilities import data
+from .customdata import common_data
 
 
 # For some reason, not all operator reports are printed to the console. The behavior seems to be context dependent,
@@ -145,7 +144,7 @@ def force_mode_edit():
 
 def load_common_data(scene):
     custom_path = bpy.path.abspath(get_prefs().custom_data)
-    builtin = data.common_data
+    builtin = common_data
     json_data = {}
     try:
         with open(custom_path) as file:

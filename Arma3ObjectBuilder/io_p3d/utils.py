@@ -1,3 +1,9 @@
+from .data import P3D_LOD_Resolution as LODRes
+
+
+ENUM_LOD_TYPES = tuple([(str(idx), name, desc) for idx, (name, desc) in LODRes.INFO_MAP.items()])
+
+
 def clear_uvs(obj):
     uvs = [uv for uv in obj.data.uv_layers]
 

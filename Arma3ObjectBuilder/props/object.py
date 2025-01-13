@@ -4,15 +4,142 @@ import bpy
 from bpy.app.handlers import persistent
 
 from .. import get_prefs
-from .. import utils
 from .. import utils_io
 from ..utilities import masses as massutils
-from ..utilities import lod as lodutils
-from ..utilities import flags as flagutils
-from ..utilities import data
+from ..io_p3d.data import P3D_LOD_Resolution as LODRes
+from ..io_p3d import flags as p3d_flags
+from ..io_p3d import utils as p3d_utils
 
 
 bl_version = bpy.app.version
+
+
+KNOWN_NAMEDPROPS = {
+    "animated": [],
+    "aicovers": ["0", "1"],
+    "armor": [],
+    "autocenter": ["0", "1"],
+    "buoyancy": ["0", "1"],
+    "cratercolor": [],
+    "canbeoccluded": ["0", "1"],
+    "canocclude": ["0", "1"],
+    "class": [
+        "breakablehouseanimated",
+        "bridge",
+        "building",
+        "bushhard",
+        "bushsoft",
+        "church",
+        "clutter",
+        "forest",
+        "house",
+        "housesimulated",
+        "land_decal",
+        "man",
+        "none",
+        "pond",
+        "road",
+        "streetlamp",
+        "thing",
+        "thingx",
+        "tower",
+        "treehard",
+        "treesoft",
+        "vehicle",
+        "wall"
+    ],
+    "damage": [
+        "building",
+        "engine",
+        "no",
+        "tent",
+        "tree",
+        "wall",
+        "wreck"
+    ],
+    "destroysound": [
+        "treebroadleaf",
+        "treepalm"
+    ],
+    "drawimportance": [],
+    "explosionshielding": [],
+    "forcenotalpha": ["0", "1"],
+    "frequent": ["0", "1"],
+    "keyframe": ["0", "1"],
+    "loddensitycoef": [],
+    "lodnoshadow": ["0", "1"],
+    "map": [
+        "main road",
+        "road",
+        "track",
+        "trail",
+        "building",
+        "fence",
+        "wall",
+        "bush",
+        "small tree",
+        "tree",
+        "rock",
+        "bunker",
+        "fortress",
+        "fuelstation",
+        "hospital",
+        "lighthouse",
+        "quay",
+        "view-tower",
+        "ruin",
+        "busstop",
+        "church",
+        "chapel",
+        "cross",
+        "fountain",
+        "power lines",
+        "powersolar",
+        "powerwave",
+        "powerwind",
+        "railway",
+        "shipwreck",
+        "stack",
+        "tourism",
+        "transmitter",
+        "watertower",
+        "hide"
+    ],
+    "mass": [],
+    "maxsegments": [],
+    "minsegments": [],
+    "notl": [],
+    "placement": [
+        "slope",
+        "slopez",
+        "slopex",
+        "slopelandcontact",
+        "vertical"
+    ],
+    "prefershadowvolume": ["0", "1"],
+    "reversed": [],
+    "sbsource": [
+        "explicit",
+        "none",
+        "shadow",
+        "shadowvolume",
+        "visual",
+        "visualex"
+    ],
+    "shadow": ["hybrid"],
+    "shadowlod": [],
+    "shadowvolumelod": [],
+    "shadowbufferlod": [],
+    "shadowbufferlodvis": [],
+    "shadowoffset": [],
+    "viewclass": [],
+    "viewdensitycoef": [],
+    "xcount": [],
+    "xsize": [],
+    "xstep": [],
+    "ycount": [],
+    "ysize": []
+}
 
 
 def proxy_name_update(self, context):
@@ -31,14 +158,14 @@ if bl_version >= (3, 3, 0):
             name = "Name",
             description = "Property name",
             maxlen = 63,
-            search = lambda self, context, edit_text: [item for item in data.known_namedprops if item.lower().startswith(edit_text.lower())],
+            search = lambda self, context, edit_text: [item for item in KNOWN_NAMEDPROPS if item.lower().startswith(edit_text.lower())],
             search_options = {'SORT', 'SUGGESTION'}
         )
         value: bpy.props.StringProperty(
             name = "Value",
             description = "Property value",
             maxlen = 63,
-            search = lambda self, context, edit_text: [item for item in data.known_namedprops.get(self.name.lower(), []) if item.startswith(edit_text.lower())],
+            search = lambda self, context, edit_text: [item for item in KNOWN_NAMEDPROPS.get(self.name.lower(), []) if item.startswith(edit_text.lower())],
             search_options = {'SORT', 'SUGGESTION'}
         )
 else:
@@ -108,10 +235,10 @@ class A3OB_PG_properties_flag_vertex(bpy.types.PropertyGroup):
     hidden: bpy.props.BoolProperty(name="Hidden Vertex") # True: 0x00000000 False: 0x01000000
     
     def get_flag(self):        
-        return flagutils.get_flag_vertex(self)
+        return p3d_flags.get_flag_vertex(self)
     
     def set_flag(self, value):
-        flagutils.set_flag_vertex(self, value)
+        p3d_flags.set_flag_vertex(self, value)
 
 
 class A3OB_PG_properties_flag_face(bpy.types.PropertyGroup):
@@ -145,17 +272,17 @@ class A3OB_PG_properties_flag_face(bpy.types.PropertyGroup):
     )
     
     def get_flag(self):
-        return flagutils.get_flag_face(self)
+        return p3d_flags.get_flag_face(self)
 
     def set_flag(self, value):
-        flagutils.set_flag_face(self, value)
+        p3d_flags.set_flag_face(self, value)
 
 
 class A3OB_PG_properties_lod_copy(bpy.types.PropertyGroup):
     lod: bpy.props.EnumProperty(
         name = "LOD Type",
         description = "Type of LOD",
-        items = data.enum_lod_types,
+        items = p3d_utils.ENUM_LOD_TYPES,
         default = '0'
     )
     resolution: bpy.props.IntProperty(
@@ -184,7 +311,7 @@ class A3OB_PG_properties_object_mesh(bpy.types.PropertyGroup):
     lod: bpy.props.EnumProperty(
         name = "LOD Type",
         description = "Type of LOD",
-        items = data.enum_lod_types,
+        items = p3d_utils.ENUM_LOD_TYPES,
         default = '0'
     )
     resolution: bpy.props.IntProperty(
@@ -217,7 +344,7 @@ class A3OB_PG_properties_object_mesh(bpy.types.PropertyGroup):
     copies_index: bpy.props.IntProperty(name="Active Copy Index", description="")
 
     def get_name(self):
-        return lodutils.format_lod_name(int(self.lod), self.resolution)
+        return LODRes.build_name(int(self.lod), self.resolution)
 
 
 class A3OB_PG_properties_object_flags(bpy.types.PropertyGroup):

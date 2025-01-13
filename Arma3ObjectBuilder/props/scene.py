@@ -1,7 +1,7 @@
 import bpy
 
-from ..utilities import data
 from ..utilities import colors as colorutils
+from ..io_p3d.utils import ENUM_LOD_TYPES
 
 
 def mesh_object_poll(self, object):
@@ -255,7 +255,7 @@ class A3OB_PG_validation(bpy.types.PropertyGroup):
     lod: bpy.props.EnumProperty(
         name = "Type",
         description = "Type of LOD",
-        items = data.enum_lod_types,
+        items = ENUM_LOD_TYPES,
         default = '0'
     )
     warning_errors: bpy.props.BoolProperty(

@@ -3,8 +3,8 @@ import os
 import bpy
 
 from .. import get_icon, addon_dir
+from ..io_p3d.translations import czech_to_english
 from ..utilities import structure as structutils
-from ..utilities import data
 
 
 class A3OB_OT_check_convexity(bpy.types.Operator):
@@ -205,7 +205,7 @@ class A3OB_OT_translate_vertex_groups(bpy.types.Operator):
         obj = context.active_object
 
         for group in obj.vertex_groups:
-            group.name = data.translations_czech_english.get(group.name.lower(), group.name)
+            group.name = czech_to_english.get(group.name.lower(), group.name)
         
         return {'FINISHED'}
 
