@@ -5,7 +5,7 @@ from bpy.app.handlers import persistent
 
 from .. import get_prefs
 from .. import utils_io
-from ..utilities import masses as massutils
+from ..tool_mass import masses
 from ..io_p3d.data import P3D_LOD_Resolution as LODRes
 from ..io_p3d import flags as p3d_flags
 from ..io_p3d import utils as p3d_utils
@@ -487,18 +487,6 @@ def register():
     bpy.types.Object.a3ob_properties_object_flags = bpy.props.PointerProperty(type=A3OB_PG_properties_object_flags)
     bpy.types.Object.a3ob_properties_object_proxy = bpy.props.PointerProperty(type=A3OB_PG_properties_object_proxy)
     bpy.types.Object.a3ob_properties_object_dtm = bpy.props.PointerProperty(type=A3OB_PG_properties_object_dtm)
-    bpy.types.Object.a3ob_selection_mass = bpy.props.FloatProperty( # Can't be in property group due to reference requirements
-        name = "Current Mass",
-        description = "Total mass of current selection",
-        min = 0,
-        max = 1000000,
-        step = 10,
-        soft_max = 100000,
-        precision = 3,
-        unit = 'MASS',
-        get = massutils.get_selection_mass,
-        set = massutils.set_selection_mass
-    )
 
     bpy.app.handlers.depsgraph_update_post.append(depsgraph_update_post_handler)
     
@@ -508,7 +496,6 @@ def register():
 def unregister():
     bpy.app.handlers.depsgraph_update_post.remove(depsgraph_update_post_handler)
 
-    del bpy.types.Object.a3ob_selection_mass
     del bpy.types.Object.a3ob_properties_object_dtm
     del bpy.types.Object.a3ob_properties_object_proxy
     del bpy.types.Object.a3ob_properties_object_flags

@@ -2,9 +2,10 @@ from math import log10, ceil
 
 import bpy
 
+from . import props
+from . import masses
 from .. import get_icon
 from .. import utils
-from ..utilities import masses as massutils
 
 
 class A3OB_OT_vertex_mass_set(bpy.types.Operator):
@@ -22,7 +23,7 @@ class A3OB_OT_vertex_mass_set(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         scene = context.scene
-        massutils.set_selection_mass_each(obj, scene.a3ob_mass_editor.value)
+        masses.set_selection_mass_each(obj, scene.a3ob_mass_editor.value)
         return {'FINISHED'}
 
 
@@ -57,9 +58,9 @@ class A3OB_OT_vertex_mass_distribute(bpy.types.Operator):
         scene_props = scene.a3ob_mass_editor
         
         if scene_props.distribution == 'UNIFORM':
-            massutils.set_selection_mass_distribute_uniform(obj, scene.a3ob_mass_editor.value)
+            masses.set_selection_mass_distribute_uniform(obj, scene.a3ob_mass_editor.value)
         else:
-            all_closed = massutils.set_selection_mass_distribute_weighted(obj, scene.a3ob_mass_editor.value)
+            all_closed = masses.set_selection_mass_distribute_weighted(obj, scene.a3ob_mass_editor.value)
             if not all_closed:
                 if obj.mode == 'OBJECT':
                     self.report({'WARNING'}, "Non-closed or flat components were ignored")
@@ -100,9 +101,9 @@ class A3OB_OT_vertex_mass_set_density(bpy.types.Operator):
         scene = context.scene
         scene_props = scene.a3ob_mass_editor
         if scene_props.distribution == 'UNIFORM':
-            all_closed = massutils.set_obj_vmass_density_uniform(obj, scene_props.value)
+            all_closed = masses.set_obj_vmass_density_uniform(obj, scene_props.value)
         else:
-            all_closed = massutils.set_obj_vmass_density_weighted(obj, scene_props.value)
+            all_closed = masses.set_obj_vmass_density_weighted(obj, scene_props.value)
 
         if not all_closed:
             if obj.mode == 'OBJECT':
@@ -127,7 +128,7 @@ class A3OB_OT_vertex_mass_clear(bpy.types.Operator):
         
     def execute(self, context):
         obj = context.object
-        massutils.clear_vmasses(obj)
+        masses.clear_vmasses(obj)
         return {'FINISHED'}
 
 
@@ -140,11 +141,11 @@ class A3OB_OT_vertex_mass_selection_clear(bpy.types.Operator):
     
     @classmethod
     def poll(cls, context):
-        return massutils.can_edit_mass(context)
+        return masses.can_edit_mass(context)
         
     def execute(self, context):
         obj = context.object
-        massutils.clear_selection_vmass(obj)
+        masses.clear_selection_vmass(obj)
         return {'FINISHED'}
 
 
@@ -163,7 +164,7 @@ class A3OB_OT_vertex_mass_visualize(bpy.types.Operator):
         obj = context.object
         scene_props = context.scene.a3ob_mass_editor
         
-        massutils.visualize_mass(obj, scene_props)
+        masses.visualize_mass(obj, scene_props)
         
         return {'FINISHED'}
 
@@ -181,7 +182,7 @@ class A3OB_OT_vertex_mass_center(bpy.types.Operator):
     
     def execute(self, context):
         obj = context.object
-        center = massutils.find_center_of_gravity(obj)
+        center = masses.find_center_of_gravity(obj)
         if center is not None:
             context.scene.cursor.location = obj.matrix_world @ center
     
@@ -212,7 +213,7 @@ class A3OB_PT_vertex_mass(bpy.types.Panel):
         
         layout.prop(scene_props, "enabled", text="Live Editing", toggle=True)
         row_dynamic = layout.row(align=True)
-        if not massutils.can_edit_mass(context) or not scene_props.enabled:
+        if not masses.can_edit_mass(context) or not scene_props.enabled:
             row_dynamic.label(text="Live Editing is unavailable")
             row_dynamic.enabled = False
         else:
@@ -315,14 +316,18 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
     
-    print("\t" + "UI: Vertex Mass Editing")
+    print("\t" + "Tool: Vertex Mass Editing")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Vertex Mass Editing")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Vertex Mass Editing")
