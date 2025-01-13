@@ -42,6 +42,7 @@ from . import tool_materials
 from . import tool_hitpoint
 from . import tool_renaming
 from . import tool_validation
+from . import tool_rigging
 
 
 def outliner_enable_update(self, context):
@@ -192,7 +193,7 @@ class A3OB_OT_prefs_edit_flag_face(bpy.types.Operator):
     
     def invoke(self, context, event):
         prefs = context.preferences.addons[__package__].preferences
-        utilities.flags.set_flag_face(self, prefs.flag_face)
+        utilities.flags.set_flag_face(self, prefs.flag_face) # TODO Fix missing flag utilities
 
         return context.window_manager.invoke_props_dialog(self)
     
@@ -356,7 +357,7 @@ modules = (
     tool_renaming,
     ui.tool_proxies,
     tool_validation,
-    ui.tool_rigging,
+    tool_rigging,
     ui.tool_utilities,
     ui.tool_scripts
 )

@@ -1,11 +1,12 @@
 import bpy
 
+from . import props
+from . import rigging
+from . import ofp2_manskeleton
 from .. import get_icon
 from .. import utils
-from ..ofp2_manskeleton import bone_hierarchy as ofp2_manskeleton
-from ..logger import ProcessLogger
 from ..io_mcfg.validator import SkeletonValidator
-from ..utilities import rigging as riggingutils
+from ..logger import ProcessLogger
 
 
 def get_skeleton(scene_props):
@@ -160,7 +161,7 @@ class A3OB_OT_rigging_skeletons_from_armature(bpy.types.Operator):
         obj.update_from_editmode()
         scene_props = context.scene.a3ob_rigging
 
-        bones = riggingutils.bones_from_armature(obj)
+        bones = rigging.bones_from_armature(obj)
         skeleton = scene_props.skeletons.add()
         skeleton.name = obj.name
         for name, parent in bones:
@@ -373,7 +374,7 @@ class A3OB_OT_rigging_skeletons_ofp2manskeleton(bpy.types.Operator):
         skeleton.name = "OFP2_ManSkeleton"
         skeleton.protected = True
 
-        for name, parent in ofp2_manskeleton:
+        for name, parent in ofp2_manskeleton.bone_hierarchy:
             item = skeleton.bones.add()
             item.name = name
             item.parent = parent
@@ -400,12 +401,12 @@ class A3OB_OT_rigging_pivots_from_armature(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         obj = context.active_object
 
-        bones_parents = riggingutils.bone_order_from_skeleton(get_skeleton(scene_props))
+        bones_parents = rigging.bone_order_from_skeleton(get_skeleton(scene_props))
         if bones_parents is None:
             self.report({'WARNING'}, "Circular dependency detected in skeleton definition")
             return {'FINISHED'}
 
-        obj = riggingutils.pivots_from_armature(obj, bones_parents)
+        obj = rigging.pivots_from_armature(obj, bones_parents)
         context.scene.collection.objects.link(obj)
 
         return {'FINISHED'}
@@ -429,8 +430,8 @@ class A3OB_OT_rigging_weights_select_unnormalized(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
         
-        bone_indices = riggingutils.get_bone_group_indices(obj, bones)
-        riggingutils.select_vertices_unnormalized(obj, bone_indices)
+        bone_indices = rigging.get_bone_group_indices(obj, bones)
+        rigging.select_vertices_unnormalized(obj, bone_indices)
         
         return {'FINISHED'}
 
@@ -453,8 +454,8 @@ class A3OB_OT_rigging_weights_select_overdetermined(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
         
-        bone_indices = riggingutils.get_bone_group_indices(obj, bones)
-        riggingutils.select_vertices_overdetermined(obj, bone_indices)
+        bone_indices = rigging.get_bone_group_indices(obj, bones)
+        rigging.select_vertices_overdetermined(obj, bone_indices)
         
         return {'FINISHED'}
 
@@ -477,8 +478,8 @@ class A3OB_OT_rigging_weights_normalize(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
         
-        bone_indices = riggingutils.get_bone_group_indices(obj, bones)
-        normalized = riggingutils.normalize_weights(obj, bone_indices)
+        bone_indices = rigging.get_bone_group_indices(obj, bones)
+        normalized = rigging.normalize_weights(obj, bone_indices)
         
         self.report({'INFO'}, "Normalized weights on %d vertices" % normalized)
         
@@ -503,8 +504,8 @@ class A3OB_OT_rigging_weights_prune_overdetermined(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
         
-        bone_indices = riggingutils.get_bone_group_indices(obj, bones)
-        pruned = riggingutils.prune_overdetermined(obj, bone_indices)
+        bone_indices = rigging.get_bone_group_indices(obj, bones)
+        pruned = rigging.prune_overdetermined(obj, bone_indices)
         
         self.report({'INFO'}, "Pruned excess bones from %d vertices" % pruned)
         
@@ -526,7 +527,7 @@ class A3OB_OT_rigging_weights_prune(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
-        pruned = riggingutils.prune_weights(obj, scene_props.prune_threshold)
+        pruned = rigging.prune_weights(obj, scene_props.prune_threshold)
         
         self.report({'INFO'}, "Pruned selection(s) from %d vertices" % pruned)
         
@@ -551,8 +552,8 @@ class A3OB_OT_rigging_weights_cleanup(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
         
-        bone_indices = riggingutils.get_bone_group_indices(obj, bones)
-        cleaned = riggingutils.cleanup(obj, bone_indices, scene_props.prune_threshold)
+        bone_indices = rigging.get_bone_group_indices(obj, bones)
+        cleaned = rigging.cleanup(obj, bone_indices, scene_props.prune_threshold)
         
         self.report({'INFO'}, "Cleaned up weight painting on %d vertices" % cleaned)
         
@@ -699,14 +700,18 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
     
-    print("\t" + "UI: Rigging")
+    print("\t" + "Tool: Rigging")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Rigging")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Rigging")

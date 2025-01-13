@@ -188,33 +188,6 @@ class A3OB_PG_conversion(bpy.types.PropertyGroup):
     )
 
 
-class A3OB_PG_rigging_bone(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name="Name", description="Name of the bone item")
-    parent: bpy.props.StringProperty(name="Parent", description="Name of the parent bone")
-
-
-class A3OB_PG_rigging_skeleton(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name="Name", description="Name of the skeleton")
-    protected: bpy.props.BoolProperty(name="Protected", description="Skeleton is protected and cannot be modified")
-    bones: bpy.props.CollectionProperty(type=A3OB_PG_rigging_bone)
-    bones_index: bpy.props.IntProperty(name="Selection Index")
-
-
-class A3OB_PG_rigging(bpy.types.PropertyGroup):
-    skeletons: bpy.props.CollectionProperty(type=A3OB_PG_rigging_skeleton)
-    skeletons_index: bpy.props.IntProperty(name="Active Skeleton Index", description="Double click to rename")
-    bones: bpy.props.CollectionProperty(type=A3OB_PG_rigging_bone) # empty collection to show when no skeleton is selected
-    bones_index: bpy.props.IntProperty(name="Selection Index", description="Double click to rename or change parent") # empty collection to show when no skeleton is selected
-    prune_threshold: bpy.props.FloatProperty(
-        name = "Threshold",
-        description = "Weight threshold for pruning selections",
-        min = 0.0,
-        max = 1.0,
-        default = 0.001,
-        precision = 3
-    )
-
-
 classes = (
     A3OB_PG_proxy_access_item,
     A3OB_PG_proxy_access,
@@ -224,10 +197,7 @@ classes = (
     A3OB_PG_common_data,
     A3OB_PG_mass_editor_stats,
     A3OB_PG_mass_editor,
-    A3OB_PG_conversion,
-    A3OB_PG_rigging_bone,
-    A3OB_PG_rigging_skeleton,
-    A3OB_PG_rigging
+    A3OB_PG_conversion
 )
 
 
@@ -239,7 +209,6 @@ def register():
     bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     bpy.types.Scene.a3ob_mass_editor = bpy.props.PointerProperty(type=A3OB_PG_mass_editor)
     bpy.types.Scene.a3ob_conversion = bpy.props.PointerProperty(type=A3OB_PG_conversion)
-    bpy.types.Scene.a3ob_rigging = bpy.props.PointerProperty(type=A3OB_PG_rigging)
     bpy.types.Scene.a3ob_proxy_access = bpy.props.PointerProperty(type=A3OB_PG_proxy_access)
     
     print("\t" + "Properties: scene")
@@ -247,7 +216,6 @@ def register():
     
 def unregister():
     del bpy.types.Scene.a3ob_proxy_access
-    del bpy.types.Scene.a3ob_rigging
     del bpy.types.Scene.a3ob_conversion
     del bpy.types.Scene.a3ob_mass_editor
     del bpy.types.Scene.a3ob_commons

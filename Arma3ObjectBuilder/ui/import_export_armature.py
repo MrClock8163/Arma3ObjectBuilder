@@ -3,7 +3,6 @@ import bpy_extras
 
 from ..io_armature import importer
 from .. import utils
-from ..utilities import rigging as riggingutils
 
 
 class A3OB_OP_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -43,7 +42,7 @@ class A3OB_OP_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelp
             return {'FINISHED'}
         
         skeleton = scene_props.skeletons[self.skeleton_index]
-        if riggingutils.bone_order_from_skeleton(skeleton) is None:
+        if not importer.is_valid_skeleton(skeleton):
             utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
             return {'FINISHED'}
 

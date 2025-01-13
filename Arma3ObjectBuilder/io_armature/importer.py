@@ -20,6 +20,20 @@ def vector_average(vectors):
     return result / len(vectors)
 
 
+def is_valid_skeleton(skeleton):
+    if len({bone.name.lower() for bone in skeleton.bones}) != len(skeleton.bones):
+        return False
+    
+    bones = set()
+    for bone in skeleton.bones:
+        if bone.name == "" or bone.parent != "" and bone.parent.lower() not in bones:
+            return False
+        
+        bones.add(bone.name.lower())
+    
+    return True
+
+
 def extract_pivot_coords(lod):
     pivot_points = {}
     for tagg in lod.taggs:
