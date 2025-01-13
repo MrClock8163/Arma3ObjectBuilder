@@ -1,7 +1,5 @@
 import bpy
 
-from ..io_p3d.utils import ENUM_LOD_TYPES
-
 
 class A3OB_PG_proxy_access_item(bpy.types.PropertyGroup):
     obj: bpy.props.StringProperty(name="Object Name")
@@ -170,30 +168,6 @@ class A3OB_PG_mass_editor(bpy.types.PropertyGroup):
     )
     stats: bpy.props.PointerProperty(type=A3OB_PG_mass_editor_stats)
 
-
-class A3OB_PG_validation(bpy.types.PropertyGroup):
-    detect: bpy.props.BoolProperty(
-        name="Detect Type",
-        description="Detect LOD type when set",
-        default=True
-    )
-    lod: bpy.props.EnumProperty(
-        name = "Type",
-        description = "Type of LOD",
-        items = ENUM_LOD_TYPES,
-        default = '0'
-    )
-    warning_errors: bpy.props.BoolProperty(
-        name = "Warnings Are Errors",
-        description = "Treat warnings as errors during validation",
-        default = True
-    )
-    relative_paths: bpy.props.BoolProperty(
-        name = "Relative Paths",
-        description = "Make file paths relative to the project root for validation",
-        default = True
-    )
-
  
 class A3OB_PG_conversion(bpy.types.PropertyGroup):
     use_selection: bpy.props.BoolProperty(name="Selected Only", description="Convert only selected objects")
@@ -250,7 +224,6 @@ classes = (
     A3OB_PG_common_data,
     A3OB_PG_mass_editor_stats,
     A3OB_PG_mass_editor,
-    A3OB_PG_validation,
     A3OB_PG_conversion,
     A3OB_PG_rigging_bone,
     A3OB_PG_rigging_skeleton,
@@ -265,7 +238,6 @@ def register():
     bpy.types.Scene.a3ob_proxies = bpy.props.PointerProperty(type=A3OB_PG_proxies)
     bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     bpy.types.Scene.a3ob_mass_editor = bpy.props.PointerProperty(type=A3OB_PG_mass_editor)
-    bpy.types.Scene.a3ob_validation = bpy.props.PointerProperty(type=A3OB_PG_validation)
     bpy.types.Scene.a3ob_conversion = bpy.props.PointerProperty(type=A3OB_PG_conversion)
     bpy.types.Scene.a3ob_rigging = bpy.props.PointerProperty(type=A3OB_PG_rigging)
     bpy.types.Scene.a3ob_proxy_access = bpy.props.PointerProperty(type=A3OB_PG_proxy_access)
@@ -277,7 +249,6 @@ def unregister():
     del bpy.types.Scene.a3ob_proxy_access
     del bpy.types.Scene.a3ob_rigging
     del bpy.types.Scene.a3ob_conversion
-    del bpy.types.Scene.a3ob_validation
     del bpy.types.Scene.a3ob_mass_editor
     del bpy.types.Scene.a3ob_commons
     del bpy.types.Scene.a3ob_proxies

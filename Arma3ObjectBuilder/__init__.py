@@ -41,6 +41,7 @@ from . import tool_outliner
 from . import tool_materials
 from . import tool_hitpoint
 from . import tool_renaming
+from . import tool_validation
 
 
 def outliner_enable_update(self, context):
@@ -354,7 +355,7 @@ modules = (
     tool_hitpoint,
     tool_renaming,
     ui.tool_proxies,
-    ui.tool_validation,
+    tool_validation,
     ui.tool_rigging,
     ui.tool_utilities,
     ui.tool_scripts

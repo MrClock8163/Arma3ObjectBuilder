@@ -1,5 +1,6 @@
 import bpy
 
+from . import props
 from .. import get_icon
 from .. import utils
 from ..io_p3d.validator import LODValidator
@@ -89,12 +90,14 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     from bpy.utils import register_class
     
     for cls in classes:
         register_class(cls)
     
-    print("\t" + "UI: Validation")
+    print("\t" + "Tool: Validation")
 
 
 def unregister():
@@ -103,4 +106,6 @@ def unregister():
     for cls in reversed(classes):
         unregister_class(cls)
     
-    print("\t" + "UI: Validation")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Validation")
