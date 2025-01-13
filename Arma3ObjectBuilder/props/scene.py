@@ -168,25 +168,6 @@ class A3OB_PG_mass_editor(bpy.types.PropertyGroup):
     )
     stats: bpy.props.PointerProperty(type=A3OB_PG_mass_editor_stats)
 
- 
-class A3OB_PG_conversion(bpy.types.PropertyGroup):
-    use_selection: bpy.props.BoolProperty(name="Selected Only", description="Convert only selected objects")
-    types: bpy.props.EnumProperty(
-        name = "Object Types",
-        description = "Only convert object of the selected types",
-        items = (
-            ('MESH', "LOD", ""),
-            ('DTM', "DTM", "")
-        ),
-        options = {'ENUM_FLAG'},
-        default = {'MESH', 'DTM'}
-    )
-    cleanup: bpy.props.BoolProperty(
-        name = "Cleanup",
-        description = "Cleanup the ArmaToolbox-style settings and properties",
-        default = True
-    )
-
 
 classes = (
     A3OB_PG_proxy_access_item,
@@ -196,8 +177,7 @@ classes = (
     A3OB_PG_common_data_item,
     A3OB_PG_common_data,
     A3OB_PG_mass_editor_stats,
-    A3OB_PG_mass_editor,
-    A3OB_PG_conversion
+    A3OB_PG_mass_editor
 )
 
 
@@ -208,7 +188,6 @@ def register():
     bpy.types.Scene.a3ob_proxies = bpy.props.PointerProperty(type=A3OB_PG_proxies)
     bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     bpy.types.Scene.a3ob_mass_editor = bpy.props.PointerProperty(type=A3OB_PG_mass_editor)
-    bpy.types.Scene.a3ob_conversion = bpy.props.PointerProperty(type=A3OB_PG_conversion)
     bpy.types.Scene.a3ob_proxy_access = bpy.props.PointerProperty(type=A3OB_PG_proxy_access)
     
     print("\t" + "Properties: scene")
@@ -216,7 +195,6 @@ def register():
     
 def unregister():
     del bpy.types.Scene.a3ob_proxy_access
-    del bpy.types.Scene.a3ob_conversion
     del bpy.types.Scene.a3ob_mass_editor
     del bpy.types.Scene.a3ob_commons
     del bpy.types.Scene.a3ob_proxies
