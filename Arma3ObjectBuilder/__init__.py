@@ -37,6 +37,7 @@ from . import utilities
 from . import props
 from . import ui
 
+from . import tool_outliner
 from . import tool_materials
 from . import tool_hitpoint
 from . import tool_renaming
@@ -347,7 +348,7 @@ modules = (
     ui.import_export_tbcsv,
     ui.import_export_asc,
     ui.import_export_paa,
-    ui.tool_outliner,
+    tool_outliner,
     ui.tool_mass,
     tool_materials,
     tool_hitpoint,

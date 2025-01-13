@@ -1,9 +1,10 @@
 import bpy
 from bpy.app.handlers import persistent
 
+from . import props
+from . import outliner as linerutils
 from .. import get_prefs
 from .. import utils
-from ..utilities import outliner as linerutils
 
 
 class A3OB_UL_outliner_lods(bpy.types.UIList):
@@ -174,13 +175,15 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
     
     if get_prefs().outliner == 'ENABLED':
         bpy.app.handlers.depsgraph_update_post.append(depsgraph_update_post_handler)
     
-    print("\t" + "UI: Outliner")
+    print("\t" + "Tool: Outliner")
 
 
 def unregister():
@@ -192,4 +195,6 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Outliner")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Outliner")

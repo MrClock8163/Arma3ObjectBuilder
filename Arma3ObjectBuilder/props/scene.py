@@ -3,35 +3,13 @@ import bpy
 from ..io_p3d.utils import ENUM_LOD_TYPES
 
 
-class A3OB_PG_outliner_proxy(bpy.types.PropertyGroup):
+class A3OB_PG_proxy_access_item(bpy.types.PropertyGroup):
     obj: bpy.props.StringProperty(name="Object Name")
     name: bpy.props.StringProperty(name="Proxy Type")
 
 
-class A3OB_PG_outliner_lod(bpy.types.PropertyGroup):
-    obj: bpy.props.StringProperty(name="Object Name")
-    name: bpy.props.StringProperty(name="LOD Type")
-    priority: bpy.props.FloatProperty(name="LOD Priority")
-    proxy_count: bpy.props.IntProperty(name="Proxy Count")
-    subobject_count: bpy.props.IntProperty(name="Sub-object Count")
-
-
-class A3OB_PG_outliner(bpy.types.PropertyGroup):
-    show_hidden: bpy.props.BoolProperty(name="Show Hidden Objects")
-    lods: bpy.props.CollectionProperty(type=A3OB_PG_outliner_lod)
-    lods_index: bpy.props.IntProperty(name="Selection Index")
-    proxies: bpy.props.CollectionProperty(type=A3OB_PG_outliner_proxy)
-    proxies_index: bpy.props.IntProperty(name="Selection Index")
-
-    def clear(self):
-        self.lods.clear()
-        self.lods_index = -1
-        self.proxies.clear()
-        self.proxies_index = -1
-
-
 class A3OB_PG_proxy_access(bpy.types.PropertyGroup):
-    proxies: bpy.props.CollectionProperty(type=A3OB_PG_outliner_proxy)
+    proxies: bpy.props.CollectionProperty(type=A3OB_PG_proxy_access_item)
     proxies_index: bpy.props.IntProperty(name="Selection Index")
 
 
@@ -264,9 +242,8 @@ class A3OB_PG_rigging(bpy.types.PropertyGroup):
 
 
 classes = (
-    A3OB_PG_outliner_proxy,
-    A3OB_PG_outliner_lod,
-    A3OB_PG_outliner,
+    A3OB_PG_proxy_access_item,
+    A3OB_PG_proxy_access,
     A3OB_PG_lod_object,
     A3OB_PG_proxies,
     A3OB_PG_common_data_item,
@@ -277,8 +254,7 @@ classes = (
     A3OB_PG_conversion,
     A3OB_PG_rigging_bone,
     A3OB_PG_rigging_skeleton,
-    A3OB_PG_rigging,
-    A3OB_PG_proxy_access
+    A3OB_PG_rigging
 )
 
 
@@ -286,7 +262,6 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
         
-    bpy.types.Scene.a3ob_outliner = bpy.props.PointerProperty(type=A3OB_PG_outliner)
     bpy.types.Scene.a3ob_proxies = bpy.props.PointerProperty(type=A3OB_PG_proxies)
     bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     bpy.types.Scene.a3ob_mass_editor = bpy.props.PointerProperty(type=A3OB_PG_mass_editor)
@@ -306,7 +281,6 @@ def unregister():
     del bpy.types.Scene.a3ob_mass_editor
     del bpy.types.Scene.a3ob_commons
     del bpy.types.Scene.a3ob_proxies
-    del bpy.types.Scene.a3ob_outliner
     
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
