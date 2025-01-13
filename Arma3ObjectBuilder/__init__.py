@@ -38,6 +38,7 @@ from . import props
 from . import ui
 
 from . import tool_materials
+from . import tool_hitpoint
 from . import tool_renaming
 
 
@@ -349,7 +350,7 @@ modules = (
     ui.tool_outliner,
     ui.tool_mass,
     tool_materials,
-    ui.tool_hitpoint,
+    tool_hitpoint,
     tool_renaming,
     ui.tool_proxies,
     ui.tool_validation,

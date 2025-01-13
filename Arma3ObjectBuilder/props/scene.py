@@ -3,10 +3,6 @@ import bpy
 from ..io_p3d.utils import ENUM_LOD_TYPES
 
 
-def mesh_object_poll(self, object):
-    return object.type == 'MESH'
-
-
 class A3OB_PG_outliner_proxy(bpy.types.PropertyGroup):
     obj: bpy.props.StringProperty(name="Object Name")
     name: bpy.props.StringProperty(name="Proxy Type")
@@ -197,31 +193,6 @@ class A3OB_PG_mass_editor(bpy.types.PropertyGroup):
     stats: bpy.props.PointerProperty(type=A3OB_PG_mass_editor_stats)
 
 
-class A3OB_PG_hitpoint_generator(bpy.types.PropertyGroup):
-    source: bpy.props.PointerProperty(
-        type=bpy.types.Object,
-        name = "Source",
-        description = "Mesh object to use as source for point cloud generation",
-        poll = mesh_object_poll
-    )
-    target: bpy.props.PointerProperty(
-        type=bpy.types.Object,
-        name = "Target",
-        description = "Mesh object to write generate point cloud to\n(leave empty to create new object)",
-        poll = mesh_object_poll
-    )
-    spacing: bpy.props.FloatVectorProperty(
-        name = "Spacing",
-        description = "Space between generated points",
-        subtype = 'XYZ',
-        unit = 'LENGTH',
-        min = 0.01,
-        default = (0.2, 0.2, 0.2),
-        size = 3
-    )
-    selection: bpy.props.StringProperty(name="Selection", description="Vertex group to add the generated points to")
-
-
 class A3OB_PG_validation(bpy.types.PropertyGroup):
     detect: bpy.props.BoolProperty(
         name="Detect Type",
@@ -302,7 +273,6 @@ classes = (
     A3OB_PG_common_data,
     A3OB_PG_mass_editor_stats,
     A3OB_PG_mass_editor,
-    A3OB_PG_hitpoint_generator,
     A3OB_PG_validation,
     A3OB_PG_conversion,
     A3OB_PG_rigging_bone,
@@ -320,7 +290,6 @@ def register():
     bpy.types.Scene.a3ob_proxies = bpy.props.PointerProperty(type=A3OB_PG_proxies)
     bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     bpy.types.Scene.a3ob_mass_editor = bpy.props.PointerProperty(type=A3OB_PG_mass_editor)
-    bpy.types.Scene.a3ob_hitpoint_generator = bpy.props.PointerProperty(type=A3OB_PG_hitpoint_generator)
     bpy.types.Scene.a3ob_validation = bpy.props.PointerProperty(type=A3OB_PG_validation)
     bpy.types.Scene.a3ob_conversion = bpy.props.PointerProperty(type=A3OB_PG_conversion)
     bpy.types.Scene.a3ob_rigging = bpy.props.PointerProperty(type=A3OB_PG_rigging)
@@ -334,7 +303,6 @@ def unregister():
     del bpy.types.Scene.a3ob_rigging
     del bpy.types.Scene.a3ob_conversion
     del bpy.types.Scene.a3ob_validation
-    del bpy.types.Scene.a3ob_hitpoint_generator
     del bpy.types.Scene.a3ob_mass_editor
     del bpy.types.Scene.a3ob_commons
     del bpy.types.Scene.a3ob_proxies

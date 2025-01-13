@@ -1,8 +1,9 @@
 import bpy
 
+from . import props
+from . import clouds
 from .. import get_icon
 from .. import utils
-from ..utilities import clouds as cloudutils
 
 
 class A3OB_OT_hitpoints_generate(bpy.types.Operator):
@@ -18,7 +19,7 @@ class A3OB_OT_hitpoints_generate(bpy.types.Operator):
         return scene_props.source and (scene_props.source != scene_props.target) and scene_props.source.type == 'MESH' and (not scene_props.target or scene_props.target.type == 'MESH')
         
     def execute(self, context):        
-        cloudutils.generate_hitpoints(self, context)
+        clouds.generate_hitpoints(self, context)
         return {'FINISHED'}
 
 
@@ -44,7 +45,7 @@ class A3OB_PT_hitpoints(bpy.types.Panel):
         
         # SUPER hacky way to get rid of the object if it's only retained in memory because of this property
         if scene_props.source or scene_props.target:
-            cloudutils.validate_references(scene_props.source, scene_props.target)
+            clouds.validate_references(scene_props.source, scene_props.target)
         
         layout = self.layout
         
@@ -67,14 +68,18 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
     
-    print("\t" + "UI: Hit Point Cloud")
+    print("\t" + "Tool: Hit Point Cloud")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Hit Point Cloud")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Hit Point Cloud")
