@@ -2,9 +2,10 @@ import os
 
 import bpy
 
+from . import props
+from . import utils as renameutils
 from .. import get_icon
 from .. import utils
-from ..utilities import renaming as renameutils
 
 
 class A3OB_OT_rename_list_refresh(bpy.types.Operator):
@@ -180,14 +181,18 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
     
-    print("\t" + "UI: Renaming")
+    print("\t" + "Tool: Renaming")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Renaming")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Renaming")

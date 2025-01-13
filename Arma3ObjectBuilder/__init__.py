@@ -38,6 +38,7 @@ from . import props
 from . import ui
 
 from . import tool_materials
+from . import tool_renaming
 
 
 def outliner_enable_update(self, context):
@@ -349,7 +350,7 @@ modules = (
     ui.tool_mass,
     tool_materials,
     ui.tool_hitpoint,
-    ui.tool_paths,
+    tool_renaming,
     ui.tool_proxies,
     ui.tool_validation,
     ui.tool_rigging,

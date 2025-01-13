@@ -265,48 +265,6 @@ class A3OB_PG_conversion(bpy.types.PropertyGroup):
     )
 
 
-class A3OB_PG_renamable(bpy.types.PropertyGroup):
-    path: bpy.props.StringProperty(name = "From", description = "File path")
-
-
-class A3OB_PG_renaming(bpy.types.PropertyGroup):
-    source_filter: bpy.props.EnumProperty(
-        name = "Filter",
-        description = "",
-        items = (
-            ('TEX', "Texture", "Show paths to textures"),
-            ('RVMAT', "RVMAT", "Show paths to RVMATs"),
-            ('PROXY', "Proxy", "Show paths to proxies")
-        ),
-        options = {'ENUM_FLAG'},
-        default = {'TEX','RVMAT', 'PROXY'}
-    )
-    path_list: bpy.props.CollectionProperty(type=A3OB_PG_renamable)
-    path_list_index: bpy.props.IntProperty(name="Selection Index")
-    new_path: bpy.props.StringProperty(
-        name = "To",
-        description = "New file path",
-        subtype = 'FILE_PATH'
-    )
-    root_old: bpy.props.StringProperty(
-        name = "From",
-        description = "Path root to change",
-        subtype = 'FILE_PATH'
-    )
-    root_new: bpy.props.StringProperty(
-        name = "To",
-        description = "Path to change root to",
-        subtype = 'FILE_PATH'
-    )
-    vgroup_old: bpy.props.StringProperty(name="From", description="Vertex group to rename")
-    vgroup_new: bpy.props.StringProperty(name = "To", description = "New vertex group name")
-    vgroup_match_whole: bpy.props.BoolProperty(
-        name = "Whole Name",
-        description = "Only replace if the whole name matches",
-        default = True
-    )
-
-
 class A3OB_PG_rigging_bone(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Name", description="Name of the bone item")
     parent: bpy.props.StringProperty(name="Parent", description="Name of the parent bone")
@@ -347,8 +305,6 @@ classes = (
     A3OB_PG_hitpoint_generator,
     A3OB_PG_validation,
     A3OB_PG_conversion,
-    A3OB_PG_renamable,
-    A3OB_PG_renaming,
     A3OB_PG_rigging_bone,
     A3OB_PG_rigging_skeleton,
     A3OB_PG_rigging,
@@ -367,7 +323,6 @@ def register():
     bpy.types.Scene.a3ob_hitpoint_generator = bpy.props.PointerProperty(type=A3OB_PG_hitpoint_generator)
     bpy.types.Scene.a3ob_validation = bpy.props.PointerProperty(type=A3OB_PG_validation)
     bpy.types.Scene.a3ob_conversion = bpy.props.PointerProperty(type=A3OB_PG_conversion)
-    bpy.types.Scene.a3ob_renaming = bpy.props.PointerProperty(type=A3OB_PG_renaming)
     bpy.types.Scene.a3ob_rigging = bpy.props.PointerProperty(type=A3OB_PG_rigging)
     bpy.types.Scene.a3ob_proxy_access = bpy.props.PointerProperty(type=A3OB_PG_proxy_access)
     
@@ -377,7 +332,6 @@ def register():
 def unregister():
     del bpy.types.Scene.a3ob_proxy_access
     del bpy.types.Scene.a3ob_rigging
-    del bpy.types.Scene.a3ob_renaming
     del bpy.types.Scene.a3ob_conversion
     del bpy.types.Scene.a3ob_validation
     del bpy.types.Scene.a3ob_hitpoint_generator
