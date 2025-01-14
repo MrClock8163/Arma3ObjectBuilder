@@ -5,6 +5,7 @@ import struct
 import bpy
 import mathutils
 
+from . import props
 from .. import get_icon
 from .. import utils
 from .. import utils_io
@@ -369,14 +370,18 @@ classes = (
 
 
 def register():
+    props.register_props()
+
     for cls in classes:
         bpy.utils.register_class(cls)
     
-    print("\t" + "UI: Proxies")
+    print("\t" + "Tool: Proxies")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Proxies")
+    props.unregister_props()
+    
+    print("\t" + "Tool: Proxies")

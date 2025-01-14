@@ -2,9 +2,9 @@ import bpy
 
 from .. import get_prefs, get_icon
 from .. import utils
-from ..utilities import proxy as proxyutils
 from ..io_p3d.data import P3D_LOD_Resolution as LODRes
 from ..io_p3d import flags as p3d_flags
+from ..io_p3d import utils as p3d_utils
 
 
 bl_version = bpy.app.version
@@ -31,7 +31,7 @@ class A3OB_OT_proxy_add(bpy.types.Operator):
         return True
         
     def execute(self, context):
-        proxy_object = proxyutils.create_proxy()
+        proxy_object = p3d_utils.create_proxy()
         proxy_object.display_type = 'WIRE'
         proxy_object.show_name = True
         proxy_object.location = context.scene.cursor.location

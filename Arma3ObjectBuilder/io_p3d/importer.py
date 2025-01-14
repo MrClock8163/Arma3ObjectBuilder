@@ -12,10 +12,9 @@ import mathutils
 
 from . import data as p3d
 from . import flags as p3d_flags
-from . import utils
+from . import utils as p3d_utils
 from .. import utils_io
 from .. import utils_compat as computils
-from ..utilities import proxy as proxyutils
 from ..utilities import structure as structutils
 from ..logger import ProcessLogger
 
@@ -202,11 +201,11 @@ def transform_proxy(obj):
     if len(obj.data.vertices) < 3:
         return
     
-    rotation_matrix = proxyutils.get_transform_rotation(obj)
+    rotation_matrix = p3d_utils.get_transform_rotation(obj)
     obj.data.transform(rotation_matrix)
     obj.matrix_world @= rotation_matrix.inverted()
     
-    translate = mathutils.Matrix.Translation(-proxyutils.find_axis_vertices(obj.data)[0].co)
+    translate = mathutils.Matrix.Translation(-p3d_utils.find_axis_vertices(obj.data)[0].co)
     obj.data.transform(translate)
     obj.matrix_world @= translate.inverted()
     
@@ -282,7 +281,7 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             proxy_obj.name = name
             proxy_obj.data.name = name
 
-            utils.clear_uvs(proxy_obj)
+            p3d_utils.clear_uvs(proxy_obj)
 
 
 def process_lod(operator, logger, lod, materials, materials_lookup, categories, lod_links):

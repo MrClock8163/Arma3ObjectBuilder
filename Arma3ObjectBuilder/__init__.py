@@ -42,6 +42,7 @@ from . import tool_mass
 from . import tool_materials
 from . import tool_hitpoint
 from . import tool_renaming
+from . import tool_proxies
 from . import tool_validation
 from . import tool_rigging
 
@@ -356,7 +357,7 @@ modules = (
     tool_materials,
     tool_hitpoint,
     tool_renaming,
-    ui.tool_proxies,
+    tool_proxies,
     tool_validation,
     tool_rigging,
     ui.tool_utilities,
