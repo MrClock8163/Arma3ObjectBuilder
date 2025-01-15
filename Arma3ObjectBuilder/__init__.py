@@ -36,6 +36,7 @@ def get_prefs():
 from . import props
 from . import ui
 
+from . import io_armature
 from . import tool_outliner
 from . import tool_mass
 from . import tool_materials
@@ -349,7 +350,7 @@ modules = (
     ui.import_export_p3d,
     ui.import_export_rtm,
     ui.import_export_mcfg,
-    ui.import_export_armature,
+    io_armature,
     ui.import_export_tbcsv,
     ui.import_export_asc,
     ui.import_export_paa,
