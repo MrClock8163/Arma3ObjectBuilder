@@ -33,7 +33,6 @@ def get_prefs():
     return addon_prefs
 
 
-from . import utilities
 from . import props
 from . import ui
 
@@ -46,14 +45,15 @@ from . import tool_proxies
 from . import tool_validation
 from . import tool_rigging
 from . import tool_utilities
+from .io_p3d import flags
 
 
 def outliner_enable_update(self, context):
-    if self.outliner == 'ENABLED' and ui.tool_outliner.depsgraph_update_post_handler not in bpy.app.handlers.depsgraph_update_post:
-        bpy.app.handlers.depsgraph_update_post.append(ui.tool_outliner.depsgraph_update_post_handler)
-        ui.tool_outliner.depsgraph_update_post_handler(context.scene, None)
-    elif self.outliner == 'DISABLED' and ui.tool_outliner.depsgraph_update_post_handler in bpy.app.handlers.depsgraph_update_post:
-        bpy.app.handlers.depsgraph_update_post.remove(ui.tool_outliner.depsgraph_update_post_handler)
+    if self.outliner == 'ENABLED' and tool_outliner.depsgraph_update_post_handler not in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.append(tool_outliner.depsgraph_update_post_handler)
+        tool_outliner.depsgraph_update_post_handler(context.scene, None)
+    elif self.outliner == 'DISABLED' and tool_outliner.depsgraph_update_post_handler in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.remove(tool_outliner.depsgraph_update_post_handler)
         context.scene.a3ob_outliner.clear()
 
 
@@ -144,13 +144,13 @@ class A3OB_OT_prefs_edit_flag_vertex(bpy.types.Operator):
     
     def invoke(self, context, event):
         prefs = context.preferences.addons[__package__].preferences
-        utilities.flags.set_flag_vertex(self, prefs.flag_vertex)
+        flags.set_flag_vertex(self, prefs.flag_vertex)
 
         return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
         prefs = context.preferences.addons[__package__].preferences
-        prefs.flag_vertex = utilities.flags.get_flag_vertex(self)
+        prefs.flag_vertex = flags.get_flag_vertex(self)
 
         return {'FINISHED'}
 
@@ -196,13 +196,13 @@ class A3OB_OT_prefs_edit_flag_face(bpy.types.Operator):
     
     def invoke(self, context, event):
         prefs = context.preferences.addons[__package__].preferences
-        utilities.flags.set_flag_face(self, prefs.flag_face) # TODO Fix missing flag utilities
+        flags.set_flag_face(self, prefs.flag_face) # TODO Fix missing flag utilities
 
         return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
         prefs = context.preferences.addons[__package__].preferences
-        prefs.flag_face = utilities.flags.get_flag_face(self)
+        prefs.flag_face = flags.get_flag_face(self)
 
         return {'FINISHED'}
 
@@ -361,7 +361,6 @@ modules = (
     tool_proxies,
     tool_validation,
     tool_rigging,
-    ui.tool_utilities,
     tool_utilities
 )
 

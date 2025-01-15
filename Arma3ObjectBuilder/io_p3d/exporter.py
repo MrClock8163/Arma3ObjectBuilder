@@ -17,7 +17,6 @@ from .validator import LODValidator
 from .. import get_prefs
 from .. import utils
 from .. import utils_compat as computils
-from ..utilities import structure as structutils
 from ..logger import ProcessLogger, ProcessLoggerNull
 
 
@@ -300,7 +299,7 @@ def generate_components(operator, obj):
         if re_component.match(group.name):
             return
     
-    structutils.find_components(obj)
+    p3d_utils.find_components(obj)
 
 
 # Needed to get around the validator requiring component## selections. If the

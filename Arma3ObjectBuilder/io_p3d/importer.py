@@ -15,7 +15,6 @@ from . import flags as p3d_flags
 from . import utils as p3d_utils
 from .. import utils_io
 from .. import utils_compat as computils
-from ..utilities import structure as structutils
 from ..logger import ProcessLogger
 
 
@@ -246,7 +245,7 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             proxy_obj.a3ob_properties_object.is_a3_lod = False
 
             transform_proxy(proxy_obj)
-            structutils.cleanup_vertex_groups(proxy_obj) # need to remove the unused groups leftover from the separation
+            p3d_utils.cleanup_vertex_groups(proxy_obj) # need to remove the unused groups leftover from the separation
 
             vgroup = proxy_obj.vertex_groups.get("@proxy_%d" % i)
             if not vgroup:
@@ -389,7 +388,7 @@ def process_lod(operator, logger, lod, materials, materials_lookup, categories, 
         mesh.validate(clean_customdata=False)
     
     if operator.cleanup_empty_selections:
-        structutils.cleanup_vertex_groups(obj)
+        p3d_utils.cleanup_vertex_groups(obj)
         logger.step("Cleaned up vertex groups")
 
     if operator.proxy_action != 'NOTHING' and 'SELECTIONS' in operator.additional_data:

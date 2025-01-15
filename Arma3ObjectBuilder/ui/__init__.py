@@ -8,4 +8,3 @@ from . import import_export_paa
 from . import props_action
 from . import props_material
 from . import props_object_mesh
-from . import tool_utilities
