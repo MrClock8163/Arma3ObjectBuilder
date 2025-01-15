@@ -102,7 +102,7 @@ def register():
     
     bpy.types.TEXT_MT_templates.append(draw_scripts_menu)
     
-    print("\t" + "UI: Scripts")
+    print("\t" + "Utilities")
 
 
 def unregister():
@@ -111,4 +111,4 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     
-    print("\t" + "UI: Scripts")
+    print("\t" + "Utilities")

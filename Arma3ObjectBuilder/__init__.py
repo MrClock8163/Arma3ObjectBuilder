@@ -45,6 +45,7 @@ from . import tool_renaming
 from . import tool_proxies
 from . import tool_validation
 from . import tool_rigging
+from . import tool_utilities
 
 
 def outliner_enable_update(self, context):
@@ -361,7 +362,7 @@ modules = (
     tool_validation,
     tool_rigging,
     ui.tool_utilities,
-    ui.tool_scripts
+    tool_utilities
 )
 
 
