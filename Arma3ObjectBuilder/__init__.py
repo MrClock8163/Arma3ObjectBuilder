@@ -38,6 +38,7 @@ from . import ui
 
 from . import io_armature
 from . import io_tbcsv
+from . import io_asc
 from . import io_paa
 from . import tool_outliner
 from . import tool_mass
@@ -354,7 +355,7 @@ modules = (
     ui.import_export_mcfg,
     io_armature,
     io_tbcsv,
-    ui.import_export_asc,
+    io_asc,
     io_paa,
     tool_outliner,
     tool_mass,

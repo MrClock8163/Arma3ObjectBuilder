@@ -858,47 +858,6 @@ class A3OB_PT_object_proxy(bpy.types.Panel):
         layout.prop(object_props, "proxy_index")
 
 
-class A3OB_PT_object_dtm(bpy.types.Panel):
-    bl_region_type = 'WINDOW'
-    bl_space_type = 'PROPERTIES'
-    bl_label = "Object Builder: DTM Properties"
-    bl_context = "data"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    doc_url = "https://mrcmodding.gitbook.io/arma-3-object-builder/properties/dtm"
-    
-    @classmethod
-    def poll(cls, context):
-        obj = context.object
-        return obj and obj.type == 'MESH' and not obj.a3ob_properties_object_proxy.is_a3_proxy
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
-        
-    def draw(self, context):
-        obj = context.object
-        object_props = obj.a3ob_properties_object_dtm
-        
-        layout = self.layout
-        
-        layout.use_property_split = True
-        layout.use_property_decorate = False
-        
-        col_cellsize = layout.column(align=True)
-        row_cellsize_source = col_cellsize.row(align=True)
-        row_cellsize_source.prop(object_props, "cellsize_source", text="Cell Size", expand=True)
-        if object_props.cellsize_source == 'MANUAL':
-            col_cellsize.prop(object_props, "cellsize", text=" ")
-        
-        row_type = layout.row(align=True)
-        row_type.prop(object_props, "data_type", expand=True)
-
-        col_origin = layout.column(align=True)
-        col_origin.prop(object_props, "easting")
-        col_origin.prop(object_props, "northing")
-        layout.prop(object_props, "nodata")
-
-
 def menu_func(self, context):
     self.layout.separator()
     self.layout.operator(A3OB_OT_proxy_add.bl_idname, text="Arma 3 Proxy", icon_value=get_icon("op_proxy_add"))
@@ -938,8 +897,7 @@ classes = (
     A3OB_PT_object_proxy,
     A3OB_PT_object_mesh_flags,
     A3OB_PT_object_mesh_flags_vertex,
-    A3OB_PT_object_mesh_flags_face,
-    A3OB_PT_object_dtm
+    A3OB_PT_object_mesh_flags_face
 )
 
 

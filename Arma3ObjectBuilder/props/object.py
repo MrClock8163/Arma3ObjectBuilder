@@ -400,49 +400,6 @@ class A3OB_PG_properties_object_proxy(bpy.types.PropertyGroup):
         return name
 
 
-class A3OB_PG_properties_object_dtm(bpy.types.PropertyGroup):
-    data_type: bpy.props.EnumProperty(
-        name = "Data Type",
-        description = "Type of data arrangement",
-        items = (
-            ('RASTER', "Raster", "Data points are cell centered"),
-            ('GRID', "Grid", "Data points are on cell corners")
-        ),
-        default = 'GRID'
-    )
-    easting: bpy.props.FloatProperty(
-        name = "Easting",
-        unit = 'LENGTH',
-        default = 200000,
-        soft_max = 1000000
-    )
-    northing: bpy.props.FloatProperty(
-        name = "Northing",
-        unit = 'LENGTH',
-        soft_max = 1000000
-    )
-    cellsize_source: bpy.props.EnumProperty(
-        name = "Source",
-        description = "Source of cell size",
-        items = (
-            ('MANUAL', "Manual", "The cell size is explicitly set"),
-            ('CALCULATED', "Calculated", "The cell size is from the distance of the first 2 points of the gird")
-        ),
-        default = 'MANUAL'
-    )
-    cellsize: bpy.props.FloatProperty(
-        name = "Cell Size",
-        description = "Horizontal and vertical space between raster points",
-        unit = 'LENGTH',
-        default = 1.0
-    )
-    nodata: bpy.props.FloatProperty(
-        name = "NULL Indicator",
-        description = "Filler value where data does not exist",
-        default = -9999.0
-    )
-
-
 @persistent
 def depsgraph_update_post_handler(scene, depsgraph):  
     scene_props = scene.a3ob_proxy_access
@@ -474,8 +431,7 @@ classes = (
     A3OB_PG_properties_lod_copy,
     A3OB_PG_properties_object_mesh,
     A3OB_PG_properties_object_flags,
-    A3OB_PG_properties_object_proxy,
-    A3OB_PG_properties_object_dtm
+    A3OB_PG_properties_object_proxy
 )
 
 
@@ -486,7 +442,6 @@ def register():
     bpy.types.Object.a3ob_properties_object = bpy.props.PointerProperty(type=A3OB_PG_properties_object_mesh)
     bpy.types.Object.a3ob_properties_object_flags = bpy.props.PointerProperty(type=A3OB_PG_properties_object_flags)
     bpy.types.Object.a3ob_properties_object_proxy = bpy.props.PointerProperty(type=A3OB_PG_properties_object_proxy)
-    bpy.types.Object.a3ob_properties_object_dtm = bpy.props.PointerProperty(type=A3OB_PG_properties_object_dtm)
 
     bpy.app.handlers.depsgraph_update_post.append(depsgraph_update_post_handler)
     
@@ -496,7 +451,6 @@ def register():
 def unregister():
     bpy.app.handlers.depsgraph_update_post.remove(depsgraph_update_post_handler)
 
-    del bpy.types.Object.a3ob_properties_object_dtm
     del bpy.types.Object.a3ob_properties_object_proxy
     del bpy.types.Object.a3ob_properties_object_flags
     del bpy.types.Object.a3ob_properties_object
