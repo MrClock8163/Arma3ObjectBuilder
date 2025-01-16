@@ -172,8 +172,6 @@ class A3OB_OT_proxy_copy(bpy.types.Operator):
         scene_props = context.scene.a3ob_proxies
         scene_props.lod_objects.clear()
         
-        object_pool = context.scene.objects # TODO Investiage this unused variable
-        
         proxy_object = context.active_object
         parent_object = proxy_object.parent
         
@@ -318,7 +316,7 @@ class A3OB_OT_proxy_transfer(bpy.types.Operator):
         return {'FINISHED'}
     
 
-class A3OB_PT_proxies(bpy.types.Panel):
+class A3OB_PT_proxies(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -330,9 +328,6 @@ class A3OB_PT_proxies(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return True
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         layout = self.layout

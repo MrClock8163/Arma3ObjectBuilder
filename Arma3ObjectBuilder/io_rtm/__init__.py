@@ -295,7 +295,7 @@ class A3OB_UL_rtm_props(bpy.types.UIList):
         return flt_flags, flt_neworder
 
 
-class A3OB_PT_action(bpy.types.Panel):
+class A3OB_PT_action(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_region_type = 'UI'
     bl_space_type = 'DOPESHEET_EDITOR'
     bl_label = "RTM Properties"
@@ -307,9 +307,6 @@ class A3OB_PT_action(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return get_action(context.object)
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         action = get_action(context.object)

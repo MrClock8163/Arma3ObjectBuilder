@@ -72,7 +72,7 @@ class A3OB_UL_materials_templates(bpy.types.UIList):
         layout.label(text=item.name, icon='TEXT')
 
 
-class A3OB_PT_materials(bpy.types.Panel):
+class A3OB_PT_materials(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -80,9 +80,6 @@ class A3OB_PT_materials(bpy.types.Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     doc_url = "https://mrcmodding.gitbook.io/arma-3-object-builder/tools/materials"
-    
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
 
     def draw(self, context):
         pass

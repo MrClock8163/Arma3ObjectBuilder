@@ -566,7 +566,7 @@ class A3OB_UL_proxy_access(bpy.types.UIList):
         return flt_flags, flt_neworder
 
 
-class A3OB_PT_object_mesh(bpy.types.Panel):
+class A3OB_PT_object_mesh(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: LOD Properties"
@@ -579,9 +579,6 @@ class A3OB_PT_object_mesh(bpy.types.Panel):
     def poll(cls, context):
         obj = context.object
         return obj and obj.type == 'MESH' and not obj.a3ob_properties_object_proxy.is_a3_proxy
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         obj = context.object
@@ -702,7 +699,7 @@ class A3OB_PT_object_mesh_copies(bpy.types.Panel):
         col_operators.operator("a3ob.lod_copy_remove", text="", icon='REMOVE')
 
 
-class A3OB_PT_object_mesh_flags(bpy.types.Panel):
+class A3OB_PT_object_mesh_flags(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: Flag Groups"
@@ -715,9 +712,6 @@ class A3OB_PT_object_mesh_flags(bpy.types.Panel):
     def poll(cls, context):
         obj = context.object
         return obj and obj.type == 'MESH' and not obj.a3ob_properties_object_proxy.is_a3_proxy
-    
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
 
     def draw(self, context):
         pass
@@ -816,7 +810,7 @@ class A3OB_PT_object_mesh_flags_face(bpy.types.Panel):
         col_operators.operator("a3ob.flags_face_clear", text="", icon='TRASH')
 
 
-class A3OB_PT_object_proxy(bpy.types.Panel):
+class A3OB_PT_object_proxy(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: Proxy Properties"
@@ -829,9 +823,6 @@ class A3OB_PT_object_proxy(bpy.types.Panel):
     def poll(cls, context):
         obj = context.object
         return obj and obj.type == 'MESH' and obj.a3ob_properties_object_proxy.is_a3_proxy and not obj.a3ob_properties_object.is_a3_lod
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         obj = context.object

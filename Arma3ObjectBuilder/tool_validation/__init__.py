@@ -51,7 +51,7 @@ class A3OB_OT_validate_lod(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_validation(bpy.types.Panel):
+class A3OB_PT_validation(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -63,9 +63,6 @@ class A3OB_PT_validation(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return True
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         layout = self.layout

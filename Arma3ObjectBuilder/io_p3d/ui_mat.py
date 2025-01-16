@@ -73,7 +73,7 @@ class A3OB_UL_common_procedurals(bpy.types.UIList):
         layout.label(text=item.name)
 
 
-class A3OB_PT_material(bpy.types.Panel):
+class A3OB_PT_material(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: Material Properties"
@@ -84,9 +84,6 @@ class A3OB_PT_material(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return hasattr(context, "material") and context.material
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         material = context.material

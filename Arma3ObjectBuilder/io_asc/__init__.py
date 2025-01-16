@@ -6,7 +6,7 @@ from .. import utils
 from .. import utils_io
 
 
-class A3OB_PT_object_dtm(bpy.types.Panel):
+class A3OB_PT_object_dtm(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: DTM Properties"
@@ -19,9 +19,6 @@ class A3OB_PT_object_dtm(bpy.types.Panel):
     def poll(cls, context):
         obj = context.object
         return obj and obj.type == 'MESH' and not obj.a3ob_properties_object_proxy.is_a3_proxy
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         obj = context.object

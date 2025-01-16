@@ -76,7 +76,7 @@ class A3OB_OT_rename_vertex_groups(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_renaming(bpy.types.Panel):
+class A3OB_PT_renaming(bpy.types.Panel, utils.PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -84,9 +84,6 @@ class A3OB_PT_renaming(bpy.types.Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     doc_url = "https://mrcmodding.gitbook.io/arma-3-object-builder/tools/renaming"
-    
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
 
     def draw(self, context):
         pass

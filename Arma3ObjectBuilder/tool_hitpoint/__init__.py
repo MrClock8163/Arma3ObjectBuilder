@@ -23,7 +23,7 @@ class A3OB_OT_hitpoints_generate(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_hitpoints(bpy.types.Panel):   
+class A3OB_PT_hitpoints(bpy.types.Panel, utils.PanelHeaderLinkMixin):   
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -35,9 +35,6 @@ class A3OB_PT_hitpoints(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return True
-        
-    def draw_header(self, context):
-        utils.draw_panel_header(self)
         
     def draw(self, context):
         scene_props = context.scene.a3ob_hitpoint_generator

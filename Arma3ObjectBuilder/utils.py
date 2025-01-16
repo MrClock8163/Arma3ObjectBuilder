@@ -23,12 +23,15 @@ def is_valid_idx(index, subscriptable):
     return len(subscriptable) > 0 and 0 <= index < len(subscriptable)
 
 
-def draw_panel_header(panel):
-    if not get_prefs().show_info_links:
-        return
+class PanelHeaderLinkMixin:
+    doc_url = ""
+    
+    def draw_header(self, context):
+        if not get_prefs().show_info_links or not self.doc_url:
+            return
         
-    row = panel.layout.row(align=True)
-    row.operator("wm.url_open", text="", icon='HELP', emboss=False).url = panel.doc_url
+        row = self.layout.row(align=True)
+        row.operator("wm.url_open", text="", icon='HELP', emboss=False).url = self.doc_url
 
 
 @contextmanager
