@@ -33,9 +33,7 @@ def get_prefs():
     return addon_prefs
 
 
-from . import props
-from . import ui
-
+from . import io_p3d
 from . import io_rtm
 from . import io_mcfg
 from . import io_armature
@@ -202,7 +200,7 @@ class A3OB_OT_prefs_edit_flag_face(bpy.types.Operator):
     
     def invoke(self, context, event):
         prefs = context.preferences.addons[__package__].preferences
-        flags.set_flag_face(self, prefs.flag_face) # TODO Fix missing flag utilities
+        flags.set_flag_face(self, prefs.flag_face)
 
         return context.window_manager.invoke_props_dialog(self)
     
@@ -336,21 +334,29 @@ class A3OB_AT_preferences(bpy.types.AddonPreferences):
             box.prop(self, "preserve_preprocessed_lods")
 
 
+class A3OB_PG_common_data_item(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name="Name", description="Descriptive name of the common item")
+    value: bpy.props.StringProperty(name="Value", description="Value of the common item")
+    type: bpy.props.StringProperty(name="Type", description="Context type of the common item")
+
+
+class A3OB_PG_common_data(bpy.types.PropertyGroup):
+    items: bpy.props.CollectionProperty(type=A3OB_PG_common_data_item)
+    items_index: bpy.props.IntProperty(name="Selection Index")
+
+
 classes = (
     A3OB_OT_prefs_find_a3_tools,
     A3OB_OT_prefs_edit_flag_vertex,
     A3OB_OT_prefs_edit_flag_face,
-    A3OB_AT_preferences
+    A3OB_AT_preferences,
+    A3OB_PG_common_data_item,
+    A3OB_PG_common_data
 )
 
 
 modules = (
-    props.object,
-    props.material,
-    props.scene,
-    ui.props_object_mesh,
-    ui.props_material,
-    ui.import_export_p3d,
+    io_p3d,
     io_rtm,
     io_mcfg,
     io_armature,
@@ -399,6 +405,8 @@ def register():
     
     for cls in classes:
         register_class(cls)
+
+    bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     
     global addon_prefs
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
@@ -420,6 +428,8 @@ def unregister():
     
     for mod in reversed(modules):
         mod.unregister()
+
+    del bpy.types.Scene.a3ob_commons
     
     for cls in reversed(classes):
         unregister_class(cls)

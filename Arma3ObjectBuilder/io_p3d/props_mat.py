@@ -125,19 +125,15 @@ classes = (
 )
 
 
-def register():
+def register_props():
     for cls in classes:
         bpy.utils.register_class(cls)
     
     bpy.types.Material.a3ob_properties_material = bpy.props.PointerProperty(type=A3OB_PG_properties_material)
-    
-    print("\t" + "Properties: material")
 
 
-def unregister():
+def unregister_props():
     del bpy.types.Material.a3ob_properties_material
     
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    
-    print("\t" + "Properties: material")

@@ -1,14 +1,12 @@
 import os
 
 import bpy
-from bpy.app.handlers import persistent
 
+from .data import P3D_LOD_Resolution as LODRes
+from . import flags as p3d_flags
+from . import utils as p3d_utils
 from .. import get_prefs
 from .. import utils_io
-from ..tool_mass import masses
-from ..io_p3d.data import P3D_LOD_Resolution as LODRes
-from ..io_p3d import flags as p3d_flags
-from ..io_p3d import utils as p3d_utils
 
 
 bl_version = bpy.app.version
@@ -400,30 +398,6 @@ class A3OB_PG_properties_object_proxy(bpy.types.PropertyGroup):
         return name
 
 
-@persistent
-def depsgraph_update_post_handler(scene, depsgraph):  
-    scene_props = scene.a3ob_proxy_access
-
-    obj = None
-    try:
-        obj = bpy.context.object
-    except:
-        pass
-    
-    if not obj or obj.type != 'MESH' or not obj.a3ob_properties_object.is_a3_lod:
-        scene_props.proxies_index = -1
-        return
-
-    scene_props.proxies.clear()
-    for child in obj.children:
-        if child.type != 'MESH' or not child.a3ob_properties_object_proxy.is_a3_proxy:
-            continue
-        
-        item = scene_props.proxies.add()
-        item.obj = child.name
-        item.name = child.a3ob_properties_object_proxy.get_name()
-
-
 classes = (
     A3OB_PG_properties_named_property,
     A3OB_PG_properties_flag_vertex,
@@ -435,7 +409,7 @@ classes = (
 )
 
 
-def register():
+def register_props():
     for cls in classes:
         bpy.utils.register_class(cls)
         
@@ -443,19 +417,11 @@ def register():
     bpy.types.Object.a3ob_properties_object_flags = bpy.props.PointerProperty(type=A3OB_PG_properties_object_flags)
     bpy.types.Object.a3ob_properties_object_proxy = bpy.props.PointerProperty(type=A3OB_PG_properties_object_proxy)
 
-    bpy.app.handlers.depsgraph_update_post.append(depsgraph_update_post_handler)
-    
-    print("\t" + "Properties: object")
 
-
-def unregister():
-    bpy.app.handlers.depsgraph_update_post.remove(depsgraph_update_post_handler)
-
+def unregister_props():
     del bpy.types.Object.a3ob_properties_object_proxy
     del bpy.types.Object.a3ob_properties_object_flags
     del bpy.types.Object.a3ob_properties_object
     
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    
-    print("\t" + "Properties: object")

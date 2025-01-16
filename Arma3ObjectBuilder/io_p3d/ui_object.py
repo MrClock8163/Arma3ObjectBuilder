@@ -1,10 +1,10 @@
 import bpy
 
+from .data import P3D_LOD_Resolution as LODRes
+from . import flags as p3d_flags
+from . import utils as p3d_utils
 from .. import get_prefs, get_icon
 from .. import utils
-from ..io_p3d.data import P3D_LOD_Resolution as LODRes
-from ..io_p3d import flags as p3d_flags
-from ..io_p3d import utils as p3d_utils
 
 
 bl_version = bpy.app.version
@@ -901,19 +901,15 @@ classes = (
 )
 
 
-def register():
+def register_ui():
     for cls in classes:
         bpy.utils.register_class(cls)
         
     bpy.types.VIEW3D_MT_add.append(menu_func)
-    
-    print("\t" + "UI: mesh properties")
 
 
-def unregister():
+def unregister_ui():
     bpy.types.VIEW3D_MT_add.remove(menu_func)
     
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    
-    print("\t" + "UI: mesh properties")
