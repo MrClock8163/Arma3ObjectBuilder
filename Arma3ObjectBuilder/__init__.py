@@ -37,6 +37,7 @@ from . import props
 from . import ui
 
 from . import io_armature
+from . import io_tbcsv
 from . import io_paa
 from . import tool_outliner
 from . import tool_mass
@@ -352,7 +353,7 @@ modules = (
     ui.import_export_rtm,
     ui.import_export_mcfg,
     io_armature,
-    ui.import_export_tbcsv,
+    io_tbcsv,
     ui.import_export_asc,
     io_paa,
     tool_outliner,
