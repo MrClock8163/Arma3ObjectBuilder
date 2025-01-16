@@ -51,6 +51,20 @@ classes = (
 )
 
 
+if bpy.app.version >= (4, 1, 0):
+    class A3OB_FH_paa(bpy.types.FileHandler):
+        bl_label = "Arma 3 map objects list"
+        bl_import_operator = "a3ob.import_paa"
+        bl_export_operator = "a3ob.export_paa"
+        bl_file_extensions = ".paa"
+    
+        @classmethod
+        def poll_drop(cls, context):
+            return context.area and context.area.type in {'FILE_BROWSER', 'VIEW_3D', 'IMAGE_EDITOR', 'NODE_EDITOR'}
+
+    classes = (*classes, A3OB_FH_paa)
+
+
 def menu_func_import(self, context):
     self.layout.operator(A3OB_OP_import_paa.bl_idname, text="Arma 3 texture (.paa)")
 
