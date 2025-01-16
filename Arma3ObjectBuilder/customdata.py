@@ -1,16 +1,16 @@
-# def get_rvmat_templates():
-#     import os
-#     from . import addon_dir
+def get_rvmat_templates():
+    import os
+    from . import addon_dir
 
-#     template_dir = os.path.join(addon_dir, "scripts")
+    template_dir = os.path.join(addon_dir, "scripts")
 
-#     templates = {
-#         "PBR (VBS)": os.path.join(template_dir, "pbr_vbs.rvmat_template"),
-#         "Super - Cloth": os.path.join(template_dir, "super_cloth.rvmat_template"),
-#         "Super - Weapon": os.path.join(template_dir, "super_weapon.rvmat_template")
-#     }
+    templates = {
+        "PBR (VBS)": os.path.join(template_dir, "pbr_vbs.rvmat_template"),
+        "Super - Cloth": os.path.join(template_dir, "super_cloth.rvmat_template"),
+        "Super - Weapon": os.path.join(template_dir, "super_weapon.rvmat_template")
+    }
 
-#     return templates
+    return templates
 
 
 common_data = {
@@ -54,6 +54,5 @@ common_data = {
     "procedurals": {
         "PIP": "#(argb,512,512,1)r2t(rendertarget0,1.0)"
     },
-    "rvmat_templates": {}
-    # "rvmat_templates": get_rvmat_templates()
+    "rvmat_templates": get_rvmat_templates()
 }
