@@ -37,6 +37,7 @@ from . import props
 from . import ui
 
 from . import io_rtm
+from . import io_mcfg
 from . import io_armature
 from . import io_tbcsv
 from . import io_asc
@@ -351,7 +352,7 @@ modules = (
     ui.props_material,
     ui.import_export_p3d,
     io_rtm,
-    ui.import_export_mcfg,
+    io_mcfg,
     io_armature,
     io_tbcsv,
     io_asc,
