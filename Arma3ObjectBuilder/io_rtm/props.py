@@ -50,19 +50,15 @@ classes = (
 )
 
 
-def register():
+def register_props():
     for cls in classes:
         bpy.utils.register_class(cls)
     
     bpy.types.Action.a3ob_properties_action = bpy.props.PointerProperty(type=A3OB_PG_properties_action)
 
-    print("\t" + "Properties: action")
 
-
-def unregister():
+def unregister_props():
     del bpy.types.Action.a3ob_properties_action
-    
+
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-
-    print("\t" + "Properties: action")

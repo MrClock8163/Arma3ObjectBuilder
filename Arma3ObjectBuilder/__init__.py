@@ -36,6 +36,7 @@ def get_prefs():
 from . import props
 from . import ui
 
+from . import io_rtm
 from . import io_armature
 from . import io_tbcsv
 from . import io_asc
@@ -346,12 +347,10 @@ modules = (
     props.object,
     props.material,
     props.scene,
-    props.action,
-    ui.props_action,
     ui.props_object_mesh,
     ui.props_material,
     ui.import_export_p3d,
-    ui.import_export_rtm,
+    io_rtm,
     ui.import_export_mcfg,
     io_armature,
     io_tbcsv,
