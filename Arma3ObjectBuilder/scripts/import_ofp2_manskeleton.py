@@ -35,7 +35,7 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-data = a3ob.utilities.data
+data = a3ob.tool_rigging.ofp2_manskeleton
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
     skeleton.name = "ofp2_manskeleton" if Settings.force_lowercase else "OFP2_ManSkeleton"
     skeleton.protected = True
 
-    for bone, parent in data.ofp2_manskeleton.items():
+    for bone, parent in data.bone_hierarchy:
         item = skeleton.bones.add()
         item.name = bone.lower() if Settings.force_lowercase else bone
         item.parent = parent.lower() if Settings.force_lowercase else parent

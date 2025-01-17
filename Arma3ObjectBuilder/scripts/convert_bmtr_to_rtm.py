@@ -49,11 +49,14 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-a3ob_utils = a3ob.utilities
 a3ob_io = a3ob.io
-rtm = a3ob_io.data_rtm
-data = a3ob_utils.data
-ProcessLogger = a3ob_utils.logger.ProcessLogger
+rtm = a3ob.io_rtm.data
+ofp2_manskeleton = a3ob.tool_rigging.ofp2_manskeleton
+ProcessLogger = a3ob.logger.ProcessLogger
+
+
+def get_ofp2_manskeleton():
+    return {bone: parent for bone, parent in ofp2_manskeleton.bone_hierarchy}
 
 
 def get_input_output():
@@ -103,7 +106,7 @@ def main():
     
     skeleton = Settings.skeleton
     if not skeleton:
-        skeleton = data.ofp2_manskeleton
+        skeleton = get_ofp2_manskeleton()
     
     if Settings.force_lowercase:
         skeleton = {bone.lower(): parent.lower() for bone, parent in skeleton.items()}

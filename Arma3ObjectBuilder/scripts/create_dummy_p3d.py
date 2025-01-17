@@ -36,10 +36,7 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-a3ob_utils = a3ob.utilities
-a3ob_io = a3ob.io
-
-p3d = a3ob.io.data_p3d
+p3d = a3ob.io_p3d.data
 
 
 model = p3d.P3D_MLOD()

@@ -16,7 +16,7 @@ scripts = {
     "import": {
         "P3D batch": "import_p3d_batch.py",
         "RTM batch": "import_rtm_batch.py",
-        "OFP2_ManSkeleton": "ofp2_manskeleton.py"
+        "OFP2_ManSkeleton": "import_ofp2_manskeleton.py"
     },
     "rvmat": {
         "PBR shader (VBS)": "pbr_vbs.rvmat_template",
