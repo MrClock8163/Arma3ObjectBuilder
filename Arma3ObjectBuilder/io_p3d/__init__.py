@@ -10,7 +10,7 @@ from .. import utils
 from .. import utils_io
 
 
-class A3OB_OP_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Arma 3 MLOD P3D"""
     
     bl_idname = "a3ob.import_p3d"
@@ -230,7 +230,7 @@ class A3OB_PT_import_p3d_post(bpy.types.Panel):
             col.prop(operator, "proxy_action", expand=True)
 
 
-class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class A3OB_OT_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export to Arma 3 MLOD P3D"""
     
     bl_idname = "a3ob.export_p3d"
@@ -479,12 +479,12 @@ class A3OB_PT_export_p3d_post(bpy.types.Panel):
 
 
 classes = (
-    A3OB_OP_import_p3d,
+    A3OB_OT_import_p3d,
     A3OB_PT_import_p3d_main,
     A3OB_PT_import_p3d_collections,
     A3OB_PT_import_p3d_data,
     A3OB_PT_import_p3d_post,
-    A3OB_OP_export_p3d,
+    A3OB_OT_export_p3d,
     A3OB_PT_export_p3d_main,
     A3OB_PT_export_p3d_include,
     A3OB_PT_export_p3d_meshes,
@@ -507,11 +507,11 @@ if bpy.app.version >= (4, 1, 0):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_p3d.bl_idname, text="Arma 3 model (.p3d)")
+    self.layout.operator(A3OB_OT_import_p3d.bl_idname, text="Arma 3 model (.p3d)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(A3OB_OP_export_p3d.bl_idname, text="Arma 3 model (.p3d)")
+    self.layout.operator(A3OB_OT_export_p3d.bl_idname, text="Arma 3 model (.p3d)")
 
 
 @persistent

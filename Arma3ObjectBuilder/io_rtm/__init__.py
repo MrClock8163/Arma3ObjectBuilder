@@ -398,7 +398,7 @@ class A3OB_PT_action_props(bpy.types.Panel):
         col_operators.operator("a3ob.rtm_props_clear", text="", icon = 'TRASH')
 
 
-class A3OB_OP_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class A3OB_OT_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export keyframes to Arma 3 RTM"""
     
     bl_idname = "a3ob.export_rtm"
@@ -560,7 +560,7 @@ class A3OB_PT_export_rtm_frames(bpy.types.Panel):
             layout.prop(operator, "frame_count")
 
 
-class A3OB_OP_import_rtm(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_rtm(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import action from Arma 3 RTM"""
 
     bl_idname = "a3ob.import_rtm"
@@ -730,10 +730,10 @@ classes = (
     A3OB_PT_action,
     A3OB_PT_action_frames,
     A3OB_PT_action_props,
-    A3OB_OP_export_rtm,
+    A3OB_OT_export_rtm,
     A3OB_PT_export_rtm_main,
     A3OB_PT_export_rtm_frames,
-    A3OB_OP_import_rtm,
+    A3OB_OT_import_rtm,
     A3OB_PT_import_rtm_main,
     A3OB_PT_import_rtm_mapping
 )
@@ -752,11 +752,11 @@ if bpy.app.version >= (4, 1, 0):
 
 
 def menu_func_export(self, context):
-    self.layout.operator(A3OB_OP_export_rtm.bl_idname, text="Arma 3 animation (.rtm)")
+    self.layout.operator(A3OB_OT_export_rtm.bl_idname, text="Arma 3 animation (.rtm)")
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_rtm.bl_idname, text="Arma 3 animation (.rtm)")
+    self.layout.operator(A3OB_OT_import_rtm.bl_idname, text="Arma 3 animation (.rtm)")
 
 
 def register():

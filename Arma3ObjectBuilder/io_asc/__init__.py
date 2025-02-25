@@ -44,7 +44,7 @@ class A3OB_PT_object_dtm(bpy.types.Panel, utils.PanelHeaderLinkMixin):
         layout.prop(object_props, "nodata")
 
 
-class A3OB_OP_import_asc(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_asc(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Esri ASCII grid as DTM"""
     
     bl_idname = "a3ob.import_asc"
@@ -104,7 +104,7 @@ class A3OB_PT_import_asc_main(bpy.types.Panel):
         col.prop(operator, "vscale", text="Vertical")
 
 
-class A3OB_OP_export_asc(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class A3OB_OT_export_asc(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export DTM as Esri ASCII grid"""
     bl_idname = "a3ob.export_asc"
     bl_label = "Export ASC"
@@ -212,9 +212,9 @@ class A3OB_PT_export_asc_dimensions(bpy.types.Panel):
 
 classes = (
     A3OB_PT_object_dtm,
-    A3OB_OP_import_asc,
+    A3OB_OT_import_asc,
     A3OB_PT_import_asc_main,
-    A3OB_OP_export_asc,
+    A3OB_OT_export_asc,
     A3OB_PT_export_asc_main,
     A3OB_PT_export_asc_dimensions
 )
@@ -233,11 +233,11 @@ if bpy.app.version >= (4, 1, 0):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_asc.bl_idname, text="Esri Grid ASCII (.asc)")
+    self.layout.operator(A3OB_OT_import_asc.bl_idname, text="Esri Grid ASCII (.asc)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(A3OB_OP_export_asc.bl_idname, text="Esri Grid ASCII (.asc)")
+    self.layout.operator(A3OB_OT_export_asc.bl_idname, text="Esri Grid ASCII (.asc)")
 
 
 def register():

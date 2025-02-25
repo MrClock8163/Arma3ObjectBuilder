@@ -6,7 +6,7 @@ from .. import utils
 from .. import utils_io
 
 
-class A3OB_OP_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Arma 3 map object positions"""
     
     bl_idname = "a3ob.import_tbcsv"
@@ -68,7 +68,7 @@ class A3OB_OP_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper)
         return {'FINISHED'}
 
 
-class A3OB_OP_export_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class A3OB_OT_export_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export Arma 3 map object positions"""
     
     bl_idname = "a3ob.export_tbcsv"
@@ -153,8 +153,8 @@ class A3OB_OP_export_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ExportHelper)
 
 
 classes = (
-    A3OB_OP_import_tbcsv,
-    A3OB_OP_export_tbcsv
+    A3OB_OT_import_tbcsv,
+    A3OB_OT_export_tbcsv
 )
 
 
@@ -173,11 +173,11 @@ if bpy.app.version >= (4, 1, 0):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_tbcsv.bl_idname, text="Arma 3 map objects (.txt)")
+    self.layout.operator(A3OB_OT_import_tbcsv.bl_idname, text="Arma 3 map objects (.txt)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(A3OB_OP_export_tbcsv.bl_idname, text="Arma 3 map objects (.txt)")
+    self.layout.operator(A3OB_OT_export_tbcsv.bl_idname, text="Arma 3 map objects (.txt)")
 
 
 def register():

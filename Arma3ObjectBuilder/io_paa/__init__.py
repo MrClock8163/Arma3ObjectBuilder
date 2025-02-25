@@ -5,7 +5,7 @@ from . import importer
 from .. import utils
 
 
-class A3OB_OP_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
     """Import Arma 3 PAA"""
 
     bl_idname = "a3ob.import_paa"
@@ -47,7 +47,7 @@ class A3OB_OP_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
 
 
 classes = (
-    A3OB_OP_import_paa,
+    A3OB_OT_import_paa,
 )
 
 
@@ -66,7 +66,7 @@ if bpy.app.version >= (4, 1, 0):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_paa.bl_idname, text="Arma 3 texture (.paa)")
+    self.layout.operator(A3OB_OT_import_paa.bl_idname, text="Arma 3 texture (.paa)")
 
 
 def register():

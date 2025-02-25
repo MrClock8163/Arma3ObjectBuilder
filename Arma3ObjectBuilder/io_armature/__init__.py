@@ -5,7 +5,7 @@ from . import importer
 from .. import utils
 
 
-class A3OB_OP_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Arma 3 armature"""
 
     bl_idname = "a3ob.import_armature"
@@ -76,13 +76,13 @@ class A3OB_PT_import_armature_main(bpy.types.Panel):
 
 
 classes = (
-    A3OB_OP_import_armature,
+    A3OB_OT_import_armature,
     A3OB_PT_import_armature_main
 )
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_armature.bl_idname, text="Arma 3 armature (.p3d)")
+    self.layout.operator(A3OB_OT_import_armature.bl_idname, text="Arma 3 armature (.p3d)")
 
 
 def register():

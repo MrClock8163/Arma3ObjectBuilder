@@ -8,7 +8,7 @@ from .. import utils_io
 from ..logger import ProcessLoggerNull
 
 
-class A3OB_OP_import_mcfg(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class A3OB_OT_import_mcfg(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Arma 3 skeleton definition"""
 
     bl_idname = "a3ob.import_mcfg"
@@ -73,7 +73,7 @@ class A3OB_PT_import_mcfg_main(bpy.types.Panel):
         layout.prop(operator, "protected")
 
 
-class A3OB_OP_export_mcfg(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class A3OB_OT_export_mcfg(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export Arma 3 skeleton definition"""
 
     bl_idname = "a3ob.export_mcfg"
@@ -144,9 +144,9 @@ class A3OB_PT_export_mcfg_main(bpy.types.Panel):
 
 
 classes = (
-    A3OB_OP_import_mcfg,
+    A3OB_OT_import_mcfg,
     A3OB_PT_import_mcfg_main,
-    A3OB_OP_export_mcfg,
+    A3OB_OT_export_mcfg,
     A3OB_PT_export_mcfg_main
 )
 
@@ -164,11 +164,11 @@ if bpy.app.version >= (4, 1, 0):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(A3OB_OP_import_mcfg.bl_idname, text="Arma 3 skeletons (model.cfg)")
+    self.layout.operator(A3OB_OT_import_mcfg.bl_idname, text="Arma 3 skeletons (model.cfg)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(A3OB_OP_export_mcfg.bl_idname, text="Arma 3 skeleton (model.cfg)")
+    self.layout.operator(A3OB_OT_export_mcfg.bl_idname, text="Arma 3 skeleton (model.cfg)")
 
 
 def register():
