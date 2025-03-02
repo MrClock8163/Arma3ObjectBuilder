@@ -5,8 +5,8 @@ import bpy_extras
 
 from . import props, importer, exporter
 from ..io_mcfg.validator import SkeletonValidator
-from .. import utils
-from .. import utils_io
+from ..utils import op_report, is_valid_idx, PanelHeaderLinkMixin
+from ..utils_io import ExportFileHandler
 from ..logger import ProcessLoggerNull
 
 
@@ -57,7 +57,7 @@ class A3OB_OT_rtm_frames_remove(bpy.types.Operator):
             return False
         
         action_props = action.a3ob_rtm
-        return utils.is_valid_idx(action_props.frames_index, action_props.frames)
+        return is_valid_idx(action_props.frames_index, action_props.frames)
         
     def execute(self, context):
         action_props = get_action(context.object).a3ob_rtm
@@ -192,7 +192,7 @@ class A3OB_OT_rtm_props_remove(bpy.types.Operator):
             return False
         
         action_props = action.a3ob_rtm
-        return utils.is_valid_idx(action_props.props_index, action_props.props)
+        return is_valid_idx(action_props.props_index, action_props.props)
         
     def execute(self, context):
         action_props = get_action(context.object).a3ob_rtm
@@ -241,7 +241,7 @@ class A3OB_OT_rtm_props_move(bpy.types.Operator):
             return False
         
         action_props = action.a3ob_rtm
-        return utils.is_valid_idx(action_props.props_index, action_props.props)
+        return is_valid_idx(action_props.props_index, action_props.props)
         
     def execute(self, context):
         action = get_action(context.object)
@@ -295,7 +295,7 @@ class A3OB_UL_rtm_props(bpy.types.UIList):
         return flt_flags, flt_neworder
 
 
-class A3OB_PT_action(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_action(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_region_type = 'UI'
     bl_space_type = 'DOPESHEET_EDITOR'
     bl_label = "RTM Properties"
@@ -489,16 +489,16 @@ class A3OB_OT_export_rtm(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         skeleton = scene_props.skeletons[self.skeleton_index]
         validator = SkeletonValidator(ProcessLoggerNull())
         if not validator.validate(skeleton, True, True):
-            utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
+            op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
             return {'FINISHED'}
 
-        with utils_io.ExportFileHandler(self.filepath, "wb") as file:
+        with ExportFileHandler(self.filepath, "wb") as file:
             static, frame_count = exporter.write_file(self, context, file, obj, action)
         
             if not self.static_pose and static:
-                utils.op_report(self, {'INFO'}, "Exported as static pose")
+                op_report(self, {'INFO'}, "Exported as static pose")
             else:
-                utils.op_report(self, {'INFO'}, "Exported %d frame(s)" % frame_count)
+                op_report(self, {'INFO'}, "Exported %d frame(s)" % frame_count)
             
         return {'FINISHED'}
         
@@ -653,7 +653,7 @@ class A3OB_OT_import_rtm(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
             count_frames = importer.import_file(self, context, file)
         
         if count_frames > 0:
-            utils.op_report(self, {'INFO'}, "Successfully imported %d frame(s)" % count_frames)
+            op_report(self, {'INFO'}, "Successfully imported %d frame(s)" % count_frames)
 
         return {'FINISHED'}
 

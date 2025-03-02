@@ -3,7 +3,7 @@
 
 import bpy
 
-from .. import utils
+from ..utils import edit_bmesh
 
 
 # It's easier to prepare a list of the vertex group indices that
@@ -15,7 +15,7 @@ def get_bone_group_indices(obj, cfgbones):
 
 
 def select_vertices_unnormalized(obj, bone_indices):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         deform = bm.verts.layers.deform.verify()
         
@@ -31,7 +31,7 @@ def select_vertices_unnormalized(obj, bone_indices):
 
 
 def normalize_weights(obj, bone_indices):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         deform = bm.verts.layers.deform.verify()
         bm.verts.ensure_lookup_table()
         
@@ -57,7 +57,7 @@ def normalize_weights(obj, bone_indices):
 
 
 def select_vertices_overdetermined(obj, bone_indices):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         deform = bm.verts.layers.deform.verify()
         
@@ -77,7 +77,7 @@ def select_vertices_overdetermined(obj, bone_indices):
 # the weights of bone selections are summed up, and the groups are sorted.
 # Only the groups with the top 4 influence sum are left, rest are removed.
 def prune_overdetermined(obj, bone_indices):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         deform = bm.verts.layers.deform.verify()
         
@@ -108,7 +108,7 @@ def prune_overdetermined(obj, bone_indices):
 # Weights are summed for every group for every vertex. Then all groups
 # are removed, and only those readded that are above the threshold.
 def prune_weights(obj, threshold):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         deform = bm.verts.layers.deform.verify()
         

@@ -4,7 +4,7 @@ from bpy.app.handlers import persistent
 from . import props
 from . import outliner as linerutils
 from .. import get_prefs
-from .. import utils
+from ..utils import is_valid_idx, PanelHeaderLinkMixin
 
 
 class A3OB_UL_outliner_lods(bpy.types.UIList):
@@ -99,7 +99,7 @@ class A3OB_OT_indentify_lod(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_outliner(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_outliner(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -126,7 +126,7 @@ class A3OB_PT_outliner(bpy.types.Panel, utils.PanelHeaderLinkMixin):
         box_proxy = row_counts.box()
         box_subobject = row_counts.box()
 
-        if utils.is_valid_idx(scene_props.lods_index, scene_props.lods):
+        if is_valid_idx(scene_props.lods_index, scene_props.lods):
             item = scene_props.lods[scene_props.lods_index]
             box_proxy.label(text="%d" % item.proxy_count, icon='PMARKER_ACT')
             box_subobject.label(text="%d" % item.subobject_count, icon='MESH_CUBE')

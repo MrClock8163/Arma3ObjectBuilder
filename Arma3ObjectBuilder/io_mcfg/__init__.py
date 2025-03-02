@@ -3,8 +3,8 @@ import bpy_extras
 
 from . import props, importer, exporter
 from .validator import SkeletonValidator
-from .. import utils
-from .. import utils_io
+from ..utils import op_report
+from ..utils_io import ExportFileHandler
 from ..logger import ProcessLoggerNull
 
 
@@ -124,10 +124,10 @@ class A3OB_OT_import_mcfg(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         count_skeletons = importer.read_file(self, context)
         
         if count_skeletons > 0:
-            utils.op_report(self, {'INFO'}, "Successfully imported %d skeleton(s)" % count_skeletons)
+            op_report(self, {'INFO'}, "Successfully imported %d skeleton(s)" % count_skeletons)
             return {'FINISHED'}
         
-        utils.op_report(self, {'ERROR'}, "Could not import any skeletons (check the system console)")
+        op_report(self, {'ERROR'}, "Could not import any skeletons (check the system console)")
         
         return {'FINISHED'}
 
@@ -191,12 +191,12 @@ class A3OB_OT_export_mcfg(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
 
         validator = SkeletonValidator(ProcessLoggerNull())
         if not validator.validate(skeleton, False, True):
-            utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for more info")
+            op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for more info")
             return {'FINISHED'}
         
-        with utils_io.ExportFileHandler(self.filepath, "w") as file:
+        with ExportFileHandler(self.filepath, "w") as file:
             exporter.write_file(self, skeleton, file)
-            utils.op_report(self, {'INFO'}, "Successfuly exported %s" % skeleton.name)
+            op_report(self, {'INFO'}, "Successfuly exported %s" % skeleton.name)
 
         return {'FINISHED'}
 

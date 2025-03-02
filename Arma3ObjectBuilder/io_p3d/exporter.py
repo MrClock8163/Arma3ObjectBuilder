@@ -15,8 +15,8 @@ from . import utils as p3d_utils
 from . import flags as p3d_flags
 from .validator import LODValidator
 from .. import get_prefs
-from .. import utils
-from .. import utils_compat as computils
+from ..utils import edit_bmesh
+from ..utils_compat import call_operator_ctx, mesh_auto_smooth, mesh_static_normals_iterator
 from ..logger import ProcessLogger, ProcessLoggerNull
 
 
@@ -83,7 +83,7 @@ def apply_modifiers(obj):
         m = modifiers.pop(0)
         try:
             ctx["modifier"] = m
-            computils.call_operator_ctx(bpy.ops.object.modifier_apply, ctx, modifier= m.name)
+            call_operator_ctx(bpy.ops.object.modifier_apply, ctx, modifier= m.name)
         except:
             obj.modifiers.remove(m)
 
@@ -95,13 +95,13 @@ def apply_transforms(obj):
         "selected_editable_objects": [obj],
         "edit_object": None
     }
-    computils.call_operator_ctx(bpy.ops.object.transform_apply, ctx)
+    call_operator_ctx(bpy.ops.object.transform_apply, ctx)
 
 
 # In order to simplify merging the LOD parts, and the data access later on, the dereferenced
 # flags need to be written directly into their respective integer bmesh layers.
 def bake_flags_vertex(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
 
         layer = p3d_flags.get_layer_flags_vertex(bm)
@@ -117,7 +117,7 @@ def bake_flags_vertex(obj):
 
 
 def bake_flags_face(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
 
         layer = p3d_flags.get_layer_flags_face(bm)
@@ -133,7 +133,7 @@ def bake_flags_face(obj):
 
 
 def blank_flags_vertex(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         layer = p3d_flags.get_layer_flags_vertex(bm)
 
@@ -142,7 +142,7 @@ def blank_flags_vertex(obj):
 
 
 def blank_flags_face(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
         layer = p3d_flags.get_layer_flags_face(bm)
 
@@ -172,7 +172,7 @@ def merge_sub_objects(operator, main_obj, sub_objects):
             "selected_objects": all_objects,
             "selected_editable_objects": all_objects
         }
-        computils.call_operator_ctx(bpy.ops.object.join, ctx)
+        call_operator_ctx(bpy.ops.object.join, ctx)
 
 
 def merge_proxy_objects(main_obj, proxy_objects, relative):
@@ -201,7 +201,7 @@ def merge_proxy_objects(main_obj, proxy_objects, relative):
             "selected_objects": all_objects,
             "selected_editable_objects": all_objects
         }
-        computils.call_operator_ctx(bpy.ops.object.join, ctx)
+        call_operator_ctx(bpy.ops.object.join, ctx)
 
     return proxy_lookup
 
@@ -239,7 +239,7 @@ def get_sub_objects(obj, temp_collection):
             continue
             
         if not child.mode == 'OBJECT':
-            computils.call_operator_ctx(bpy.ops.object.mode_set, {"active_object": child}, mode='OBJECT')
+            call_operator_ctx(bpy.ops.object.mode_set, {"active_object": child}, mode='OBJECT')
         
         child_copy = duplicate_object(child, temp_collection)
 
@@ -256,7 +256,7 @@ def sort_sections(obj):
     for i in range(len(obj.material_slots)):
         sections[i] = []
 
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
 
         for face in bm.faces:
@@ -282,8 +282,8 @@ def cleanup_normals(operator, obj):
             "active_object": obj,
             "object": obj
         }
-        computils.call_operator_ctx(bpy.ops.mesh.customdata_custom_splitnormals_clear, ctx)
-        computils.mesh_auto_smooth(obj.data)
+        call_operator_ctx(bpy.ops.mesh.customdata_custom_splitnormals_clear, ctx)
+        mesh_auto_smooth(obj.data)
         mod = obj.modifiers.new("Temp", 'WEIGHTED_NORMAL')
         mod.weight = 50
         mod.keep_sharp = True
@@ -337,7 +337,7 @@ def get_lod_data(operator, context, validator, temp_collection):
             
         # Some operator polls fail later if an object is in edit mode.
         if not obj.mode == 'OBJECT':
-            computils.call_operator_ctx(bpy.ops.object.mode_set, {"active_object": obj}, mode='OBJECT')
+            call_operator_ctx(bpy.ops.object.mode_set, {"active_object": obj}, mode='OBJECT')
         
         main_obj = duplicate_object(obj, temp_collection)
         is_valid = True
@@ -410,7 +410,7 @@ def process_normals(mesh):
     normals_index = {}
     normals_lookup_dict = {}
     
-    for i, normal in computils.mesh_static_normals_iterator(mesh):
+    for i, normal in mesh_static_normals_iterator(mesh):
         if normal not in normals_index:
             normals_index[normal] = len(normals_index)
             output.append(normal)

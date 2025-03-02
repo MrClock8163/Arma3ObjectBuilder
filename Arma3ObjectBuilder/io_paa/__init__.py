@@ -2,7 +2,7 @@ import bpy
 import bpy_extras
 
 from . import importer
-from .. import utils
+from ..utils import op_report
 
 
 class A3OB_OT_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
@@ -39,9 +39,9 @@ class A3OB_OT_import_paa(bpy.types.Operator,  bpy_extras.io_utils.ImportHelper):
             img, tex = importer.import_file(self, context, file)
         
         if img is not None:
-            utils.op_report(self, {'INFO'}, "Texture successfully imported as %s" % img.name)
+            op_report(self, {'INFO'}, "Texture successfully imported as %s" % img.name)
         else:
-            utils.op_report(self, {'WARNING'}, "Unsupported texture format: %s" % tex.type.name)
+            op_report(self, {'WARNING'}, "Unsupported texture format: %s" % tex.type.name)
 
         return {'FINISHED'}
 

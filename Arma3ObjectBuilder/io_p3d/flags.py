@@ -1,7 +1,7 @@
 # Helper functions to handle vertex and face flag values.
 
 
-from .. import utils
+from ..utils import edit_bmesh
 
 
 flags_vertex_surface = {
@@ -180,7 +180,7 @@ def set_flag_face(props, value):
 
 
 def remove_group_vertex(obj, group_id):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         layer = get_layer_flags_vertex(bm)
         for vertex in bm.verts:
@@ -189,7 +189,7 @@ def remove_group_vertex(obj, group_id):
 
 
 def assign_group_vertex(obj, group_id):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         
         layer = get_layer_flags_vertex(bm)
@@ -201,7 +201,7 @@ def assign_group_vertex(obj, group_id):
 
 def select_group_vertex(obj, group_id, select = True):
     group_count = len(obj.a3ob_properties_object_flags.vertex)
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         
         layer = get_layer_flags_vertex(bm)
@@ -212,7 +212,7 @@ def select_group_vertex(obj, group_id, select = True):
 
 
 def clear_groups_vertex(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         flag_props = obj.a3ob_properties_object_flags
         flag_props.vertex.clear()
         flag_props.vertex_index = -1
@@ -221,7 +221,7 @@ def clear_groups_vertex(obj):
 
 
 def remove_group_face(obj, group_id):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         layer = get_layer_flags_vertex(bm)
         for vertex in bm.verts:
@@ -230,7 +230,7 @@ def remove_group_face(obj, group_id):
 
 
 def assign_group_face(obj, group_id):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
         
         layer = get_layer_flags_face(bm)
@@ -242,7 +242,7 @@ def assign_group_face(obj, group_id):
 
 def select_group_face(obj, group_id, select = True):
     group_count = len(obj.a3ob_properties_object_flags.face)
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.faces.ensure_lookup_table()
         
         layer = get_layer_flags_face(bm)
@@ -253,7 +253,7 @@ def select_group_face(obj, group_id, select = True):
 
 
 def clear_groups_face(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         flag_props = obj.a3ob_properties_object_flags
         flag_props.face.clear()
         flag_props.face_index = -1

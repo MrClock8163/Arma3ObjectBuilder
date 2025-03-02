@@ -5,7 +5,7 @@ import bpy
 from . import props
 from . import masses
 from .. import get_icon
-from .. import utils
+from ..utils import PanelHeaderLinkMixin
 
 
 class A3OB_OT_vertex_mass_set(bpy.types.Operator):
@@ -189,7 +189,7 @@ class A3OB_OT_vertex_mass_center(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_vertex_mass(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_vertex_mass(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"

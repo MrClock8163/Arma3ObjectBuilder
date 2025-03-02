@@ -5,7 +5,7 @@ import bpy
 import bmesh
 
 from .data import P3D_LOD_Resolution as LODRes
-from .. import utils
+from ..utils import get_loose_components, get_closed_components, edit_bmesh
 
 
 ENUM_LOD_TYPES = tuple([(str(idx), name, desc) for idx, (name, desc) in LODRes.INFO_MAP.items()])
@@ -92,8 +92,8 @@ def find_components(obj):
     clear_components(obj)
     count_groups = len(obj.vertex_groups)
 
-    component_verts, _, no_ignored = utils.get_closed_components(obj)
-    with utils.edit_bmesh(obj) as bm:
+    component_verts, _, no_ignored = get_closed_components(obj)
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         bm.verts.layers.deform.verify()
         layer = bm.verts.layers.deform.active
@@ -113,8 +113,8 @@ def find_components_convex_hull(obj):
     clear_components(obj)
     count_groups = len(obj.vertex_groups)
 
-    comp_verts, comp_tris = utils.get_loose_components(obj)
-    with utils.edit_bmesh(obj) as bm:
+    comp_verts, comp_tris = get_loose_components(obj)
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         bm.verts.layers.deform.verify()
         layer = bm.verts.layers.deform.active
@@ -141,7 +141,7 @@ def find_components_convex_hull(obj):
 def check_convexity(obj):
     obj.update_from_editmode()
     
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         count_concave = 0
         for edge in bm.edges:
             if edge.is_convex:

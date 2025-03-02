@@ -5,7 +5,7 @@ import bpy
 from .. import get_icon, addon_dir
 from ..io_p3d.translations import czech_to_english
 from ..io_p3d import utils as p3d_utils
-from .. import utils
+from ..utils import edit_bmesh, force_mode_edit
 
 
 scripts = {
@@ -49,7 +49,7 @@ def redefine_vertex_group_editmode(obj, gidx, weight):
     
     group = obj.vertex_groups[gidx]
     
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         bm.verts.layers.deform.verify()
         deform = bm.verts.layers.deform.active
@@ -140,7 +140,7 @@ class A3OB_OT_check_closed(bpy.types.Operator):
         return len(context.selected_objects) == 1 and obj and obj.type == 'MESH'
     
     def execute(self,context):
-        utils.force_mode_edit()
+        force_mode_edit()
         bpy.ops.mesh.select_mode(type='EDGE')
         bpy.ops.mesh.select_non_manifold()
         return {'FINISHED'}
@@ -159,7 +159,7 @@ class A3OB_OT_convex_hull(bpy.types.Operator):
     
     def execute(self, context):
         mode = bpy.context.object.mode
-        utils.force_mode_edit()
+        force_mode_edit()
         bpy.ops.mesh.select_mode(type='EDGE')
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.convex_hull(join_triangles=False)

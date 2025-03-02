@@ -23,7 +23,7 @@ class A3OB_GT_mcfg(bpy.types.PropertyGroup):
 classes = (
     A3OB_PG_mcfg_bone,
     A3OB_PG_mcfg_skeleton,
-    A3OB_GT_mcfg,
+    A3OB_GT_mcfg
 )
 
 

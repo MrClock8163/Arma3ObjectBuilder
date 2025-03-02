@@ -6,7 +6,7 @@ from .data import P3D_LOD_Resolution as LODRes
 from . import flags as p3d_flags
 from . import utils as p3d_utils
 from .. import get_prefs
-from .. import utils_io
+from ..utils_io import format_path, abspath
 
 
 bl_version = bpy.app.version
@@ -382,14 +382,14 @@ class A3OB_PG_properties_object_proxy(bpy.types.PropertyGroup):
     )
     
     def to_placeholder(self, relative):
-        path = utils_io.format_path(utils_io.abspath(self.proxy_path), utils_io.abspath(get_prefs().project_root), relative, False)
+        path = format_path(abspath(self.proxy_path), abspath(get_prefs().project_root), relative, False)
         if relative and len(path) > 0 and path[0] != "\\":
             path = "\\" + path
         
         return path, self.proxy_index
     
     def get_name(self):
-        name = os.path.basename(os.path.splitext(utils_io.abspath(self.proxy_path))[0]).strip()
+        name = os.path.basename(os.path.splitext(abspath(self.proxy_path))[0]).strip()
         if name == "":
             name = "unknown"
             
