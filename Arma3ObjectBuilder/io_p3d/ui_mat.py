@@ -1,6 +1,6 @@
 import bpy
 
-from .. import utils
+from ..utils import is_valid_idx, load_common_data, PanelHeaderLinkMixin
 
 
 class A3OB_OT_paste_common_material(bpy.types.Operator):
@@ -15,7 +15,7 @@ class A3OB_OT_paste_common_material(bpy.types.Operator):
         return hasattr(context, "material") and context.material
     
     def invoke(self, context, event):
-        utils.load_common_data(context.scene)
+        load_common_data(context.scene)
         return context.window_manager.invoke_props_dialog(self)
     
     def draw(self, context):
@@ -28,7 +28,7 @@ class A3OB_OT_paste_common_material(bpy.types.Operator):
         mat = context.material
         scene_props = context.scene.a3ob_commons
 
-        if utils.is_valid_idx(scene_props.items_index, scene_props.items):
+        if is_valid_idx(scene_props.items_index, scene_props.items):
             new_item = scene_props.items[scene_props.items_index]
             mat_props = mat.a3ob_properties_material
             mat_props.material_path = new_item.value
@@ -48,7 +48,7 @@ class A3OB_OT_paste_common_procedural(bpy.types.Operator):
         return hasattr(context, "material") and context.material
     
     def invoke(self, context, event):
-        utils.load_common_data(context.scene)
+        load_common_data(context.scene)
         return context.window_manager.invoke_props_dialog(self)
     
     def draw(self, context):
@@ -60,7 +60,7 @@ class A3OB_OT_paste_common_procedural(bpy.types.Operator):
         mat = context.material
         scene_props = context.scene.a3ob_commons
 
-        if utils.is_valid_idx(scene_props.items_index, scene_props.items):
+        if is_valid_idx(scene_props.items_index, scene_props.items):
             new_item = scene_props.items[scene_props.items_index]
             mat_props = mat.a3ob_properties_material
             mat_props.color_raw = new_item.value
@@ -73,7 +73,7 @@ class A3OB_UL_common_procedurals(bpy.types.UIList):
         layout.label(text=item.name)
 
 
-class A3OB_PT_material(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_material(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: Material Properties"

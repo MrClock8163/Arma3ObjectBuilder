@@ -13,8 +13,8 @@ import mathutils
 from . import data as p3d
 from . import flags as p3d_flags
 from . import utils as p3d_utils
-from .. import utils_io
-from .. import utils_compat as computils
+from ..utils_io import restore_absolute
+from ..utils_compat import call_operator_ctx, mesh_auto_smooth
 from ..logger import ProcessLogger
 
 
@@ -222,7 +222,7 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             continue
             
         obj.vertex_groups.active = vgroup
-        computils.call_operator_ctx(bpy.ops.object.vertex_group_select)
+        call_operator_ctx(bpy.ops.object.vertex_group_select)
 
         try:
             bpy.ops.mesh.separate(type='SELECTED')
@@ -253,7 +253,7 @@ def process_proxies(operator, obj, proxy_lookup, empty_material):
             
             path, index = proxy_lookup[vgroup.name]
             proxy_obj.vertex_groups.remove(vgroup)
-            proxy_obj.a3ob_properties_object_proxy.proxy_path = utils_io.restore_absolute(path, ".p3d") if operator.absolute_paths else path
+            proxy_obj.a3ob_properties_object_proxy.proxy_path = restore_absolute(path, ".p3d") if operator.absolute_paths else path
             proxy_obj.a3ob_properties_object_proxy.proxy_index = index
 
             proxy_obj.a3ob_properties_object_flags.vertex.clear()
@@ -323,7 +323,7 @@ def process_lod(operator, logger, lod, materials, materials_lookup, categories, 
         for face in mesh.polygons:
             face.use_smooth = True
         
-        computils.mesh_auto_smooth(mesh)
+        mesh_auto_smooth(mesh)
     
     if 'NORMALS' in operator.additional_data and lod_index in p3d.P3D_LOD_Resolution.LODS_VISUAL:
         if process_normals(mesh, lod):

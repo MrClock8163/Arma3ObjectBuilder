@@ -1,7 +1,7 @@
 # Backend functions for the LOD object outliner panel.
 
 
-from .. import utils
+from ..utils import is_valid_idx
 
 
 def update_outliner(scene):
@@ -28,7 +28,7 @@ def update_outliner(scene):
             else:
                 item.subobject_count += 1
     
-    if not utils.is_valid_idx(scene_props.lods_index, scene_props.lods):
+    if not is_valid_idx(scene_props.lods_index, scene_props.lods):
         return
     
     lod = scene.objects[scene_props.lods[scene_props.lods_index].obj]

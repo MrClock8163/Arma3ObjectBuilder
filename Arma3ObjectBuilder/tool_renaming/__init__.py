@@ -5,7 +5,7 @@ import bpy
 from . import props
 from . import utils as renameutils
 from .. import get_icon
-from .. import utils
+from ..utils import is_valid_idx, PanelHeaderLinkMixin
 
 
 class A3OB_OT_rename_list_refresh(bpy.types.Operator):
@@ -35,7 +35,7 @@ class A3OB_OT_rename_path_item(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         scene_props = context.scene.a3ob_renaming
-        return utils.is_valid_idx(scene_props.path_list_index, scene_props.path_list)
+        return is_valid_idx(scene_props.path_list_index, scene_props.path_list)
         
     def execute(self, context):
         renameutils.rename_path(context)
@@ -76,7 +76,7 @@ class A3OB_OT_rename_vertex_groups(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_renaming(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_renaming(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -113,7 +113,7 @@ class A3OB_PT_renaming_paths_bulk(bpy.types.Panel):
         row_filter.operator("a3ob.rename_list_refresh", text="", icon_value=get_icon("op_refresh"))
         row_filter.prop(scene_props, "source_filter")
         
-        if utils.is_valid_idx(scene_props.path_list_index, scene_props.path_list):
+        if is_valid_idx(scene_props.path_list_index, scene_props.path_list):
             col_edit = layout.column(align=True)
             row_path = col_edit.row(align=True)
             row_path.enabled = False

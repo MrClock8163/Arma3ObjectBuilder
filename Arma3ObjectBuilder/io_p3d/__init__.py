@@ -6,8 +6,8 @@ from . import props_object, props_scene, props_mat
 from . import ui_object, ui_mat
 from . import importer, exporter
 from .. import get_prefs
-from .. import utils
-from .. import utils_io
+from ..utils import op_report
+from ..utils_io import ExportFileHandler
 
 
 class A3OB_OT_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -103,7 +103,7 @@ class A3OB_OT_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     def execute(self, context):        
         with open(self.filepath, "rb") as file:
             lod_objects = importer.read_file(self, context, file)
-            utils.op_report(self, {'INFO'}, "Successfully imported %d LODs (check the logs in the system console)" % len(lod_objects))
+            op_report(self, {'INFO'}, "Successfully imported %d LODs (check the logs in the system console)" % len(lod_objects))
         
         return {'FINISHED'}
 
@@ -323,20 +323,20 @@ class A3OB_OT_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     
     def execute(self, context):        
         if not exporter.can_export(self, context):
-            utils.op_report(self, {'ERROR'}, "There are no LODs to export")
+            op_report(self, {'ERROR'}, "There are no LODs to export")
             return {'FINISHED'}
         
         temp_collection = exporter.create_temp_collection(context)
 
-        with utils_io.ExportFileHandler(self.filepath, "wb") as file:
+        with ExportFileHandler(self.filepath, "wb") as file:
             # The export needs to be put inside a try-catch block in order to do the temporary object cleanup.
             try:
                 lod_count, exported_count = exporter.write_file(self, context, file, temp_collection)
 
                 if lod_count == exported_count:
-                    utils.op_report(self, {'INFO'}, "Successfully exported all %d LODs (check the logs in the system console)" % exported_count)
+                    op_report(self, {'INFO'}, "Successfully exported all %d LODs (check the logs in the system console)" % exported_count)
                 else:
-                    utils.op_report(self, {'WARNING'}, "Only exported %d/%d LODs (check the logs in the system console)" % (exported_count, lod_count))
+                    op_report(self, {'WARNING'}, "Only exported %d/%d LODs (check the logs in the system console)" % (exported_count, lod_count))
 
             finally:
                 if not get_prefs().preserve_preprocessed_lods:

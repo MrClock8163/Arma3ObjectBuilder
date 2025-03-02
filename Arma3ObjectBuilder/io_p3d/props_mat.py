@@ -3,7 +3,7 @@ import re
 import bpy
 
 from .. import get_prefs
-from .. import utils_io
+from ..utils_io import format_path, abspath, restore_absolute
 
 
 class A3OB_PG_properties_material(bpy.types.PropertyGroup):
@@ -98,9 +98,9 @@ class A3OB_PG_properties_material(bpy.types.PropertyGroup):
                 self.color_raw = texture
             
         else:
-            self.texture_path = utils_io.restore_absolute(texture) if absolute else texture
+            self.texture_path = restore_absolute(texture) if absolute else texture
         
-        self.material_path = utils_io.restore_absolute(material) if absolute else material
+        self.material_path = restore_absolute(material) if absolute else material
     
     def to_p3d(self, relative):
         addon_prefs = get_prefs()
@@ -108,14 +108,14 @@ class A3OB_PG_properties_material(bpy.types.PropertyGroup):
         material = ""
 
         if self.texture_type == 'TEX':
-            texture = utils_io.format_path(utils_io.abspath(self.texture_path), utils_io.abspath(addon_prefs.project_root), relative)
+            texture = format_path(abspath(self.texture_path), abspath(addon_prefs.project_root), relative)
         elif self.texture_type == 'COLOR':
             color = self.color_value
             texture = "#(argb,8,8,3)color(%.3f,%.3f,%.3f,%.3f,%s)" % (color[0], color[1], color[2], color[3], self.color_type)
         else:
             texture = self.color_raw
         
-        material = utils_io.format_path(utils_io.abspath(self.material_path), utils_io.abspath(addon_prefs.project_root), relative)
+        material = format_path(abspath(self.material_path), abspath(addon_prefs.project_root), relative)
 
         return texture, material
 

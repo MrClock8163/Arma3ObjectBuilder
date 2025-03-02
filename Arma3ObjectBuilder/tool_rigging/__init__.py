@@ -4,13 +4,13 @@ from . import props
 from . import rigging
 from . import ofp2_manskeleton
 from .. import get_icon
-from .. import utils
+from ..utils import is_valid_idx, PanelHeaderLinkMixin
 from ..io_mcfg.validator import SkeletonValidator
 from ..logger import ProcessLogger
 
 
 def get_skeleton(scene_props):
-    if not utils.is_valid_idx(scene_props.skeletons_index, scene_props.skeletons):
+    if not is_valid_idx(scene_props.skeletons_index, scene_props.skeletons):
         return None
     
     return scene_props.skeletons[scene_props.skeletons_index]
@@ -114,7 +114,7 @@ class A3OB_OT_rigging_skeletons_add(bpy.types.Operator):
         skeleton = scene_props.skeletons.add()
         skeleton.name = "Skeleton"
         
-        if utils.is_valid_idx(scene_props.skeletons_index, scene_props.skeletons) and utils.is_valid_idx(scene_props.skeletons_index + 1, scene_props.skeletons):
+        if is_valid_idx(scene_props.skeletons_index, scene_props.skeletons) and is_valid_idx(scene_props.skeletons_index + 1, scene_props.skeletons):
             move_to = scene_props.skeletons_index + 1
             scene_props.skeletons.move(len(scene_props.skeletons) - 1, move_to)
             scene_props.skeletons_index = move_to
@@ -207,8 +207,8 @@ class A3OB_OT_rigging_skeletons_validate(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         scene_props = context.scene.a3ob_rigging
-        return utils.is_valid_idx(scene_props.skeletons_index, scene_props.skeletons)
-    
+        return is_valid_idx(scene_props.skeletons_index, scene_props.skeletons)
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = scene_props.skeletons[scene_props.skeletons_index]
@@ -242,7 +242,7 @@ class A3OB_OT_rigging_skeletons_bones_add(bpy.types.Operator):
         bone = skeleton.bones.add()
         bone.name = "Bone"
 
-        if utils.is_valid_idx(skeleton.bones_index, skeleton.bones) and utils.is_valid_idx(skeleton.bones_index + 1, skeleton.bones):
+        if is_valid_idx(skeleton.bones_index, skeleton.bones) and is_valid_idx(skeleton.bones_index + 1, skeleton.bones):
             move_to = skeleton.bones_index + 1
             skeleton.bones.move(len(skeleton.bones) - 1, move_to)
             skeleton.bones_index = move_to
@@ -264,7 +264,7 @@ class A3OB_OT_rigging_skeletons_bones_remove(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
         
-        return skeleton and not skeleton.protected and utils.is_valid_idx(skeleton.bones_index, skeleton.bones)
+        return skeleton and not skeleton.protected and is_valid_idx(skeleton.bones_index, skeleton.bones)
     
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
@@ -295,7 +295,7 @@ class A3OB_OT_rigging_skeletons_bones_move(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging  
         skeleton = get_skeleton(scene_props)
 
-        return skeleton and not skeleton.protected and utils.is_valid_idx(skeleton.bones_index, skeleton.bones)
+        return skeleton and not skeleton.protected and is_valid_idx(skeleton.bones_index, skeleton.bones)
     
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
@@ -588,7 +588,7 @@ class A3OB_MT_rigging_bones(bpy.types.Menu):
         layout.operator("a3ob.rigging_skeletons_bones_clear", text="Delete All Bones", icon='TRASH')
 
 
-class A3OB_PT_rigging(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_rigging(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -619,7 +619,7 @@ class A3OB_PT_rigging(bpy.types.Panel, utils.PanelHeaderLinkMixin):
         row_bones = layout.row()
         col_bones_list = row_bones.column()
 
-        if utils.is_valid_idx(scene_props.skeletons_index, scene_props.skeletons):
+        if is_valid_idx(scene_props.skeletons_index, scene_props.skeletons):
             col_bones_list.template_list("A3OB_UL_rigging_bones", "A3OB_rigging_bones", scene_props.skeletons[scene_props.skeletons_index], "bones", scene_props.skeletons[scene_props.skeletons_index], "bones_index", rows=4)
         else:
             col_bones_list.template_list("A3OB_UL_rigging_bones", "A3OB_rigging_bones", scene_props, "bones", scene_props, "bones_index", rows=4)

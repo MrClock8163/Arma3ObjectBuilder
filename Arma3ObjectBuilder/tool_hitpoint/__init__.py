@@ -3,7 +3,7 @@ import bpy
 from . import props
 from . import clouds
 from .. import get_icon
-from .. import utils
+from ..utils import PanelHeaderLinkMixin
 
 
 class A3OB_OT_hitpoints_generate(bpy.types.Operator):
@@ -23,7 +23,7 @@ class A3OB_OT_hitpoints_generate(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_hitpoints(bpy.types.Panel, utils.PanelHeaderLinkMixin):   
+class A3OB_PT_hitpoints(bpy.types.Panel, PanelHeaderLinkMixin):   
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"

@@ -2,11 +2,11 @@ import bpy
 import bpy_extras
 
 from . import props, importer, exporter
-from .. import utils
-from .. import utils_io
+from ..utils import op_report, PanelHeaderLinkMixin
+from ..utils_io import ExportFileHandler
 
 
-class A3OB_PT_object_dtm(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_object_dtm(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: DTM Properties"
@@ -75,7 +75,7 @@ class A3OB_OT_import_asc(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     def execute(self, context):        
         with open(self.filepath) as file:
             importer.read_file(self, context, file)
-            utils.op_report(self, {'INFO'}, "Successfully imported DTM")
+            op_report(self, {'INFO'}, "Successfully imported DTM")
         
         return {'FINISHED'}
 
@@ -153,9 +153,9 @@ class A3OB_OT_export_asc(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     def execute(self, context):        
         obj = context.active_object
         
-        with utils_io.ExportFileHandler(self.filepath, "wt") as file:
+        with ExportFileHandler(self.filepath, "wt") as file:
             exporter.write_file(self, context, file, obj)
-            utils.op_report(self, {'INFO'}, "Successfuly exported DTM")
+            op_report(self, {'INFO'}, "Successfuly exported DTM")
         
         return {'FINISHED'}
 

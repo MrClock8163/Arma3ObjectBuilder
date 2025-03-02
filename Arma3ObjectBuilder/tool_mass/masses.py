@@ -8,7 +8,7 @@ import bmesh
 from mathutils import Vector
 from mathutils.kdtree import KDTree
 
-from .. import utils
+from ..utils import edit_bmesh, query_bmesh, get_closed_components, get_loose_components
 
 
 def can_edit_mass(context):
@@ -45,7 +45,7 @@ def set_selection_mass(self, value):
     if self.type != 'MESH' or self.mode != 'EDIT':
         return
     
-    with utils.edit_bmesh(self) as bm:
+    with edit_bmesh(self) as bm:
     
         layer = bm.verts.layers.float.get("a3ob_mass")
         if layer is None:
@@ -64,7 +64,7 @@ def set_selection_mass(self, value):
 
 
 def set_selection_mass_each(obj, value):    
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
     
         layer = bm.verts.layers.float.get("a3ob_mass")
         if layer is None:
@@ -79,7 +79,7 @@ def set_selection_mass_each(obj, value):
 
    
 def set_selection_mass_distribute_uniform(obj, value):    
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         layer = bm.verts.layers.float.get("a3ob_mass")
         if layer is None:
             layer = bm.verts.layers.float.new("a3ob_mass")
@@ -105,7 +105,7 @@ def set_selection_mass_distribute_weighted(obj, value):
     
     unit_value = value / obj_volume
 
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
 
         layer = bm.verts.layers.float.get("a3ob_mass")
@@ -119,7 +119,7 @@ def set_selection_mass_distribute_weighted(obj, value):
 
 
 def clear_vmasses(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         layer = bm.verts.layers.float.get("a3ob_mass")
         if not layer:
             return
@@ -128,7 +128,7 @@ def clear_vmasses(obj):
 
 
 def clear_selection_vmass(obj):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         layer = bm.verts.layers.float.get("a3ob_mass")
         if not layer:
             return
@@ -161,11 +161,11 @@ def set_obj_vmass_density_uniform(obj, density):
     obj.update_from_editmode()
     mesh = obj.data
     
-    component_verts, component_tris, all_closed = utils.get_closed_components(obj, True)
+    component_verts, component_tris, all_closed = get_closed_components(obj, True)
     stats = [[len(verts), calculate_volume(mesh, tris)] for verts, tris in zip(component_verts, component_tris)] # [vertex count, volume]
     component_mass = [(volume * density / count_verts) for count_verts, volume in stats]
     
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         
         layer = bm.verts.layers.float.get("a3ob_mass")
@@ -247,7 +247,7 @@ def component_vertex_volumes(mesh, verts, tris):
 
 
 def vertex_volumes(obj):
-    comp_verts, comp_tris, no_ignored = utils.get_closed_components(obj, True)
+    comp_verts, comp_tris, no_ignored = get_closed_components(obj, True)
 
     volumes = {}
     for verts, tris in zip(comp_verts, comp_tris):
@@ -265,7 +265,7 @@ def set_obj_vmass_density_weighted(obj, density):
     obj.update_from_editmode()
     volumes, all_closed = vertex_volumes(obj)
 
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         layer = bm.verts.layers.float.get("a3ob_mass")
         if not layer:
@@ -315,7 +315,7 @@ def generate_factors_vertex(bm, layer):
 
 
 def generate_factors_component(obj, bm, layer):
-    component_verts, _ = utils.get_loose_components(obj)
+    component_verts, _ = get_loose_components(obj)
     vertex_lookup = {vert: i for i, comp in enumerate(component_verts) for vert in comp}
     masses = {i: math.fsum([bm.verts[idx][layer] for idx in component]) for i, component in enumerate(component_verts)}
     values = [masses.get(vertex_lookup.get(vert.index), 0) for vert in bm.verts]
@@ -348,7 +348,7 @@ def interpolate_colors(factors, stops, colorramp):
 
 
 def visualize_mass(obj, scene_props):
-    with utils.edit_bmesh(obj) as bm:
+    with edit_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
         
         if not len(bm.verts):
@@ -398,7 +398,7 @@ def visualize_mass(obj, scene_props):
 
 
 def find_center_of_gravity(obj):
-    with utils.query_bmesh(obj) as bm:
+    with query_bmesh(obj) as bm:
         bm.verts.ensure_lookup_table()
 
         layer = bm.verts.layers.float.get("a3ob_mass")

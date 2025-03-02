@@ -5,7 +5,7 @@ import bpy
 from . import props
 from .templates import RVMATTemplate
 from .. import get_prefs, get_icon
-from .. import utils
+from ..utils import is_valid_idx, load_common_data, PanelHeaderLinkMixin
 
 
 class A3OB_OT_materials_templates_generate(bpy.types.Operator):
@@ -18,7 +18,7 @@ class A3OB_OT_materials_templates_generate(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         scene_props = context.scene.a3ob_materials
-        return utils.is_valid_idx(scene_props.templates_index, scene_props.templates)
+        return is_valid_idx(scene_props.templates_index, scene_props.templates)
 
     def execute(self, context):
         scene_props = context.scene.a3ob_materials
@@ -51,7 +51,7 @@ class A3OB_OT_materials_templates_reload(bpy.types.Operator):
         return True
     
     def execute(self, context):
-        utils.load_common_data(context.scene)
+        load_common_data(context.scene)
         scene_props_common = context.scene.a3ob_commons
         scene_props_mats = context.scene.a3ob_materials
 
@@ -72,7 +72,7 @@ class A3OB_UL_materials_templates(bpy.types.UIList):
         layout.label(text=item.name, icon='TEXT')
 
 
-class A3OB_PT_materials(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_materials(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"

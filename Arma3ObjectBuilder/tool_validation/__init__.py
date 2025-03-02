@@ -2,7 +2,7 @@ import bpy
 
 from . import props
 from .. import get_icon
-from .. import utils
+from ..utils import PanelHeaderLinkMixin
 from ..io_p3d.validator import LODValidator
 from ..logger import ProcessLogger
 
@@ -51,7 +51,7 @@ class A3OB_OT_validate_lod(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class A3OB_PT_validation(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_validation(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"

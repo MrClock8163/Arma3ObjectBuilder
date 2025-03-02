@@ -4,7 +4,7 @@ from .data import P3D_LOD_Resolution as LODRes
 from . import flags as p3d_flags
 from . import utils as p3d_utils
 from .. import get_prefs, get_icon
-from .. import utils
+from ..utils import is_valid_idx, load_common_data, PanelHeaderLinkMixin
 
 
 bl_version = bpy.app.version
@@ -92,7 +92,7 @@ class A3OB_OT_paste_common_proxy(bpy.types.Operator):
         return True
     
     def invoke(self, context, event):
-        utils.load_common_data(context.scene)
+        load_common_data(context.scene)
         return context.window_manager.invoke_props_dialog(self)
     
     def draw(self, context):
@@ -108,7 +108,7 @@ class A3OB_OT_paste_common_proxy(bpy.types.Operator):
 
         scene_props = context.scene.a3ob_commons
         
-        if utils.is_valid_idx(scene_props.items_index, scene_props.items):
+        if is_valid_idx(scene_props.items_index, scene_props.items):
             new_item = scene_props.items[scene_props.items_index]
             obj.a3ob_properties_object_proxy.proxy_path = new_item.value
             
@@ -151,7 +151,7 @@ class A3OB_OT_namedprops_remove(bpy.types.Operator):
         if not obj:
             return False
         object_props = obj.a3ob_properties_object
-        return obj.type == 'MESH' and utils.is_valid_idx(object_props.property_index, object_props.properties)
+        return obj.type == 'MESH' and is_valid_idx(object_props.property_index, object_props.properties)
         
     def execute(self, context):
         obj = context.object
@@ -180,7 +180,7 @@ class A3OB_OT_paste_common_namedprop(bpy.types.Operator):
         return obj and obj.type == 'MESH'
     
     def invoke(self, context, event):
-        utils.load_common_data(context.scene)
+        load_common_data(context.scene)
         return context.window_manager.invoke_props_dialog(self)
     
     def draw(self, context):
@@ -192,7 +192,7 @@ class A3OB_OT_paste_common_namedprop(bpy.types.Operator):
         obj = context.object
         scene_props = context.scene.a3ob_commons
         
-        if utils.is_valid_idx(scene_props.items_index, scene_props.items):
+        if is_valid_idx(scene_props.items_index, scene_props.items):
             new_item = scene_props.items[scene_props.items_index]
             object_props = obj.a3ob_properties_object
             item = object_props.properties.add()
@@ -237,7 +237,7 @@ class A3OB_OT_lod_copy_remove(bpy.types.Operator):
         if not obj:
             return False
         object_props = obj.a3ob_properties_object
-        return obj.type == 'MESH' and utils.is_valid_idx(object_props.copies_index, object_props.copies)
+        return obj.type == 'MESH' and is_valid_idx(object_props.copies_index, object_props.copies)
         
     def execute(self, context):
         obj = context.object
@@ -286,7 +286,7 @@ class A3OB_OT_flags_vertex_remove(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and utils.is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
+        return obj and obj.type == 'MESH' and is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
         
     def execute(self, context):
         obj = context.object
@@ -311,7 +311,7 @@ class A3OB_OT_flags_vertex_assign(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and utils.is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
+        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
     
     def execute(self, context):
         obj = context.object
@@ -331,7 +331,7 @@ class A3OB_OT_flags_vertex_select(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and utils.is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
+        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
     
     def execute(self, context):
         obj = context.object
@@ -352,7 +352,7 @@ class A3OB_OT_flags_vertex_deselect(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and utils.is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
+        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and is_valid_idx(obj.a3ob_properties_object_flags.vertex_index, obj.a3ob_properties_object_flags.vertex)
     
     def execute(self, context):
         obj = context.object
@@ -415,7 +415,7 @@ class A3OB_OT_flags_face_remove(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and utils.is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
+        return obj and obj.type == 'MESH' and is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
         
     def execute(self, context):
         obj = context.object
@@ -440,7 +440,7 @@ class A3OB_OT_flags_face_assign(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and utils.is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
+        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
     
     def execute(self, context):
         obj = context.object
@@ -460,7 +460,7 @@ class A3OB_OT_flags_face_select(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and utils.is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
+        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
     
     def execute(self, context):
         obj = context.object
@@ -481,7 +481,7 @@ class A3OB_OT_flags_face_deselect(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.object
-        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and utils.is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
+        return obj and obj.type == 'MESH' and obj.mode == 'EDIT' and is_valid_idx(obj.a3ob_properties_object_flags.face_index, obj.a3ob_properties_object_flags.face)
     
     def execute(self, context):
         obj = context.object
@@ -566,7 +566,7 @@ class A3OB_UL_proxy_access(bpy.types.UIList):
         return flt_flags, flt_neworder
 
 
-class A3OB_PT_object_mesh(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_object_mesh(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: LOD Properties"
@@ -656,7 +656,7 @@ class A3OB_PT_object_mesh_proxies(bpy.types.Panel):
         op_add.parent = context.object.name
         op_remove = col_operators.operator("a3ob.proxy_remove", text="", icon='REMOVE')
 
-        if not utils.is_valid_idx(scene_props.proxies_index, scene_props.proxies):
+        if not is_valid_idx(scene_props.proxies_index, scene_props.proxies):
             return
         
         proxy = context.scene.objects.get(scene_props.proxies[scene_props.proxies_index].obj)
@@ -699,7 +699,7 @@ class A3OB_PT_object_mesh_copies(bpy.types.Panel):
         col_operators.operator("a3ob.lod_copy_remove", text="", icon='REMOVE')
 
 
-class A3OB_PT_object_mesh_flags(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_object_mesh_flags(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: Flag Groups"
@@ -742,7 +742,7 @@ class A3OB_PT_object_mesh_flags_vertex(bpy.types.Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
         
-        if utils.is_valid_idx(flag_props.vertex_index, flag_props.vertex):
+        if is_valid_idx(flag_props.vertex_index, flag_props.vertex):
             if obj.mode == 'EDIT':
                 row_operators = layout.row(align=True)
                 row_operators.operator("a3ob.flags_vertex_assign")
@@ -789,7 +789,7 @@ class A3OB_PT_object_mesh_flags_face(bpy.types.Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
         
-        if utils.is_valid_idx(flag_props.face_index, flag_props.face):
+        if is_valid_idx(flag_props.face_index, flag_props.face):
             if obj.mode == 'EDIT':
                 row_operators = layout.row(align=True)
                 row_operators.operator("a3ob.flags_face_assign")
@@ -810,7 +810,7 @@ class A3OB_PT_object_mesh_flags_face(bpy.types.Panel):
         col_operators.operator("a3ob.flags_face_clear", text="", icon='TRASH')
 
 
-class A3OB_PT_object_proxy(bpy.types.Panel, utils.PanelHeaderLinkMixin):
+class A3OB_PT_object_proxy(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_region_type = 'WINDOW'
     bl_space_type = 'PROPERTIES'
     bl_label = "Object Builder: Proxy Properties"

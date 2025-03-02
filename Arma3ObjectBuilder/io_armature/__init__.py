@@ -2,7 +2,7 @@ import bpy
 import bpy_extras
 
 from . import importer
-from .. import utils
+from ..utils import op_report, is_valid_idx
 
 
 class A3OB_OT_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -37,13 +37,13 @@ class A3OB_OT_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelp
 
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
-        if not utils.is_valid_idx(self.skeleton_index, scene_props.skeletons):
-            utils.op_report(self, {'ERROR'}, "No skeleton was selected")
+        if not is_valid_idx(self.skeleton_index, scene_props.skeletons):
+            op_report(self, {'ERROR'}, "No skeleton was selected")
             return {'FINISHED'}
         
         skeleton = scene_props.skeletons[self.skeleton_index]
         if not importer.is_valid_skeleton(skeleton):
-            utils.op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
+            op_report(self, {'ERROR'}, "Invalid skeleton definiton, run skeleton validation for RTM for more info")
             return {'FINISHED'}
 
         importer.import_armature(self, skeleton)

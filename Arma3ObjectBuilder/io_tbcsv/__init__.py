@@ -2,8 +2,8 @@ import bpy
 import bpy_extras
 
 from . import importer, exporter
-from .. import utils
-from .. import utils_io
+from ..utils import op_report
+from ..utils_io import ExportFileHandler
 
 
 class A3OB_OT_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -61,9 +61,9 @@ class A3OB_OT_import_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ImportHelper)
             count_read, count_found = importer.read_file(self, context, file)
 
         if count_found > 0:
-            utils.op_report(self, {'INFO'}, "Successfully imported %d/%d object positions (check the logs in the system console)" % (count_found, count_read))
+            op_report(self, {'INFO'}, "Successfully imported %d/%d object positions (check the logs in the system console)" % (count_found, count_read))
         else:
-            utils.op_report(self, {'WARNING'}, "Could not spawn any objects, template objects were not found (check the logs in the system console)")
+            op_report(self, {'WARNING'}, "Could not spawn any objects, template objects were not found (check the logs in the system console)")
 
         return {'FINISHED'}
 
@@ -138,16 +138,16 @@ class A3OB_OT_export_tbcsv(bpy.types.Operator, bpy_extras.io_utils.ExportHelper)
 
     def execute(self, context):
         if not self.collection and self.name_source == 'COLLECTION':
-            utils.op_report(self, {'ERROR'}, "Collection name can only be used when exporting a collection")
+            op_report(self, {'ERROR'}, "Collection name can only be used when exporting a collection")
             return {'FINISHED'}
         
-        with utils_io.ExportFileHandler(self.filepath, "wt") as file:
+        with ExportFileHandler(self.filepath, "wt") as file:
             count = exporter.write_file(self, context, file)
 
         if count > 0:
-            utils.op_report(self, {'INFO'}, "Successfully exported %d object positions (check the logs in the system console)" % count)
+            op_report(self, {'INFO'}, "Successfully exported %d object positions (check the logs in the system console)" % count)
         else:
-            utils.op_report(self, {'WARNING'}, "Could not export any object positions (check the logs in the system console)")
+            op_report(self, {'WARNING'}, "Could not export any object positions (check the logs in the system console)")
 
         return {'FINISHED'}
 
