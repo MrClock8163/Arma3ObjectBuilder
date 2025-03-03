@@ -29,14 +29,14 @@ class A3OB_OT_import_armature(bpy.types.Operator, bpy_extras.io_utils.ImportHelp
 
     @classmethod
     def poll(cls, context):
-        scene_props = context.scene.a3ob_rigging
+        scene_props = context.scene.a3ob_mcfg
         return len(scene_props.skeletons) > 0
 
     def draw(self, context):
         pass
 
     def execute(self, context):
-        scene_props = context.scene.a3ob_rigging
+        scene_props = context.scene.a3ob_mcfg
         if not is_valid_idx(self.skeleton_index, scene_props.skeletons):
             op_report(self, {'ERROR'}, "No skeleton was selected")
             return {'FINISHED'}
