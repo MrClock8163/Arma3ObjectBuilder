@@ -10,6 +10,22 @@ from ..utils import op_report
 from ..utils_io import ExportFileHandler
 
 
+# Simple check to not even start the export if there are
+# no LOD objects in the scene.
+def can_export(operator, context):
+    scene = context.scene
+    export_objects = scene.objects
+    
+    if operator.use_selection:
+        export_objects = context.selected_objects
+        
+    for obj in export_objects:
+        if (not operator.visible_only or obj.visible_get()) and  obj.type == 'MESH' and obj.a3ob_properties_object.is_a3_lod and obj.parent == None:
+            return True
+            
+    return False
+
+
 class A3OB_OT_import_p3d(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Arma 3 MLOD P3D"""
     
@@ -322,7 +338,7 @@ class A3OB_OT_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         pass
     
     def execute(self, context):        
-        if not exporter.can_export(self, context):
+        if not can_export(self, context):
             op_report(self, {'ERROR'}, "There are no LODs to export")
             return {'FINISHED'}
         

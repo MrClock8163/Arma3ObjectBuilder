@@ -20,22 +20,6 @@ from ..utils_compat import call_operator_ctx, mesh_auto_smooth, mesh_static_norm
 from ..logger import ProcessLogger, ProcessLoggerNull
 
 
-# Simple check to not even start the export if there are
-# no LOD objects in the scene.
-def can_export(operator, context):
-    scene = context.scene
-    export_objects = scene.objects
-    
-    if operator.use_selection:
-        export_objects = context.selected_objects
-        
-    for obj in export_objects:
-        if (not operator.visible_only or obj.visible_get()) and  obj.type == 'MESH' and obj.a3ob_properties_object.is_a3_lod and obj.parent == None:
-            return True
-            
-    return False
-
-
 def create_temp_collection(context):
     temp = bpy.data.collections.get("A3OB_temp")
     if temp is None:
