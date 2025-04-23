@@ -1,5 +1,12 @@
 # Changelog
 
+## [v2.5.1](https://github.com/MrClock8163/Arma3ObjectBuilder/releases/tag/v2.5.1) (Blender 2.90 -> 4.4)
+
+### Fixed
+
+- Face and vertex flag groups were not properly handled in some cases
+- The disabled "Preserve Preprocessed LOD Objects" option was not respected if an error occured during export
+
 ## [v2.5.0](https://github.com/MrClock8163/Arma3ObjectBuilder/releases/tag/v2.5.0) (Blender 2.90 -> 4.3)
 
 ### Added
