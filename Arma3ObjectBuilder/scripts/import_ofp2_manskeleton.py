@@ -4,8 +4,7 @@
 #   Add-on: Arma 3 Object Builder
 #   
 #   Description:
-#       The script creates an empty "dummy" P3D file at the specified path.
-#       It might come in handy in special testing cases.
+#       The script adds the OFP2_ManSkeleton to the skeleton list of the Rigging tool panel.
 #
 #   Usage:
 #       1. set settings as necessary
@@ -17,12 +16,12 @@
 #   --------------------------------------- SETTINGS ---------------------------------------
 
 class Settings:
-    # Target path for dummy P3D
-    filepath = r""
+    # Turn all bone names to lowercase
+    force_lowercase = True
 
 
 #   ---------------------------------------- LOGIC -----------------------------------------
-
+    
 import importlib
 
 import bpy
@@ -36,10 +35,19 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-p3d = a3ob.io_p3d.data
+data = a3ob.tool_rigging.ofp2_manskeleton
 
 
-model = p3d.P3D_MLOD()
-model.lods.append(p3d.P3D_LOD())
+def main():
+    scene_props = bpy.context.scene.a3ob_rigging
+    skeleton = scene_props.skeletons.add()
+    skeleton.name = "ofp2_manskeleton" if Settings.force_lowercase else "OFP2_ManSkeleton"
+    skeleton.protected = True
 
-model.write_file(Settings.filepath)
+    for bone, parent in data.bone_hierarchy:
+        item = skeleton.bones.add()
+        item.name = bone.lower() if Settings.force_lowercase else bone
+        item.parent = parent.lower() if Settings.force_lowercase else parent
+
+
+main()

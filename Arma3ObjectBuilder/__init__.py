@@ -14,18 +14,6 @@ bl_info = {
 
 import os
 
-if "bpy" in locals():
-    from importlib import reload
-    
-    if "utilities" in locals():
-        reload(utilities)
-    if "io" in locals():
-        reload(io)
-    if "props" in locals():
-        reload(props)
-    if "ui" in locals():
-        reload(ui)
-
 import bpy
 
 
@@ -45,18 +33,31 @@ def get_prefs():
     return addon_prefs
 
 
-from . import utilities
-from . import io
-from . import props
-from . import ui
+from . import io_p3d
+from . import io_rtm
+from . import io_mcfg
+from . import io_armature
+from . import io_tbcsv
+from . import io_asc
+from . import io_paa
+from . import tool_outliner
+from . import tool_mass
+from . import tool_materials
+from . import tool_hitpoint
+from . import tool_renaming
+from . import tool_proxies
+from . import tool_validation
+from . import tool_rigging
+from . import tool_utilities
+from .io_p3d import flags
 
 
 def outliner_enable_update(self, context):
-    if self.outliner == 'ENABLED' and ui.tool_outliner.depsgraph_update_post_handler not in bpy.app.handlers.depsgraph_update_post:
-        bpy.app.handlers.depsgraph_update_post.append(ui.tool_outliner.depsgraph_update_post_handler)
-        ui.tool_outliner.depsgraph_update_post_handler(context.scene, None)
-    elif self.outliner == 'DISABLED' and ui.tool_outliner.depsgraph_update_post_handler in bpy.app.handlers.depsgraph_update_post:
-        bpy.app.handlers.depsgraph_update_post.remove(ui.tool_outliner.depsgraph_update_post_handler)
+    if self.outliner == 'ENABLED' and tool_outliner.depsgraph_update_post_handler not in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.append(tool_outliner.depsgraph_update_post_handler)
+        tool_outliner.depsgraph_update_post_handler(context.scene, None)
+    elif self.outliner == 'DISABLED' and tool_outliner.depsgraph_update_post_handler in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.remove(tool_outliner.depsgraph_update_post_handler)
         context.scene.a3ob_outliner.clear()
 
 
@@ -147,13 +148,13 @@ class A3OB_OT_prefs_edit_flag_vertex(bpy.types.Operator):
     
     def invoke(self, context, event):
         prefs = context.preferences.addons[__package__].preferences
-        utilities.flags.set_flag_vertex(self, prefs.flag_vertex)
+        flags.set_flag_vertex(self, prefs.flag_vertex)
 
         return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
         prefs = context.preferences.addons[__package__].preferences
-        prefs.flag_vertex = utilities.flags.get_flag_vertex(self)
+        prefs.flag_vertex = flags.get_flag_vertex(self)
 
         return {'FINISHED'}
 
@@ -199,13 +200,13 @@ class A3OB_OT_prefs_edit_flag_face(bpy.types.Operator):
     
     def invoke(self, context, event):
         prefs = context.preferences.addons[__package__].preferences
-        utilities.flags.set_flag_face(self, prefs.flag_face)
+        flags.set_flag_face(self, prefs.flag_face)
 
         return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
         prefs = context.preferences.addons[__package__].preferences
-        prefs.flag_face = utilities.flags.get_flag_face(self)
+        prefs.flag_face = flags.get_flag_face(self)
 
         return {'FINISHED'}
 
@@ -333,39 +334,44 @@ class A3OB_AT_preferences(bpy.types.AddonPreferences):
             box.prop(self, "preserve_preprocessed_lods")
 
 
+class A3OB_PG_common_data_item(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name="Name", description="Descriptive name of the common item")
+    value: bpy.props.StringProperty(name="Value", description="Value of the common item")
+    type: bpy.props.StringProperty(name="Type", description="Context type of the common item")
+
+
+class A3OB_PG_common_data(bpy.types.PropertyGroup):
+    items: bpy.props.CollectionProperty(type=A3OB_PG_common_data_item)
+    items_index: bpy.props.IntProperty(name="Selection Index")
+
+
 classes = (
     A3OB_OT_prefs_find_a3_tools,
     A3OB_OT_prefs_edit_flag_vertex,
     A3OB_OT_prefs_edit_flag_face,
-    A3OB_AT_preferences
+    A3OB_AT_preferences,
+    A3OB_PG_common_data_item,
+    A3OB_PG_common_data
 )
 
 
 modules = (
-    props.object,
-    props.material,
-    props.scene,
-    props.action,
-    ui.props_action,
-    ui.props_object_mesh,
-    ui.props_material,
-    ui.import_export_p3d,
-    ui.import_export_rtm,
-    ui.import_export_mcfg,
-    ui.import_export_armature,
-    ui.import_export_tbcsv,
-    ui.import_export_asc,
-    ui.import_export_paa,
-    ui.tool_outliner,
-    ui.tool_mass,
-    ui.tool_materials,
-    ui.tool_hitpoint,
-    ui.tool_paths,
-    ui.tool_proxies,
-    ui.tool_validation,
-    ui.tool_rigging,
-    ui.tool_utilities,
-    ui.tool_scripts
+    io_p3d,
+    io_rtm,
+    io_mcfg,
+    io_armature,
+    io_tbcsv,
+    io_asc,
+    io_paa,
+    tool_outliner,
+    tool_mass,
+    tool_materials,
+    tool_hitpoint,
+    tool_renaming,
+    tool_proxies,
+    tool_validation,
+    tool_rigging,
+    tool_utilities
 )
 
 
@@ -399,6 +405,8 @@ def register():
     
     for cls in classes:
         register_class(cls)
+
+    bpy.types.Scene.a3ob_commons = bpy.props.PointerProperty(type=A3OB_PG_common_data)
     
     global addon_prefs
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
@@ -420,6 +428,8 @@ def unregister():
     
     for mod in reversed(modules):
         mod.unregister()
+
+    del bpy.types.Scene.a3ob_commons
     
     for cls in reversed(classes):
         unregister_class(cls)

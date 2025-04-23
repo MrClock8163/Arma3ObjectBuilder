@@ -58,7 +58,7 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-import_file = a3ob.io.import_rtm.import_file
+import_file = a3ob.io_rtm.importer.import_file
 
 
 def main():

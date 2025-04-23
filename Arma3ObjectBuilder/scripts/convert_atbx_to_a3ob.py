@@ -45,15 +45,11 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-a3ob_utils = a3ob.utilities
-a3ob_io = a3ob.io
+a3ob_utils = a3ob.utils
 
-utils = a3ob_utils.generic
-structutils = a3ob_utils.structure
-lodutils = a3ob_utils.lod
-ProcessLogger = a3ob_utils.logger.ProcessLogger
-LOD = a3ob_io.data_p3d.P3D_LOD_Resolution
-import_p3d = a3ob_io
+ProcessLogger = a3ob.logger.ProcessLogger
+LOD = a3ob.io_p3d.data.P3D_LOD_Resolution
+import_p3d = a3ob.io_p3d.importer
 
 
 LOD_TYPE_MAPPING = {
@@ -143,7 +139,7 @@ def convert_materials(obj, converted_materials, cleanup, logger):
 
 def convert_proxy_item(obj, selections, cleanup):
     import_p3d.transform_proxy(obj)
-    structutils.cleanup_vertex_groups(obj)
+    a3ob.io_p3d.utils.cleanup_vertex_groups(obj)
     a3ob_props = obj.a3ob_properties_object_proxy
     atbx_props = obj.armaObjProps
     
@@ -222,7 +218,7 @@ def convert_lod_properties(obj, cleanup, logger):
     a3ob_props.resolution = math.floor(atbx_props.lodDistance)
     a3ob_props.is_a3_lod = True
     
-    logger.step("LOD name: %s" % lodutils.format_lod_name(int(a3ob_props.lod), a3ob_props.resolution))
+    logger.step("LOD name: %s" % a3ob.io_p3d.data.P3D_LOD_Resolution.build_name(int(a3ob_props.lod), a3ob_props.resolution))
     
     convert_namedprops(a3ob_props, atbx_props, logger)
     
@@ -238,7 +234,7 @@ def convert_lod_properties(obj, cleanup, logger):
 
 def convert_vertex_masses(obj, cleanup, logger):
 
-    with utils.edit_bmesh(obj) as bm:    
+    with a3ob_utils.edit_bmesh(obj) as bm:    
         layer_atbx = bm.verts.layers.float.get("FHQWeights")
         if layer_atbx:
             layer_a3ob = bm.verts.layers.float.get("a3ob_mass")

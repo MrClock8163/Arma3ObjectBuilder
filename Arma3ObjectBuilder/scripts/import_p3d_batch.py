@@ -21,8 +21,8 @@
 class Settings:
     # Folder of P3D files
     filepath = r""
-    # Attempt to restore relative file paths
-    relative_paths = True
+    # Attempt to restore absolute file paths from the relative file paths and given project root
+    absolute_paths = True
     # Create collection with P3D name
     enclose = True
     # Group LODs by: 'NONE' or 'TYPE'
@@ -49,6 +49,8 @@ class Settings:
     translate_selections = False
     # Cleanup selections without any vertices assigned
     cleanup_empty_selections = False
+    # Handling of potentially fragmented sections: 'PRESERVE' or 'MERGE'
+    sections = 'PRESERVE'
 
 
 #   ---------------------------------------- LOGIC -----------------------------------------
@@ -67,7 +69,7 @@ else:
     raise Exception("Arma 3 Object Builder could not be found")
 
 a3ob = importlib.import_module(name)
-read_file = a3ob.io.import_p3d.read_file
+read_file = a3ob.io_p3d.importer.read_file
 
 
 def main():
