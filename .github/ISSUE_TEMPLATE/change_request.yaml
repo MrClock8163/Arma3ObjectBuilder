@@ -1,7 +1,7 @@
 name: Change Request
 description: Request a change in an existing feature
 title: "[Change] "
-labels: ["change"]
+labels: ["type: change", "scope: user"]
 body:
   - type: markdown
     attributes:

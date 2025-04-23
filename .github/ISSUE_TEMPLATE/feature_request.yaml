@@ -1,7 +1,7 @@
 name: Feature Request
 description: Request a new feature
 title: "[Feature] "
-labels: ["feature"]
+labels: ["type: feature", "scope: user"]
 body:
   - type: markdown
     attributes:
@@ -21,7 +21,7 @@ body:
         - Tool
         - Utility
         - Utility Script
-        - Other
+        - Other (please specify in the description)
     validations:
       required: true
   - type: textarea

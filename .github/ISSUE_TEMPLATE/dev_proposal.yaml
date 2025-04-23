@@ -1,0 +1,21 @@
+name: Development Proposal (contributors only)
+description: Propose an implementation or other system change
+title: "[Proposal] "
+labels: ["type: change", "scope: internal"]
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Provide the motivation for the change you are proposing
+      placeholder: The current implementation is not ideal, because...
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the changes you are proposing
+      placeholder: With the above explained motivation, I propose...
+    validations:
+      required: true
