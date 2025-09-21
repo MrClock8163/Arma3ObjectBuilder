@@ -3,10 +3,11 @@
 
 import struct
 from array import array
+from typing import BinaryIO
 
 
 class LZO_Error(Exception):
-    def __str__(self):
+    def __str__(self) -> str:
         return "LZO - %s" % super().__str__()
 
 
@@ -17,41 +18,54 @@ class LZO_Error(Exception):
 # https://github.com/FFmpeg/FFmpeg/blob/master/libavutil/lzo.c
 # The original LZO implementations as defined by Markus F.X.J. Oberhumer:
 # https://www.oberhumer.com/opensource/lzo/
-def lzo1x_decompress(file, expected):
+def lzo1x_decompress(
+    file: BinaryIO,
+    expected: int
+) -> tuple[int, bytearray]:
     state = 0
     start = file.tell()
     output = bytearray()
 
     struct_le16 = struct.Struct('<H')
 
-    def check_free_space(length):
+    def check_free_space(length: int) -> None:
         free_space = expected - len(output)
         if free_space < length:
-            raise LZO_Error("Output overrun (free buffer: %d, match length: %d)" % (free_space, length))
-    
-    def copy_match(distance, length):
+            raise LZO_Error(
+                "Output overrun (free buffer: %d, match length: %d)" % (free_space, length)
+            )
+
+    def copy_match(
+        distance: int,
+        length: int
+    ) -> None:
         check_free_space(length)
-        
+
         # It is valid to have length that is longer than the back pointer distance, which creates a repeating pattern,
         # copying the same bytes that were copied in this same command.
         # For this reason, we cannot simply take a slice of the output at the given point with the given length, as
         # some of the bytes might not yet be there. We have to copy in chunks with size of the backpointer distance.
         start = len(output) - distance
-        output.extend(output[start:] * (length // distance)) # copy as many whole chunks as possible
-        output.extend(output[start:(start + (length % distance))]) # copy remainder
-    
-    def get_length(x, mask):
+        # copy as many whole chunks as possible
+        output.extend(output[start:] * (length // distance))
+        # copy remainder
+        output.extend(output[start:(start + (length % distance))])
+
+    def get_length(
+        x: int,
+        mask: int
+    ) -> int:
         length = x & mask
         if not length:
             while True:
                 x = file.read(1)[0]
                 if x:
                     break
-                
+
                 length += 255
             length += mask + x
         return length
-    
+
     # # First byte is handled separately, as the output buffer is empty at this point.
     x = file.read(1)[0]
     if x > 17:
@@ -60,7 +74,7 @@ def lzo1x_decompress(file, expected):
         output.extend(file.read(length))
         state = min(4, length)
         x = file.read(1)[0]
-    
+
     while True:
         if x <= 15:
             if not state:
@@ -111,10 +125,11 @@ def lzo1x_decompress(file, expected):
             state = extra & 3
             if distance == 16384:
                 if length != 3:
-                    raise LZO_Error("Invalid End Of Stream (expected match length: 3, got: %s)" % length)
+                    raise LZO_Error(
+                        "Invalid End Of Stream (expected match length: 3, got: %s)" % length)
                 # End of Stream reached
                 break
-            
+
             copy_match(distance, length)
             check_free_space(state)
             output.extend(file.read(state))
@@ -122,13 +137,14 @@ def lzo1x_decompress(file, expected):
         x = file.read(1)[0]
 
     if expected - len(output):
-        raise LZO_Error("Stream provided shorter output than expected (expected: %d, got: %d)" % (expected, len(output)))
-    
+        raise LZO_Error("Stream provided shorter output than expected (expected: %d, got: %d)" % (
+            expected, len(output)))
+
     return file.tell() - start, output
 
 
 class DXT_Error(Exception):
-    def __str__(self):
+    def __str__(self) -> str:
         return "DXT - %s" % super().__str__()
 
 
@@ -138,7 +154,11 @@ class DXT_Error(Exception):
 # https://www.khronos.org/opengl/wiki/S3_Texture_Compression
 # The decompression serves the channel data in bottom to top row order, conforming
 # to the OpenGL standard that Blender expects.
-def dxt5_decompress(file, width, height):
+def dxt5_decompress(
+    file: BinaryIO,
+    width: int,
+    height: int
+) -> tuple[array[float], array[float], array[float], array[float]]:
     if width % 4 != 0 or height % 4 != 0:
         raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
 
@@ -180,11 +200,11 @@ def dxt5_decompress(file, width, height):
             r0 = (v0 >> 11) / 31
             g0 = ((v0 >> 5) & 0x3f) / 63
             b0 = (v0 & 0x1f) / 31
-            
+
             r1 = (v1 >> 11) / 31
             g1 = ((v1 >> 5) & 0x3f) / 63
             b1 = (v1 & 0x1f) / 31
-            
+
             # Color interpolation
             if v0 > v1:
                 r2 = coef23 * r0 + coef13 * r1
@@ -199,7 +219,7 @@ def dxt5_decompress(file, width, height):
                 g2 = 0.5 * (g0 + g1)
                 b2 = 0.5 * (b0 + b1)
                 r3 = g3 = b3 = 0
-            
+
             # Alpha interpolation
             if a0 > a1:
                 a0 /= 255
@@ -219,7 +239,7 @@ def dxt5_decompress(file, width, height):
                 a5 = acoef15 * a0 + acoef45 * a1
                 a6 = 0
                 a7 = 1
-            
+
             # Color code
             codes = (
                 table & 0x3,
@@ -269,15 +289,16 @@ def dxt5_decompress(file, width, height):
             alut = (a0, a1, a2, a3, a4, a5, a6, a7)
 
             # Block interpretation
-            bstartrow = height - brow * 4 # index of the starting row of the block
-            bstartcol = bcol * 4 # index of the starting column of the block
+            bstartrow = height - brow * 4  # index of the starting row of the block
+            bstartcol = bcol * 4  # index of the starting column of the block
             for row in range(4):
-                current_row_col = (bstartrow - row - 1) * width + bstartcol # flattened index of the first pixel in the row
+                # flattened index of the first pixel in the row
+                current_row_col = (bstartrow - row - 1) * width + bstartcol
                 for col in range(4):
-                    pix = row * 4 + col # pixel index inside current flattened block
+                    pix = row * 4 + col  # pixel index inside current flattened block
                     r, g, b = lut[codes[pix]]
                     a = alut[acodes[pix]]
-                    idx = current_row_col + col # flattened intdex of the current pixel
+                    idx = current_row_col + col  # flattened intdex of the current pixel
                     red[idx] = r
                     green[idx] = g
                     blue[idx] = b
@@ -286,7 +307,11 @@ def dxt5_decompress(file, width, height):
     return red, green, blue, alpha
 
 
-def dxt1_decompress(file, width, height):
+def dxt1_decompress(
+    file: BinaryIO,
+    width: int,
+    height: int
+) -> tuple[array[float], array[float], array[float], array[float]]:
     if width % 4 != 0 or height % 4 != 0:
         raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
 
@@ -299,7 +324,7 @@ def dxt1_decompress(file, width, height):
     # Interpolation coefficients
     coef0 = 2/3
     coef1 = 1/3
-    
+
     block_count_w = width // 4
     block_count_h = height // 4
 
@@ -314,11 +339,11 @@ def dxt1_decompress(file, width, height):
             r0 = (v0 >> 11) / 31
             g0 = ((v0 >> 5) & 0x3f) / 63
             b0 = (v0 & 0x1f) / 31
-            
+
             r1 = (v1 >> 11) / 31
             g1 = ((v1 >> 5) & 0x3f) / 63
             b1 = (v1 & 0x1f) / 31
-            
+
             # Color interpolation
             if v0 > v1:
                 r2 = coef0 * r0 + coef1 * r1
@@ -328,7 +353,7 @@ def dxt1_decompress(file, width, height):
                 r3 = coef1 * r0 + coef0 * r1
                 g3 = coef1 * g0 + coef0 * g1
                 b3 = coef1 * b0 + coef0 * b1
-                
+
                 a3 = 1
             else:
                 r2 = 0.5 * (r0 + r1)
@@ -336,7 +361,7 @@ def dxt1_decompress(file, width, height):
                 b2 = 0.5 * (b0 + b1)
 
                 r3 = g3 = b3 = a3 = 0
-            
+
             # Color codes
             codes = (
                 table & 0x3,
@@ -365,13 +390,14 @@ def dxt1_decompress(file, width, height):
             )
 
             # Block interpretation
-            bstartrow = height - brow * 4 # index of the starting row of the block
-            bstartcol = bcol * 4 # index of the starting column of the block
+            bstartrow = height - brow * 4  # index of the starting row of the block
+            bstartcol = bcol * 4  # index of the starting column of the block
             for row in range(4):
-                current_row_col = (bstartrow - row - 1) * width + bstartcol # flattened index of the first pixel in the row
+                # flattened index of the first pixel in the row
+                current_row_col = (bstartrow - row - 1) * width + bstartcol
                 for col in range(4):
                     r, g, b, a = lut[codes[row * 4 + col]]
-                    idx = current_row_col + col # flattened intdex of the current pixel
+                    idx = current_row_col + col  # flattened intdex of the current pixel
                     red[idx] = r
                     green[idx] = g
                     blue[idx] = b
