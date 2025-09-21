@@ -1,4 +1,4 @@
-def get_rvmat_templates():
+def get_rvmat_templates() -> dict[str, str]:
     import os
     from . import addon_dir
 
