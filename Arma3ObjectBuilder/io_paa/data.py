@@ -8,13 +8,14 @@ import struct
 from enum import IntEnum
 from io import BytesIO, BufferedReader
 from copy import deepcopy
+from typing import Self, BinaryIO
 
 from .. import binary
 from ..compression import dxt1_decompress, dxt5_decompress, lzo1x_decompress
 
 
 class PAA_Error(Exception):
-    def __str__(self):
+    def __str__(self) -> str:
         return "PAA - %s" % super().__str__()
 
 
@@ -32,12 +33,15 @@ class PAA_Type(IntEnum):
 
 
 class PAA_TAGG():
-    def __init__(self):
-        self.name = ""
-        self.data = None
-    
+    def __init__(self) -> None:
+        self.name: str = ""
+        self.data: bytes | None = None
+
     @classmethod
-    def read(cls, file):
+    def read(
+        cls,
+        file: BinaryIO
+    ) -> Self:
         output = cls()
 
         output.name = file.read(4).decode("utf8")[::-1]
@@ -48,31 +52,37 @@ class PAA_TAGG():
 
 
 class PAA_MIPMAP():
-    def __init__(self):
-        self.width = 0
-        self.height = 0
+    def __init__(self) -> None:
+        self.width: int = 0
+        self.height: int = 0
         self.data = None
-        self.data_raw = None
-        self.lzo_compressed = False
-    
+        self.data_raw: bytearray | None = None
+        self.lzo_compressed: bool = False
+
     @classmethod
-    def read(cls, file):
+    def read(
+        cls,
+        file: BinaryIO
+    ) -> Self:
         output = cls()
 
         output.width, output.height = binary.read_ushorts(file, 2)
         if output.width == output.height == 0:
             return output
-        
+
         if output.width & 0x8000:
             output.lzo_compressed = True
             output.width ^= 0x8000
 
-        length = struct.unpack('<I', file.read(3) + b"\x00")[0]
+        length: int = struct.unpack('<I', file.read(3) + b"\x00")[0]
         output.data_raw = bytearray(file.read(length))
 
         return output
-    
-    def decompress(self, format):
+
+    def decompress(
+        self,
+        format: PAA_Type
+    ) -> None:
         if format == PAA_Type.DXT1:
             decompressor = dxt1_decompress
             lzo_expected = self.width * self.height // 2
@@ -81,8 +91,9 @@ class PAA_MIPMAP():
             lzo_expected = self.width * self.height
         else:
             raise PAA_Error("Unsupported format for decompression: %s", format)
-        
+
         data = self.data_raw
+        assert isinstance(self.data_raw, bytes)
         if self.lzo_compressed:
             stream_lzo = BytesIO(self.data_raw)
             reader_lzo = BufferedReader(stream_lzo)
@@ -92,10 +103,13 @@ class PAA_MIPMAP():
         reader_dxt = BufferedReader(stream_dxt)
         self.data = decompressor(reader_dxt, self.width, self.height)
 
-    def swizzle(self, code):
+    def swizzle(
+        self,
+        code: list[int] | bytes
+    ) -> None:
         if self.data is None or len(self.data) != 4:
             raise PAA_Error("No properly decompressed data found to swizzle")
-        
+
         if len(code) != 4:
             raise PAA_Error("Unexpected swizzle code length: %s", code)
 
@@ -117,50 +131,56 @@ class PAA_MIPMAP():
 
 
 class PAA_File():
-    def __init__(self):
-        self.source = ""
-        self.type = PAA_Type.UNKNOWN
-        self.taggs = []
-        self.mips = []
-        self.alpha = False
+    def __init__(self) -> None:
+        self.source: str = ""
+        self.type: PAA_Type = PAA_Type.UNKNOWN
+        self.taggs: list[PAA_TAGG] = []
+        self.mips: list[PAA_MIPMAP] = []
+        self.alpha: bool = False
 
     @classmethod
-    def read(cls, file):
+    def read(
+        cls,
+        file: BinaryIO
+    ) -> Self:
         output = cls()
 
         data_type = binary.read_ushort(file)
         try:
             output.type = PAA_Type(data_type)
             if output.type == PAA_Type.UNKNOWN:
-                raise  Exception()
-        except Exception as e:
+                raise Exception()
+        except Exception:
             raise PAA_Error("Unknown format type: %d" % data_type)
 
         while True:
             if file.read(4) != b"GGAT":
                 file.seek(-4, 1)
                 break
-            
+
             output.taggs.append(PAA_TAGG.read(file))
 
         if binary.read_ushort(file) != 0:
             raise PAA_Error("Indexed palettes are not supported")
-        
+
         while True:
             mip = PAA_MIPMAP.read(file)
             if mip.width == mip.height == 0:
                 break
 
             output.mips.append(mip)
-        
+
         eof = binary.read_ushort(file)
         if eof != 0:
             raise PAA_Error("Unexpected EOF value: %d" % eof)
-        
+
         return output
-    
+
     @classmethod
-    def read_file(cls, filepath):
+    def read_file(
+        cls,
+        filepath: str
+    ) -> Self:
         output = None
         with open(filepath, "rb") as file:
             output = cls.read(file)
@@ -168,10 +188,13 @@ class PAA_File():
         output.source = filepath
 
         return output
-    
-    def get_tagg(self, name):
+
+    def get_tagg(
+        self,
+        name: str
+    ) -> PAA_TAGG | None:
         for tagg in self.taggs:
             if tagg.name == name:
                 return tagg
-        
+
         return None
