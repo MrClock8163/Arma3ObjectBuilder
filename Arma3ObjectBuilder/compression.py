@@ -4,6 +4,7 @@
 import struct
 from array import array
 from typing import BinaryIO
+from collections.abc import MutableSequence
 
 
 class LZO_Error(Exception):
@@ -158,7 +159,7 @@ def dxt5_decompress(
     file: BinaryIO,
     width: int,
     height: int
-) -> tuple[array[float], array[float], array[float], array[float]]:
+) -> tuple[MutableSequence[float], MutableSequence[float], MutableSequence[float], MutableSequence[float]]:
     if width % 4 != 0 or height % 4 != 0:
         raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
 
@@ -171,20 +172,20 @@ def dxt5_decompress(
     struct_block_atable = struct.Struct('<Q')
 
     # Interpolation coefficients
-    acoef67 = 6/7
-    acoef17 = 1/7
-    acoef57 = 5/7
-    acoef27 = 2/7
-    acoef47 = 4/7
-    acoef37 = 3/7
+    acoef67 = 6 / 7
+    acoef17 = 1 / 7
+    acoef57 = 5 / 7
+    acoef27 = 2 / 7
+    acoef47 = 4 / 7
+    acoef37 = 3 / 7
 
-    acoef45 = 4/5
-    acoef15 = 1/5
-    acoef35 = 3/5
-    acoef25 = 2/5
+    acoef45 = 4 / 5
+    acoef15 = 1 / 5
+    acoef35 = 3 / 5
+    acoef25 = 2 / 5
 
-    coef23 = 2/3
-    coef13 = 1/3
+    coef23 = 2 / 3
+    coef13 = 1 / 3
 
     block_count_w = width // 4
     block_count_h = height // 4
@@ -311,7 +312,7 @@ def dxt1_decompress(
     file: BinaryIO,
     width: int,
     height: int
-) -> tuple[array[float], array[float], array[float], array[float]]:
+) -> tuple[MutableSequence[float], MutableSequence[float], MutableSequence[float], MutableSequence[float]]:
     if width % 4 != 0 or height % 4 != 0:
         raise DXT_Error("Unexpected resolution: %d x %d" % (width, height))
 
@@ -322,8 +323,8 @@ def dxt1_decompress(
     struct_block = struct.Struct('<HHI')
 
     # Interpolation coefficients
-    coef0 = 2/3
-    coef1 = 1/3
+    coef0 = 2 / 3
+    coef1 = 1 / 3
 
     block_count_w = width // 4
     block_count_h = height // 4
