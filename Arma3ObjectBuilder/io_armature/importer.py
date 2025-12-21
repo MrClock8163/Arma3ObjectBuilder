@@ -1,43 +1,44 @@
 # Processing functions to reconstruct armature from given skeleton definitions
 # pivot points P3D model.
+from typing import Any
 
 
 import bpy
 from mathutils import Vector
 
-from ..io_p3d import data
+from ..io_p3d import data as p3d
 from ..logger import ProcessLogger
 
 
-def vector_average(vectors):
+def vector_average(vectors: list[Vector]) -> Vector:
     result = Vector()
     if len(vectors) == 0:
         return result
-    
+
     for vec in vectors:
         result += vec
-    
+
     return result / len(vectors)
 
 
-def is_valid_skeleton(skeleton):
+def is_valid_skeleton(skeleton: Any) -> bool:
     if len({bone.name.lower() for bone in skeleton.bones}) != len(skeleton.bones):
         return False
-    
+
     bones = set()
     for bone in skeleton.bones:
         if bone.name == "" or bone.parent != "" and bone.parent.lower() not in bones:
             return False
-        
+
         bones.add(bone.name.lower())
-    
+
     return True
 
 
-def extract_pivot_coords(lod):
+def extract_pivot_coords(lod: p3d.P3D_LOD) -> dict[str, Vector]:
     pivot_points = {}
     for tagg in lod.taggs:
-        if not tagg.is_selection():
+        if not isinstance(tagg.data, p3d.P3D_TAGG_DataSelection) or not tagg.is_selection():
             continue
 
         data = tagg.data
@@ -48,37 +49,43 @@ def extract_pivot_coords(lod):
         vert_co = lod.verts[vert_idx][0:3]
 
         pivot_points[tagg.name.lower()] = Vector(vert_co)
-        
+
     return pivot_points
 
 
-def fake_pivot_coords(unknown, pivots):
+def fake_pivot_coords(
+    unknown: Any,
+    pivots: dict[str, Vector]
+) -> dict[str, Vector]:
     placeholders = {}
 
-    front_coord = 0
+    front_coord: float = 0
     for name in pivots:
         pos = pivots[name]
         if pos[1] < front_coord:
             front_coord = pos[1]
-    
+
     for i, item in enumerate(unknown):
         placeholders[item.name.lower()] = Vector((i * 0.2, front_coord + 1, 0))
 
     return placeholders
 
 
-def read_pivots(pivots_path):
-    p3d_data = data.P3D_MLOD.read_file(pivots_path)
-    memory = p3d_data.find_lod(data.P3D_LOD_Resolution.MEMORY)
+def read_pivots(pivots_path: str) -> dict[str, Vector]:
+    p3d_data = p3d.P3D_MLOD.read_file(pivots_path)
+    memory = p3d_data.find_lod(p3d.P3D_LOD_Resolution.MEMORY)
     if not memory:
         return {}
-    
+
     pivots = extract_pivot_coords(memory)
 
     return pivots
 
 
-def filter_bones(bones, pivots):
+def filter_bones(
+    bones: list[Any],
+    pivots: dict[str, Vector]
+) -> tuple[list[Any], list[Any]]:
     known = []
     unknown = []
     for bone in bones:
@@ -90,11 +97,14 @@ def filter_bones(bones, pivots):
     return known, unknown
 
 
-def force_lowercase_bones(bones):
+def force_lowercase_bones(bones: list[Any]) -> list[Any]:
     return [bone.to_lowercase() for bone in bones]
 
 
-def build_bone_hierarchy(parent, bones):
+def build_bone_hierarchy(
+    parent: str,
+    bones: list[Any]
+) -> dict[str, Any]:
     hierarchy = {}
 
     for item in bones:
@@ -106,7 +116,12 @@ def build_bone_hierarchy(parent, bones):
     return hierarchy
 
 
-def build_bones(armature, parent, hierarchy, pivot_points):
+def build_bones(
+    armature: bpy.types.Armature,
+    parent: str,
+    hierarchy: dict[str, Any],
+    pivot_points: dict[str, Vector]
+) -> None:
     for item in hierarchy:
         children = hierarchy[item]
 
@@ -125,22 +140,30 @@ def build_bones(armature, parent, hierarchy, pivot_points):
         build_bones(armature, item, children, pivot_points)
 
 
-def link_bones(arm, parent, hierarchy):
+def link_bones(
+    arm: bpy.types.Armature,
+    parent: bpy.types.EditBone | None,
+    hierarchy: dict[str, Any]
+) -> None:
     for item in hierarchy:
         bone = arm.edit_bones.get(item)
         if parent:
             bone.parent = parent
             if len(hierarchy) == 1:
                 bone.use_connect = True
-        
+
         link_bones(arm, bone, hierarchy[item])
 
 
-def build_armature(hierarchy, pivot_points, skeleton_name):
+def build_armature(
+    hierarchy: dict[str, Any],
+    pivot_points: dict[str, Vector],
+    skeleton_name: str
+) -> bpy.types.Object:
     armature = bpy.data.armatures.new(skeleton_name)
     obj = bpy.data.objects.new(skeleton_name, armature)
 
-    bpy.context.view_layer.active_layer_collection.collection.objects.link(obj)
+    bpy.context.scene.collection.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
 
@@ -154,16 +177,21 @@ def build_armature(hierarchy, pivot_points, skeleton_name):
     return obj
 
 
-def import_armature(operator, skeleton):
+def import_armature(
+    operator: bpy.types.Operator,
+    skeleton: Any
+) -> bpy.types.Object:
     logger = ProcessLogger()
-    logger.start_subproc("Armature reconstruction from pivots from %s" % operator.filepath)
+    logger.start_subproc(
+        "Armature reconstruction from pivots from %s" % operator.filepath  # type: ignore[attr-defined]
+    )
     logger.step("Skeleton definition: %s" % skeleton.name)
-    pivots = read_pivots(operator.filepath)
+    pivots = read_pivots(operator.filepath)  # type: ignore[attr-defined]
     logger.step("Potential pivot points: %d" % len(pivots))
     pos_known, pos_unknown = filter_bones(list(skeleton.bones), pivots)
     logger.step("Bones without pivot point: %s" % len(pos_unknown))
 
-    if not operator.ignore_without_pivot:
+    if not operator.ignore_without_pivot:  # type: ignore[attr-defined]
         placeholders = fake_pivot_coords(pos_unknown, pivots)
         pivots.update(placeholders)
         pos_known.extend(pos_unknown)
