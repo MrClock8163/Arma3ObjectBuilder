@@ -3,6 +3,7 @@
 
 import json
 from contextlib import contextmanager
+from typing import Sized, Generator
 
 import bpy
 import bpy_extras.mesh_utils as meshutils
@@ -10,33 +11,52 @@ import bmesh
 
 from . import get_prefs
 from .customdata import common_data
+from .types import OperatorReportType
 
 
 # For some reason, not all operator reports are printed to the console. The behavior seems to be context dependent,
 # but not certain.
-def op_report(operator, mode, message):
+def op_report(
+    operator: bpy.types.Operator,
+    mode: OperatorReportType,
+    message: str
+) -> None:
     operator.report(mode, message)
     print("%s: %s\n" % (tuple(mode)[0].title(), message))
 
 
-def is_valid_idx(index, subscriptable):
+def is_valid_idx(
+    index: int,
+    subscriptable: Sized
+) -> bool:
     return len(subscriptable) > 0 and 0 <= index < len(subscriptable)
 
 
 class PanelHeaderLinkMixin:
     doc_url = ""
-    
-    def draw_header(self, context):
+
+    def draw_header(
+        self,
+        context: bpy.types.Context
+    ) -> None:
         if not get_prefs().show_info_links or not self.doc_url:
             return
-        
+
+        if not self.doc_url:
+            return
+
         row = self.layout.row(align=True)
-        row.operator("wm.url_open", text="", icon='HELP', emboss=False).url = self.doc_url
+        row.operator("wm.url_open", text="", icon='HELP', emboss=False).url = self.doc_url  # type: ignore[attr-defined]
 
 
 @contextmanager
-def edit_bmesh(obj, loop_triangles = False, destructive = False):
+def edit_bmesh(
+    obj: bpy.types.Object,
+    loop_triangles: bool = False,
+    destructive: bool = False
+) -> Generator[bmesh.types.BMesh, None, None]:
     mesh = obj.data
+    assert isinstance(mesh, bpy.types.Mesh)
     if obj.mode == 'EDIT':
         try:
             yield bmesh.from_edit_mesh(mesh)
@@ -53,8 +73,9 @@ def edit_bmesh(obj, loop_triangles = False, destructive = False):
 
 
 @contextmanager
-def query_bmesh(obj):
+def query_bmesh(obj: bpy.types.Object) -> Generator[bmesh.types.BMesh, None, None]:
     mesh = obj.data
+    assert isinstance(mesh, bpy.types.Mesh)
     if obj.mode == 'EDIT':
         try:
             bm = bmesh.from_edit_mesh(mesh)
@@ -70,26 +91,33 @@ def query_bmesh(obj):
             bm.free()
 
 
-def get_loose_components(obj):
+def get_loose_components(obj: bpy.types.Object) -> tuple[list[list[int]], list[list[bpy.types.MeshLoopTriangle]]]:
     mesh = obj.data
+    assert isinstance(mesh, bpy.types.Mesh)
     mesh.calc_loop_triangles()
-    chunks = meshutils.mesh_linked_triangles(mesh)
+    chunks: list[list[bpy.types.MeshLoopTriangle]] = meshutils.mesh_linked_triangles(mesh)
 
-    component_verts = []
-    component_tris = []
+    component_verts: list[list[int]] = []
+    component_tris: list[list[bpy.types.MeshLoopTriangle]] = []
 
     for chunk in chunks:
         component_tris.append(chunk)
         component_verts.append(list({vert for tri in chunk for vert in tri.vertices}))
-    
+
     return component_verts, component_tris
 
 
-def get_closed_components(obj, selected_only = False):
-    def is_contiguous_chunk(bm, chunk):
+def get_closed_components(
+    obj: bpy.types.Object,
+    selected_only: bool = False
+) -> tuple[list[list[int]], list[list[bpy.types.MeshLoopTriangle]], bool]:
+    def is_contiguous_chunk(
+        bm: bmesh.types.BMesh,
+        chunk: list[bpy.types.MeshLoopTriangle]
+    ) -> bool:
         if len(chunk) < 4:
             return False
-        
+
         face_indices = set([tri.polygon_index for tri in chunk])
         for idx in face_indices:
             for edge in bm.faces[idx].edges:
@@ -97,21 +125,25 @@ def get_closed_components(obj, selected_only = False):
                     return False
 
         return True
-    
-    def is_selected(bm: bmesh.types.BMesh, chunk):
+
+    def is_selected(
+        bm: bmesh.types.BMesh,
+        chunk: list[bpy.types.MeshLoopTriangle]
+    ) -> bool:
         vert_indices = list({vidx for tri in chunk for vidx in tri.vertices})
         for idx in vert_indices:
             if not bm.verts[idx].select:
                 return False
-        
-        return True
-    
-    mesh = obj.data
-    mesh.calc_loop_triangles()
-    chunks = meshutils.mesh_linked_triangles(mesh)
 
-    component_verts = []
-    component_tris = []
+        return True
+
+    mesh = obj.data
+    assert isinstance(mesh, bpy.types.Mesh)
+    mesh.calc_loop_triangles()
+    chunks: list[list[bpy.types.MeshLoopTriangle]] = meshutils.mesh_linked_triangles(mesh)
+
+    component_verts: list[list[int]] = []
+    component_tris: list[list[bpy.types.MeshLoopTriangle]] = []
     no_ignored = True
 
     with query_bmesh(obj) as bm:
@@ -133,31 +165,31 @@ def get_closed_components(obj, selected_only = False):
     return component_verts, component_tris, no_ignored
 
 
-def force_mode_object():
+def force_mode_object() -> None:
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.reveal()
     bpy.ops.mesh.select_all(action='DESELECT')
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
-def force_mode_edit():
+def force_mode_edit() -> None:
     force_mode_object()
     bpy.ops.object.mode_set(mode='EDIT')
 
 
-def load_common_data(scene):
+def load_common_data(scene: bpy.types.Scene) -> None:
     custom_path = bpy.path.abspath(get_prefs().custom_data)
     builtin = common_data
     json_data = {}
     try:
         with open(custom_path) as file:
             json_data = json.load(file)
-    except:
+    except Exception:
         pass
 
     common = {key: {**builtin[key], **json_data.get(key, {})} for key in builtin}
 
-    scene_props = scene.a3ob_commons
+    scene_props = scene.a3ob_commons  # type: ignore[attr-defined]
     scene_props.items.clear()
     for category, items in common.items():
         for name, value in items.items():
@@ -165,5 +197,5 @@ def load_common_data(scene):
             item.name = name
             item.value = value
             item.type = category.upper()
-    
+
     scene_props.items_index = 0
