@@ -4,6 +4,7 @@
 
 import os
 import time
+from typing import BinaryIO
 
 import bpy
 
@@ -11,9 +12,13 @@ from ..io_paa import data as paa
 from ..logger import ProcessLogger
 
 
-def import_file(operator, context, file):
+def import_file(
+    operator: bpy.types.Operator,
+    context: bpy.types.Context,
+    file: BinaryIO
+) -> tuple[bpy.types.Image | None, paa.PAA_File]:
     logger = ProcessLogger()
-    logger.start_subproc("PAA import from %s" % operator.filepath)
+    logger.start_subproc("PAA import from %s" % operator.filepath)  # type: ignore[attr-defined]
 
     wm = context.window_manager
     wm.progress_begin(0, 1000)
@@ -39,18 +44,33 @@ def import_file(operator, context, file):
         logger.step("PAA import terminated")
         return None, tex
 
-    logger.step("Porcessing 1st mipmap")
+    logger.step("Processing 1st mipmap")
     mip = tex.mips[0]
     mip.decompress(tex.type)
     swiztagg = tex.get_tagg("SWIZ")
-    if swiztagg is not None:
+    if swiztagg is not None and swiztagg.data is not None:
         mip.swizzle(swiztagg.data)
 
-    img = bpy.data.images.new(os.path.basename(operator.filepath), mip.width, mip.height, alpha=alpha, is_data=operator.color_space == 'DATA')
-    img.filepath_raw = operator.filepath
+    img = bpy.data.images.new(
+        os.path.basename(
+            operator.filepath  # type: ignore[attr-defined]
+        ),
+        mip.width,
+        mip.height,
+        alpha=alpha,
+        is_data=operator.color_space == 'DATA'  # type: ignore[attr-defined]
+    )
+    img.filepath_raw = operator.filepath  # type: ignore[attr-defined]
     if alpha:
         img.alpha_mode = 'PREMUL'
-    img.pixels = [value for c in zip(*mip.data) for value in c]
+
+    assert mip.data is not None
+    # img.pixels has incorrect type annotation in stub (`float` instead of `list[float]`)
+    img.pixels = [
+        value
+        for c in zip(mip.data[0], mip.data[1], mip.data[2], mip.data[3])
+        for value in c
+    ]  # type: ignore[assignment]
     img.update()
     img.pack()
 

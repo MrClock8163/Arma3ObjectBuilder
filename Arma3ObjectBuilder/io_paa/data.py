@@ -7,6 +7,7 @@
 import struct
 from enum import IntEnum
 from io import BytesIO, BufferedReader
+from collections.abc import MutableSequence
 from copy import deepcopy
 from typing import Self, BinaryIO
 
@@ -55,7 +56,12 @@ class PAA_MIPMAP():
     def __init__(self) -> None:
         self.width: int = 0
         self.height: int = 0
-        self.data = None
+        self.data: tuple[
+            MutableSequence[float],
+            MutableSequence[float],
+            MutableSequence[float],
+            MutableSequence[float]
+        ] | None = None
         self.data_raw: bytearray | None = None
         self.lzo_compressed: bool = False
 
@@ -93,9 +99,9 @@ class PAA_MIPMAP():
             raise PAA_Error("Unsupported format for decompression: %s", format)
 
         data = self.data_raw
-        assert isinstance(self.data_raw, bytes)
+        assert isinstance(data, bytearray)
         if self.lzo_compressed:
-            stream_lzo = BytesIO(self.data_raw)
+            stream_lzo = BytesIO(data)
             reader_lzo = BufferedReader(stream_lzo)
             _, data = lzo1x_decompress(reader_lzo, lzo_expected)
 
