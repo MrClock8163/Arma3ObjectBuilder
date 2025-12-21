@@ -1,74 +1,109 @@
 # Class structure for handling config data structures.
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+from typing import TypeAlias, Any, Self, TypedDict
 
 
 class CFG_Error(Exception):
-    def __str__(self):
+    def __str__(self) -> str:
         return "CFG - %s" % super().__str__()
 
 
-class CFGNode:
-    pass
+class CFGValue(ABC):
+    @abstractmethod
+    def topy(self) -> Any: ...
+
+    @abstractmethod
+    def format(self, indent: int = 0) -> str: ...
 
 
-class CFGLiteralString(CFGNode):
-    def __init__(self, value):
-        self.value = value
+class CFGLiteral(CFGValue):
+    @property
+    @abstractmethod
+    def value(self) -> Any: ...
 
-    def __repr__(self):
+
+class CFGElement(ABC):
+    @abstractmethod
+    def format(self, indent: int = 0) -> str: ...
+
+
+class CFGString(CFGLiteral):
+    def __init__(self, value: str) -> None:
+        self._value: str = value
+
+    @property
+    def value(self) -> str:
+        return self._value
+
+    def __repr__(self) -> str:
         return "\"%s\"" % self.value
 
-    def topy(self):
+    def topy(self) -> str:
         return self.value
 
-    def format(self, indent=0):
+    def format(self, indent: int = 0) -> str:
         return "%s\"%s\"" % ("\t" * indent, self.value.replace("\"", "\"\""))
 
 
-class CFGLiteralLong(CFGNode):
-    def __init__(self, value):
-        self.value = value
+class CFGInt(CFGLiteral):
+    def __init__(self, value: int) -> None:
+        self._value: int = value
 
-    def __repr__(self):
+    @property
+    def value(self) -> int:
+        return self._value
+
+    def __repr__(self) -> str:
         return "%f" % self.value
 
-    def topy(self):
+    def topy(self) -> int:
         return self.value
 
-    def format(self, indent=0):
+    def format(self, indent: int = 0) -> str:
         return "%s%d" % ("\t" * indent, self.value)
 
 
-class CFGLiteralFloat(CFGNode):
-    def __init__(self, value):
-        self.value = value
+class CFGFloat(CFGLiteral):
+    def __init__(self, value: float) -> None:
+        self._value: float = value
 
-    def __repr__(self):
+    @property
+    def value(self) -> float:
+        return self._value
+
+    def __repr__(self) -> str:
         return "%f" % self.value
 
-    def topy(self):
+    def topy(self) -> float:
         return self.value
 
-    def format(self, indent=0):
+    def format(self, indent: int = 0) -> str:
         return "%s%f" % ("\t" * indent, self.value)
 
 
-class CFGArray(CFGNode):
-    def __init__(self, members, extends=False):
-        self.members = members
-        self.extends = extends
+class CFGArray(CFGValue):
+    def __init__(
+        self,
+        members: list[CFGValue],
+        extends: bool = False
+    ) -> None:
+        self.members: list[CFGValue] = members
+        self.extends: bool = extends
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{...}"
 
-    def topy(self):
-        out = []
+    def topy(self) -> list[_PyValue]:
+        out: list[_PyValue] = []
 
         for item in self.members:
             out.append(item.topy())
 
         return out
 
-    def format(self, indent=0):
+    def format(self, indent: int = 0) -> str:
         padding = "\t" * indent
 
         if len(self.members) == 0:
@@ -85,45 +120,49 @@ class CFGArray(CFGNode):
         return value
 
 
-class CFGProperty(CFGNode):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+_PyValue: TypeAlias = str | int | float | list["_PyValue"]
+
+
+class CFGProperty(CFGElement):
+    def __init__(self, name: str, value: CFGValue) -> None:
+        self.name: str = name
+        self.value: CFGValue = value
 
     @classmethod
-    def type_from_py(cls, value):
+    def type_from_py(cls, value: _PyValue) -> CFGValue:
         valuetype = type(value)
-        if valuetype not in (str, int, float, list):
+        if not isinstance(value, (str, int, float, list)):
             raise ValueError("Could not create value (%s) from type (%s)" % (value, valuetype))
 
-        if valuetype is str:
-            return CFGLiteralString(value)
-        elif valuetype is int:
-            return CFGLiteralLong(value)
-        elif valuetype is float:
-            return CFGLiteralFloat(value)
+        match value:
+            case str():
+                return CFGString(value)
+            case int():
+                return CFGInt(value)
+            case float():
+                return CFGFloat(value)
 
         members = [cls.type_from_py(item) for item in value]
 
         return CFGArray(members)
 
     @classmethod
-    def from_py(cls, name, value):
+    def from_py(cls, name: str, value: _PyValue) -> Self:
         if type(name) is not str or len(name) < 1:
             raise ValueError("Cannot create property (%s) without valid name (%s)" % (value, name))
 
         return cls(name, cls.type_from_py(value))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "%s = %s" % (self.name, repr(self.value))
 
-    def __eq__(self, other):
-        return type(self) is type(other) and self.name.lower() == other.name.lower()
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, type(self)) and self.name.lower() == other.name.lower()
 
-    def format(self, indent=0):
+    def format(self, indent: int = 0) -> str:
         value = ""
         padding = "\t" * indent
-        if type(self.value) is CFGArray:
+        if isinstance(self.value, CFGArray):
             op = "+=" if self.value.extends else "="
             if len(self.value.members) == 0:
                 return "%s%s[] %s {};\n" % (padding, self.name, op)
@@ -138,40 +177,54 @@ class CFGProperty(CFGNode):
 
         return value
 
-    def datatype(self):
+    def datatype(self) -> str:
         valuetype = type(self.value)
-        if valuetype is CFGLiteralLong:
+        if valuetype is CFGInt:
             return 'LONG'
-        elif valuetype is CFGLiteralFloat:
+        elif valuetype is CFGFloat:
             return 'FLOAT'
-        elif valuetype is CFGLiteralString:
+        elif valuetype is CFGString:
             return 'STRING'
 
         return 'ARRAY'
 
 
-class CFGClass(CFGNode):
-    def __init__(self, name, parent=None, main=None, external=False):
-        self.name = name
-        self.parent = parent
-        self.properties = []
-        self.classes = []
-        self.main = main
-        self.external = external
+class CFGClassDict(TypedDict):
+    properties: dict[str, _PyValue]
+    classes: dict[str, CFGClassDict]
+    external: bool
+    parent: str | None
 
-    def __repr__(self):
+
+class CFGClass(CFGElement):
+    def __init__(
+        self,
+        name: str,
+        parent: CFGClass | None = None,
+        main: CFGClass | None = None,
+        external: bool = False
+    ) -> None:
+        self.name: str = name
+        self.parent: CFGClass | None = parent
+        self.properties: list[CFGProperty] = []
+        self.classes: list[CFGClass] = []
+        self.main: CFGClass | None = main
+        self.external: bool = external
+
+    def __repr__(self) -> str:
         if self.external:
             return "class %s;" % self.name
-        elif self.parent is None:
+
+        if self.parent is None:
             return "class %s" % self.name
 
         return "class %s: %s" % (self.name, self.parent.name)
 
-    def __eq__(self, other):
-        return type(self) is type(other) and self.name.lower() == other.name.lower()
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, type(self)) and self.name.lower() == other.name.lower()
 
     @classmethod
-    def resolve_parent_in_inheritance(cls, main, parentname):
+    def resolve_parent_in_inheritance(cls, main: CFGClass | None, parentname: str) -> CFGClass | None:
         if not main:
             return None
 
@@ -182,7 +235,7 @@ class CFGClass(CFGNode):
         return cls.resolve_parent_in_inheritance(main.parent, parentname)
 
     @classmethod
-    def resolve_parent_in_scopes(cls, main, parentname):
+    def resolve_parent_in_scopes(cls, main: CFGClass | None, parentname: str) -> CFGClass | None:
         if not main:
             return None
 
@@ -193,14 +246,17 @@ class CFGClass(CFGNode):
         return cls.resolve_parent_in_scopes(main.main, parentname)
 
     @classmethod
-    def resolve_parent(cls, main, parentname):
+    def resolve_parent(cls, main: CFGClass | None, parentname: str) -> CFGClass | None:
+        if not main:
+            return None
+
         parent = cls.resolve_parent_in_inheritance(main, parentname)
         if parent:
             return parent
 
         return cls.resolve_parent_in_scopes(main.main, parentname)
 
-    def get_class(self, steps):
+    def get_class(self, steps: list[str]) -> CFGClass | None:
         if len(steps) == 0:
             return self
 
@@ -218,7 +274,7 @@ class CFGClass(CFGNode):
         steps.insert(0, step)
         return self.parent.get_class(steps)
 
-    def get_prop(self, propname, default=None):
+    def get_prop(self, propname: str, default: CFGValue | None = None) -> CFGValue | None:
         for item in self.properties:
             if item.name.lower() == propname.lower():
                 return item.value
@@ -228,7 +284,7 @@ class CFGClass(CFGNode):
 
         return self.parent.get_prop(propname, default)
 
-    def get_path(self):
+    def get_path(self) -> str:
         steps = [self.name]
         main = self.main
         while main is not None:
@@ -238,7 +294,7 @@ class CFGClass(CFGNode):
 
         return "/".join(steps)
 
-    def get_ancestors(self):
+    def get_ancestors(self) -> list[CFGClass]:
         lineage = [self]
         if self.parent is None:
             return lineage
@@ -246,9 +302,9 @@ class CFGClass(CFGNode):
         lineage.extend(self.parent.get_ancestors())
         return lineage
 
-    def compile(self):
-        for item in self.classes:
-            item.compile()
+    def compile(self) -> None:
+        for cls in self.classes:
+            cls.compile()
 
         if self.parent is None:
             return
@@ -265,11 +321,11 @@ class CFGClass(CFGNode):
             prop.members = item.value.members + prop.members
             prop.extends = item.value.extends
 
-        for item in self.parent.classes:
-            if item not in self.classes:
-                self.classes.append(item)
+        for cls in self.parent.classes:
+            if cls not in self.classes:
+                self.classes.append(cls)
 
-    def format(self, indent=0):
+    def format(self, indent: int = 0) -> str:
         padding = "\t" * indent
         value = ""
 
@@ -296,10 +352,10 @@ class CFGClass(CFGNode):
         value += "%s};\n" % padding
         return value
 
-    def as_dict(self):
-        propdict = {}
-        classdict = {}
-        data = {
+    def as_dict(self) -> CFGClassDict:
+        propdict: dict[str, _PyValue] = {}
+        classdict: dict[str, CFGClassDict] = {}
+        data: CFGClassDict = {
             "properties": propdict,
             "classes": classdict,
             "external": self.external,
@@ -315,13 +371,19 @@ class CFGClass(CFGNode):
         return data
 
     @classmethod
-    def from_dict(cls, name, main, data):
+    def from_dict(cls, name: str, main: CFGClass | None, data: CFGClassDict) -> Self:
         parent = None
         parentname = data.get("parent")
         if parentname is not None:
             parent = cls.resolve_parent(main, parentname)
             if not parent:
-                raise CFG_Error("Could not resolve parent (%s) of (%s) in (%s)" % (parentname, name, main.get_path()))
+                raise CFG_Error(
+                    "Could not resolve parent (%s) of (%s) in (%s)" % (
+                        parentname,
+                        name,
+                        main.get_path() if main else "top level"
+                    )
+                )
 
         out = cls(name, parent, main, data.get("external", False))
 
@@ -333,7 +395,7 @@ class CFGClass(CFGNode):
 
         return out
 
-    def isreference(self):
+    def isreference(self) -> bool:
         if self.external:
             return True
 
@@ -348,13 +410,13 @@ class CFGClass(CFGNode):
 
 
 class CFG:
-    def __init__(self, root):
+    def __init__(self, root: CFGClass) -> None:
         self.root = root
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "CFG: %s" % self.root.name
 
-    def get_class(self, path):
+    def get_class(self, path: str) -> CFGClass | None:
         steps = path.replace(" ", "").split("/")
         step = steps.pop(0)
         if step != self.root.name:
@@ -364,7 +426,7 @@ class CFG:
 
         return self.root.get_class(steps)
 
-    def get_prop(self, path, default=None):
+    def get_prop(self, path: str, default: CFGValue | None = None) -> CFGValue | None:
         steps = path.replace(" ", "").split("/")
         step = steps.pop(0)
 
@@ -378,10 +440,10 @@ class CFG:
 
         return leaf.get_prop(propname, default)
 
-    def compile(self):
+    def compile(self) -> None:
         self.root.compile()
 
-    def format(self):
+    def format(self) -> str:
         value = ""
         for prop in self.root.properties:
             value += prop.format()
@@ -391,11 +453,11 @@ class CFG:
 
         return value
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, CFGClassDict]:
         return {self.root.name: self.root.as_dict()}
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict[str, CFGClassDict]) -> Self:
         if len(data) != 1:
             raise ValueError("Root node must be a single key: %s" % list(data.keys()))
 
