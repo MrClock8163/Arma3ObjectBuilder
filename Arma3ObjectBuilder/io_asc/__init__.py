@@ -1,9 +1,13 @@
+# flake8: noqa: F722,E821
+from typing import TextIO
+
 import bpy
 import bpy_extras
 
 from . import props, importer, exporter
 from ..utils import op_report, PanelWithHelpLink
 from ..utils_io import ExportFileHandler
+from ..types import OperatorReturn, Registerable
 
 
 class A3OB_PT_object_dtm(PanelWithHelpLink):
@@ -16,13 +20,18 @@ class A3OB_PT_object_dtm(PanelWithHelpLink):
     doc_url = "https://mrcmodding.gitbook.io/arma-3-object-builder/properties/dtm"
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         obj = context.object
-        return obj and obj.type == 'MESH' and not obj.a3ob_properties_object_proxy.is_a3_proxy
+        return bool(
+            obj
+            and obj.type == 'MESH'
+            and not obj.a3ob_properties_object_proxy.is_a3_proxy  # type: ignore[attr-defined]
+        )
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         obj = context.object
-        object_props = obj.a3ob_properties_object_dtm
+        assert isinstance(obj, bpy.types.Object)
+        object_props = obj.a3ob_properties_object_dtm  # type: ignore[attr-defined]
 
         layout = self.layout
 
@@ -69,11 +78,11 @@ class A3OB_OT_import_asc(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         max=1000
     )
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         pass
 
-    def execute(self, context):
-        with open(self.filepath) as file:
+    def execute(self, context: bpy.types.Context) -> OperatorReturn:
+        with open(self.filepath) as file:  # type: ignore[attr-defined]
             importer.read_file(self, context, file)
             op_report(self, {'INFO'}, "Successfully imported DTM")
 
@@ -87,17 +96,10 @@ class A3OB_PT_import_asc_main(bpy.types.Panel):
     bl_parent_id = "FILE_PT_operator"
     bl_options = {'HIDE_HEADER'}
 
-    @classmethod
-    def poll(cls, context):
-        sfile = context.space_data
-        operator = sfile.active_operator
-
-        return operator.bl_idname == "A3OB_OT_import_asc"
-
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
         sfile = context.space_data
-        operator = sfile.active_operator
+        operator = sfile.active_operator  # type: ignore[attr-defined]
 
         col = layout.column(align=True, heading="Scale:")
         col.prop(operator, "hscale", text="Horizontal")
@@ -143,17 +145,23 @@ class A3OB_OT_export_asc(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     )
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         obj = context.active_object
-        return obj and obj.type == 'MESH' and len(obj.data.vertices) > 0
+        return bool(
+            obj
+            and isinstance(obj.data, bpy.types.Mesh)
+            and len(obj.data.vertices) > 0
+        )
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         pass
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> OperatorReturn:
         obj = context.active_object
+        assert obj is not None
 
-        with ExportFileHandler(self.filepath, "wt") as file:
+        file: TextIO
+        with ExportFileHandler(self.filepath, "wt") as file:  # type: ignore[attr-defined, assignment]
             exporter.write_file(self, context, file, obj)
             op_report(self, {'INFO'}, "Successfuly exported DTM")
 
@@ -168,18 +176,18 @@ class A3OB_PT_export_asc_main(bpy.types.Panel):
     bl_options = {'HIDE_HEADER'}
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         sfile = context.space_data
-        operator = sfile.active_operator
+        operator: bpy.types.Operator = sfile.active_operator  # type: ignore[attr-defined]
 
         return operator.bl_idname == "A3OB_OT_export_asc"
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
         sfile = context.space_data
-        operator = sfile.active_operator
+        operator: bpy.types.Operator = sfile.active_operator  # type: ignore[attr-defined]
 
         layout.prop(operator, "apply_modifiers")
 
@@ -191,18 +199,18 @@ class A3OB_PT_export_asc_dimensions(bpy.types.Panel):
     bl_parent_id = "FILE_PT_operator"
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         sfile = context.space_data
-        operator = sfile.active_operator
+        operator: bpy.types.Operator = sfile.active_operator  # type: ignore[attr-defined]
 
         return operator.bl_idname == "A3OB_OT_export_asc"
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
         sfile = context.space_data
-        operator = sfile.active_operator
+        operator = sfile.active_operator  # type: ignore[attr-defined]
 
         layout.prop(operator, "dimensions")
         if operator.dimensions == 'CUSTOM':
@@ -210,7 +218,7 @@ class A3OB_PT_export_asc_dimensions(bpy.types.Panel):
             layout.prop(operator, "columns")
 
 
-classes = (
+classes: tuple[Registerable, ...] = (
     A3OB_PT_object_dtm,
     A3OB_OT_import_asc,
     A3OB_PT_import_asc_main,
@@ -226,38 +234,38 @@ if bpy.app.version >= (4, 1, 0):
         bl_file_extensions = ".asc"
 
         @classmethod
-        def poll_drop(cls, context):
-            return context.area and context.area.type == 'VIEW_3D'
+        def poll_drop(cls, context: bpy.types.Context) -> bool:
+            return bool(context.area and context.area.type == 'VIEW_3D')
 
     classes = (*classes, A3OB_FH_import_asc)
 
 
-def menu_func_import(self, context):
+def menu_func_import(self: bpy.types.Menu, context: bpy.types.Context) -> None:
     self.layout.operator(A3OB_OT_import_asc.bl_idname, text="Esri Grid ASCII (.asc)")
 
 
-def menu_func_export(self, context):
+def menu_func_export(self: bpy.types.Menu, context: bpy.types.Context) -> None:
     self.layout.operator(A3OB_OT_export_asc.bl_idname, text="Esri Grid ASCII (.asc)")
 
 
-def register():
+def register() -> None:
     props.register_props()
 
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
-    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)  # type: ignore[no-untyped-call]
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)  # type: ignore[no-untyped-call]
 
     print("\t" + "IO: ASC")
 
 
-def unregister():
+def unregister() -> None:
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
-    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
-    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)  # type: ignore[no-untyped-call]
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)  # type: ignore[no-untyped-call]
 
     props.unregister_props()
 
