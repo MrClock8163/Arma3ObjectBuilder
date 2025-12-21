@@ -2,7 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-from typing import TypeAlias, Any, Self, TypedDict
+from typing import TypeAlias, Any, Self, TypedDict, NotRequired
 
 
 class CFG_Error(Exception):
@@ -190,10 +190,10 @@ class CFGProperty(CFGElement):
 
 
 class CFGClassDict(TypedDict):
-    properties: dict[str, _PyValue]
-    classes: dict[str, CFGClassDict]
-    external: bool
-    parent: str | None
+    properties: NotRequired[dict[str, _PyValue]]
+    classes: NotRequired[dict[str, CFGClassDict]]
+    external: NotRequired[bool]
+    parent: NotRequired[str | None]
 
 
 class CFGClass(CFGElement):

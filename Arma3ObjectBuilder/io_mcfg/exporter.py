@@ -1,27 +1,33 @@
 # Writer functions to export text formatted model.cfg file.
+from typing import Any, TextIO
 
+import bpy
 
 from .. import io_config
 from ..logger import ProcessLogger
 
 
-def bones_from_skeleton(skeleton):
+def bones_from_skeleton(skeleton: Any) -> dict[str, str]:
     return {bone.name: bone.parent for bone in skeleton.bones}
 
 
-def write_file(operator, skeleton, file):
+def write_file(
+    operator: bpy.types.Operator,
+    skeleton: Any,
+    file: TextIO
+) -> None:
     logger = ProcessLogger()
-    logger.start_subproc("Skeleton definition export to %s" % operator.filepath)
+    logger.start_subproc("Skeleton definition export to %s" % operator.filepath)  # type: ignore[attr-defined]
     logger.step("Skeleton definition: %s" % skeleton.name)
     bones_parents = bones_from_skeleton(skeleton)
-    
-    if operator.force_lowercase:
+
+    if operator.force_lowercase:  # type: ignore[attr-defined]
         logger.step("Force lowercase")
         bones_parents = {k.lower(): v.lower() for k, v in bones_parents.items()}
 
     logger.step("Bones: %d" % len(bones_parents))
-    
-    data = {
+
+    data: dict[str, io_config.data.CFGClassDict] = {
         "root": {
             "classes": {
                 "CfgSkeletons": {
