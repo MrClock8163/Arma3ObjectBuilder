@@ -77,13 +77,13 @@ class ExportFileHandler():
         mode: str
     ) -> None:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.filepath = filepath
-        self.temppath = "%s.%s.temp" % (filepath, timestamp)
-        self.mode = mode
+        self.filepath: str = filepath
+        self.temppath: str = "%s.%s.temp" % (filepath, timestamp)
+        self.mode: str = mode
         self.file: IO[Any] | None = None
         addon_pref = get_prefs()
-        self.backup_old = addon_pref.create_backups
-        self.preserve_faulty = addon_pref.preserve_faulty_output
+        self.backup_old: bool = addon_pref.create_backups
+        self.preserve_faulty: bool = addon_pref.preserve_faulty_output
 
     def __enter__(self) -> IO[Any]:
         file = open(self.temppath, self.mode)
