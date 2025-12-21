@@ -5,7 +5,7 @@ import bpy
 from . import props
 from .templates import RVMATTemplate
 from .. import get_prefs, get_icon
-from ..utils import is_valid_idx, load_common_data, PanelHeaderLinkMixin
+from ..utils import is_valid_idx, load_common_data, PanelWithHelpLink
 
 
 class A3OB_OT_materials_templates_generate(bpy.types.Operator):
@@ -23,13 +23,21 @@ class A3OB_OT_materials_templates_generate(bpy.types.Operator):
     def execute(self, context):
         scene_props = context.scene.a3ob_materials
 
-        if os.path.isfile(os.path.join(scene_props.folder, scene_props.basename + ".rvmat")) and not scene_props.overwrite_existing:
+        if (
+            os.path.isfile(os.path.join(scene_props.folder, scene_props.basename + ".rvmat"))
+            and not scene_props.overwrite_existing
+        ):
             self.report({'ERROR'}, "RVMAT already exists")
             return {'FINISHED'}
 
         path = scene_props.templates[scene_props.templates_index].path
         template = RVMATTemplate(path)
-        success = template.write_output(get_prefs().project_root, scene_props.folder, scene_props.basename, scene_props.check_files_exist)
+        success = template.write_output(
+            get_prefs().project_root,
+            scene_props.folder,
+            scene_props.basename,
+            scene_props.check_files_exist
+        )
 
         if success:
             self.report({'INFO'}, "Successfully generated %s.rvmat" % scene_props.basename)
@@ -41,15 +49,15 @@ class A3OB_OT_materials_templates_generate(bpy.types.Operator):
 
 class A3OB_OT_materials_templates_reload(bpy.types.Operator):
     """Load/Reload material templates"""
-    
+
     bl_idname = "a3ob.materials_templates_reload"
     bl_label = "Refresh Templates"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         return True
-    
+
     def execute(self, context):
         load_common_data(context.scene)
         scene_props_common = context.scene.a3ob_commons
@@ -63,7 +71,7 @@ class A3OB_OT_materials_templates_reload(bpy.types.Operator):
             new_item = scene_props_mats.templates.add()
             new_item.name = item.name
             new_item.path = item.value
-            
+
         return {'FINISHED'}
 
 
@@ -72,7 +80,7 @@ class A3OB_UL_materials_templates(bpy.types.UIList):
         layout.label(text=item.name, icon='TEXT')
 
 
-class A3OB_PT_materials(bpy.types.Panel, PanelHeaderLinkMixin):
+class A3OB_PT_materials(PanelWithHelpLink):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -96,12 +104,12 @@ class A3OB_PT_materials_colors(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene_props = context.scene.a3ob_colors
-        
+
         layout.label(text="Input:")
-        
+
         row_input_type = layout.row(align=True)
         row_input_type.prop(scene_props, "input_type", expand=True)
-        
+
         col_input = layout.column(align=True)
         if scene_props.input_type == 'S8':
             col_input.prop(scene_props, "input_red_int")
@@ -111,14 +119,14 @@ class A3OB_PT_materials_colors(bpy.types.Panel):
             col_input.prop(scene_props, "input_red_float")
             col_input.prop(scene_props, "input_green_float")
             col_input.prop(scene_props, "input_blue_float")
-            
+
         layout.label(text="Output:")
-            
+
         row_output_type = layout.row(align=True)
         row_output_type.prop(scene_props, "output_type", expand=True)
-        
+
         col_output = layout.column(align=True)
-        
+
         if scene_props.output_type == 'S8':
             col_output.prop(scene_props, "output_red_int")
             col_output.prop(scene_props, "output_green_int")
@@ -127,7 +135,7 @@ class A3OB_PT_materials_colors(bpy.types.Panel):
             col_output.prop(scene_props, "output_red_float")
             col_output.prop(scene_props, "output_green_float")
             col_output.prop(scene_props, "output_blue_float")
-        
+
         if scene_props.output_type in {'S8', 'S'}:
             layout.prop(scene_props, "output_srgb", text="")
         else:
@@ -147,7 +155,15 @@ class A3OB_PT_materials_templates(bpy.types.Panel):
         scene_props = context.scene.a3ob_materials
 
         col_list = layout.column(align=True)
-        col_list.template_list("A3OB_UL_materials_templates", "A3OB_materials_templates", scene_props, "templates", scene_props, "templates_index", item_dyntip_propname="path")
+        col_list.template_list(
+            "A3OB_UL_materials_templates",
+            "A3OB_materials_templates",
+            scene_props,
+            "templates",
+            scene_props,
+            "templates_index",
+            item_dyntip_propname="path"
+        )
         col_list.operator("a3ob.materials_templates_reload", icon_value=get_icon("op_refresh"))
 
         layout.prop(scene_props, "folder")
@@ -180,7 +196,7 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    
+
     props.unregister_props()
 
     print("\t" + "Tool: Materials")

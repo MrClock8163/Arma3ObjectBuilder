@@ -32,7 +32,7 @@ def is_valid_idx(
     return len(subscriptable) > 0 and 0 <= index < len(subscriptable)
 
 
-class PanelHeaderLinkMixin:
+class PanelWithHelpLink(bpy.types.Panel):
     doc_url = ""
 
     def draw_header(

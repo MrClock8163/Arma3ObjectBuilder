@@ -4,7 +4,7 @@ from . import props
 from . import rigging
 from . import ofp2_manskeleton
 from .. import get_icon
-from ..utils import is_valid_idx, PanelHeaderLinkMixin
+from ..utils import is_valid_idx, PanelWithHelpLink
 from ..io_mcfg.validator import SkeletonValidator
 from ..logger import ProcessLogger
 
@@ -12,14 +12,14 @@ from ..logger import ProcessLogger
 def get_skeleton(scene_props):
     if not is_valid_idx(scene_props.skeletons_index, scene_props.skeletons):
         return None
-    
+
     return scene_props.skeletons[scene_props.skeletons_index]
 
 
 class A3OB_UL_rigging_skeletons(bpy.types.UIList):
     use_filter_sort_alpha: bpy.props.BoolProperty(
-        name = "Sort By Name",
-        description = "Sort items by their name"
+        name="Sort By Name",
+        description="Sort items by their name"
     )
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
@@ -29,59 +29,69 @@ class A3OB_UL_rigging_skeletons(bpy.types.UIList):
         else:
             layout.label(text=item.name, icon='ARMATURE_DATA')
             layout.prop(item, "protected", text="", icon='LOCKED', emboss=False)
-    
+
     def draw_filter(self, context, layout):
         row = layout.row(align=True)
         row.prop(self, "filter_name", text="")
         row.prop(self, "use_filter_invert", text="", icon='ARROW_LEFTRIGHT')
         row.separator()
         row.prop(self, "use_filter_sort_alpha", text="", icon='SORTALPHA')
-        row.prop(self, "use_filter_sort_reverse", text="", icon='SORT_DESC' if self.use_filter_sort_reverse else 'SORT_ASC')
-    
+        row.prop(
+            self,
+            "use_filter_sort_reverse",
+            text="",
+            icon='SORT_DESC' if self.use_filter_sort_reverse else 'SORT_ASC'
+        )
+
     def filter_items(self, context, data, propname):
         helper_funcs = bpy.types.UI_UL_list
         flt_flags = []
         flt_neworder = []
-        
+
         skeletons = getattr(data, propname)
         if self.filter_name:
             flt_flags = helper_funcs.filter_items_by_name(self.filter_name, self.bitflag_filter_item, skeletons, "name")
 
         if self.use_filter_sort_alpha:
             flt_neworder = helper_funcs.sort_items_by_name(skeletons, "name")
-        
+
         return flt_flags, flt_neworder
 
 
 class A3OB_UL_rigging_skeletons_noedit(bpy.types.UIList):
     use_filter_sort_alpha: bpy.props.BoolProperty(
-        name = "Sort By Name",
-        description = "Sort items by their name"
+        name="Sort By Name",
+        description="Sort items by their name"
     )
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
         layout.label(text=item.name, icon='ARMATURE_DATA')
-    
+
     def draw_filter(self, context, layout):
         row = layout.row(align=True)
         row.prop(self, "filter_name", text="")
         row.prop(self, "use_filter_invert", text="", icon='ARROW_LEFTRIGHT')
         row.separator()
         row.prop(self, "use_filter_sort_alpha", text="", icon='SORTALPHA')
-        row.prop(self, "use_filter_sort_reverse", text="", icon='SORT_DESC' if self.use_filter_sort_reverse else 'SORT_ASC')
+        row.prop(
+            self,
+            "use_filter_sort_reverse",
+            text="",
+            icon='SORT_DESC' if self.use_filter_sort_reverse else 'SORT_ASC'
+        )
 
     def filter_items(self, context, data, propname):
         helper_funcs = bpy.types.UI_UL_list
         flt_flags = []
         flt_neworder = []
-        
+
         skeletons = getattr(data, propname)
         if self.filter_name:
             flt_flags = helper_funcs.filter_items_by_name(self.filter_name, self.bitflag_filter_item, skeletons, "name")
 
         if self.use_filter_sort_alpha:
             flt_neworder = helper_funcs.sort_items_by_name(skeletons, "name")
-        
+
         return flt_flags, flt_neworder
 
 
@@ -108,19 +118,22 @@ class A3OB_OT_rigging_skeletons_add(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return True
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = scene_props.skeletons.add()
         skeleton.name = "Skeleton"
-        
-        if is_valid_idx(scene_props.skeletons_index, scene_props.skeletons) and is_valid_idx(scene_props.skeletons_index + 1, scene_props.skeletons):
+
+        if (
+            is_valid_idx(scene_props.skeletons_index, scene_props.skeletons)
+            and is_valid_idx(scene_props.skeletons_index + 1, scene_props.skeletons)
+        ):
             move_to = scene_props.skeletons_index + 1
             scene_props.skeletons.move(len(scene_props.skeletons) - 1, move_to)
             scene_props.skeletons_index = move_to
         else:
             scene_props.skeletons_index = len(scene_props.skeletons) - 1
-    
+
         return {'FINISHED'}
 
 
@@ -135,12 +148,12 @@ class A3OB_OT_rigging_skeletons_remove(bpy.types.Operator):
     def poll(cls, context):
         scene_props = context.scene.a3ob_rigging
         return get_skeleton(scene_props)
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         scene_props.skeletons.remove(scene_props.skeletons_index)
         scene_props.skeletons_index = max(0, scene_props.skeletons_index - 1)
-    
+
         return {'FINISHED'}
 
 
@@ -155,7 +168,7 @@ class A3OB_OT_rigging_skeletons_from_armature(bpy.types.Operator):
     def poll(cls, context):
         obj = context.active_object
         return obj and obj.type == 'ARMATURE'
-    
+
     def execute(self, context):
         obj = context.active_object
         obj.update_from_editmode()
@@ -168,7 +181,7 @@ class A3OB_OT_rigging_skeletons_from_armature(bpy.types.Operator):
             bone = skeleton.bones.add()
             bone.name = name
             bone.parent = parent
-        
+
         return {'FINISHED'}
 
 
@@ -183,7 +196,7 @@ class A3OB_OT_rigging_skeletons_clear(bpy.types.Operator):
     def poll(cls, context):
         scene_props = context.scene.a3ob_rigging
         return len(scene_props.skeletons) > 0
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         scene_props.skeletons.clear()
@@ -200,8 +213,8 @@ class A3OB_OT_rigging_skeletons_validate(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     for_rtm: bpy.props.BoolProperty(
-        name = "For RTM",
-        description = "Validate skeleton for use with RTM animations"
+        name="For RTM",
+        description="Validate skeleton for use with RTM animations"
     )
 
     @classmethod
@@ -235,20 +248,23 @@ class A3OB_OT_rigging_skeletons_bones_add(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
         return skeleton and not skeleton.protected
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
         bone = skeleton.bones.add()
         bone.name = "Bone"
 
-        if is_valid_idx(skeleton.bones_index, skeleton.bones) and is_valid_idx(skeleton.bones_index + 1, skeleton.bones):
+        if (
+            is_valid_idx(skeleton.bones_index, skeleton.bones)
+            and is_valid_idx(skeleton.bones_index + 1, skeleton.bones)
+        ):
             move_to = skeleton.bones_index + 1
             skeleton.bones.move(len(skeleton.bones) - 1, move_to)
             skeleton.bones_index = move_to
         else:
             skeleton.bones_index = len(skeleton.bones) - 1
-    
+
         return {'FINISHED'}
 
 
@@ -263,40 +279,40 @@ class A3OB_OT_rigging_skeletons_bones_remove(bpy.types.Operator):
     def poll(cls, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
-        
+
         return skeleton and not skeleton.protected and is_valid_idx(skeleton.bones_index, skeleton.bones)
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
         skeleton.bones.remove(skeleton.bones_index)
         skeleton.bones_index = max(0, skeleton.bones_index - 1)
-    
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_skeletons_bones_move(bpy.types.Operator):
     """Move Bone"""
-    
+
     bl_idname = "a3ob.rigging_skeletons_bones_move"
     bl_label = "Move Bone"
     bl_options = {'REGISTER'}
 
     direction: bpy.props.EnumProperty(
-        name = "Direction",
-        items = (
+        name="Direction",
+        items=(
             ('UP', "Up", ""),
             ('DOWN', "Down", "")
         )
     )
-    
+
     @classmethod
     def poll(cls, context):
-        scene_props = context.scene.a3ob_rigging  
+        scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
 
         return skeleton and not skeleton.protected and is_valid_idx(skeleton.bones_index, skeleton.bones)
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
@@ -305,7 +321,7 @@ class A3OB_OT_rigging_skeletons_bones_move(bpy.types.Operator):
         move_to = move_from + (1 if self.direction == 'DOWN' else -1)
         skeleton.bones.move(move_from, move_to)
         skeleton.bones_index = max(min(move_to, len(skeleton.bones) - 1), 0)
-        
+
         return {'FINISHED'}
 
 
@@ -318,17 +334,17 @@ class A3OB_OT_rigging_skeletons_bones_clear(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        scene_props = context.scene.a3ob_rigging        
+        scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
-        
+
         return skeleton and not skeleton.protected and len(skeleton.bones) > 0
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
         skeleton.bones.clear()
         skeleton.bones_index = -1
-    
+
         return {'FINISHED'}
 
 
@@ -343,9 +359,9 @@ class A3OB_OT_rigging_skeletons_bones_lowercase(bpy.types.Operator):
     def poll(cls, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
-        
+
         return skeleton and not skeleton.protected and len(skeleton.bones) > 0
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = get_skeleton(scene_props)
@@ -353,21 +369,21 @@ class A3OB_OT_rigging_skeletons_bones_lowercase(bpy.types.Operator):
         for item in skeleton.bones:
             item.name = item.name.lower()
             item.parent = item.parent.lower()
-        
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_skeletons_ofp2manskeleton(bpy.types.Operator):
     """Add OFP2_ManSkeleton definition"""
-    
+
     bl_idname = "a3ob.rigging_skeletons_ofp2manskeleton"
     bl_label = "Add OFP2_ManSkeleton"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         return True
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         skeleton = scene_props.skeletons.add()
@@ -378,7 +394,7 @@ class A3OB_OT_rigging_skeletons_ofp2manskeleton(bpy.types.Operator):
             item = skeleton.bones.add()
             item.name = name
             item.parent = parent
-        
+
         return {'FINISHED'}
 
 
@@ -394,9 +410,9 @@ class A3OB_OT_rigging_pivots_from_armature(bpy.types.Operator):
         scene_props = context.scene.a3ob_rigging
         obj = context.active_object
         skeleton = get_skeleton(scene_props)
-        
+
         return obj and obj.type == 'ARMATURE' and skeleton and len(skeleton.bones) > 0
-    
+
     def execute(self, context):
         scene_props = context.scene.a3ob_rigging
         obj = context.active_object
@@ -414,149 +430,179 @@ class A3OB_OT_rigging_pivots_from_armature(bpy.types.Operator):
 
 class A3OB_OT_rigging_weights_select_unnormalized(bpy.types.Operator):
     """Select vertices with not normalized deform weights"""
-    
+
     bl_idname = "a3ob.rigging_weights_select_unnormalized"
     bl_label = "Select Unnormalized"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
-        return obj and len(context.selected_objects) == 1 and obj.type == 'MESH' and obj.mode == 'EDIT' and get_skeleton(scene_props)
-        
+        return (
+            obj
+            and len(context.selected_objects) == 1
+            and obj.type == 'MESH'
+            and obj.mode == 'EDIT'
+            and get_skeleton(scene_props)
+        )
+
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
-        
+
         bone_indices = rigging.get_bone_group_indices(obj, bones)
         rigging.select_vertices_unnormalized(obj, bone_indices)
-        
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_weights_select_overdetermined(bpy.types.Operator):
     """Select vertices with more than 4 deform bones assigned"""
-    
+
     bl_idname = "a3ob.rigging_weights_select_overdetermined"
     bl_label = "Select Overdetermined"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
-        return obj and len(context.selected_objects) == 1 and obj.type == 'MESH' and obj.mode == 'EDIT' and get_skeleton(scene_props)
-        
+        return (
+            obj
+            and len(context.selected_objects) == 1
+            and obj.type == 'MESH'
+            and obj.mode == 'EDIT'
+            and get_skeleton(scene_props)
+        )
+
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
-        
+
         bone_indices = rigging.get_bone_group_indices(obj, bones)
         rigging.select_vertices_overdetermined(obj, bone_indices)
-        
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_weights_normalize(bpy.types.Operator):
     """Normalize weights to deform bones"""
-    
+
     bl_idname = "a3ob.rigging_weights_normalize"
     bl_label = "Normalize Weights"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
-        return obj and len(context.selected_objects) == 1 and obj.type == 'MESH' and obj.mode == 'EDIT' and get_skeleton(scene_props)
-        
+        return (
+            obj
+            and len(context.selected_objects) == 1
+            and obj.type == 'MESH'
+            and obj.mode == 'EDIT'
+            and get_skeleton(scene_props)
+        )
+
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
-        
+
         bone_indices = rigging.get_bone_group_indices(obj, bones)
         normalized = rigging.normalize_weights(obj, bone_indices)
-        
+
         self.report({'INFO'}, "Normalized weights on %d vertices" % normalized)
-        
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_weights_prune_overdetermined(bpy.types.Operator):
     """Prune excess deform bones from vertices with more than 4 assigned bones"""
-    
+
     bl_idname = "a3ob.rigging_weights_prune_overdetermined"
     bl_label = "Prune Overdetermined"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
-        return obj and len(context.selected_objects) == 1 and obj.type == 'MESH' and obj.mode == 'EDIT' and get_skeleton(scene_props)
-        
+        return (
+            obj
+            and len(context.selected_objects) == 1
+            and obj.type == 'MESH'
+            and obj.mode == 'EDIT'
+            and get_skeleton(scene_props)
+        )
+
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
-        
+
         bone_indices = rigging.get_bone_group_indices(obj, bones)
         pruned = rigging.prune_overdetermined(obj, bone_indices)
-        
+
         self.report({'INFO'}, "Pruned excess bones from %d vertices" % pruned)
-        
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_weights_prune(bpy.types.Operator):
     """Prune vertex groups below weight threshold"""
-    
+
     bl_idname = "a3ob.rigging_weights_prune"
     bl_label = "Prune Selections"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         return obj and len(context.selected_objects) == 1 and obj.type == 'MESH' and obj.mode == 'EDIT'
-        
+
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
         pruned = rigging.prune_weights(obj, scene_props.prune_threshold)
-        
+
         self.report({'INFO'}, "Pruned selection(s) from %d vertices" % pruned)
-        
+
         return {'FINISHED'}
 
 
 class A3OB_OT_rigging_weights_cleanup(bpy.types.Operator):
     """General weight painting cleanup"""
-    
+
     bl_idname = "a3ob.rigging_weights_cleanup"
     bl_label = "General Cleanup"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
-        return obj and len(context.selected_objects) == 1 and obj.type == 'MESH' and obj.mode == 'EDIT' and get_skeleton(scene_props)
-        
+        return (
+            obj
+            and len(context.selected_objects) == 1
+            and obj.type == 'MESH'
+            and obj.mode == 'EDIT'
+            and get_skeleton(scene_props)
+        )
+
     def execute(self, context):
         obj = context.active_object
         scene_props = context.scene.a3ob_rigging
         bones = get_skeleton(scene_props).bones
-        
+
         bone_indices = rigging.get_bone_group_indices(obj, bones)
         cleaned = rigging.cleanup(obj, bone_indices, scene_props.prune_threshold)
-        
+
         self.report({'INFO'}, "Cleaned up weight painting on %d vertices" % cleaned)
-        
+
         return {'FINISHED'}
 
 
@@ -582,13 +628,13 @@ class A3OB_MT_rigging_bones(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        
+
         layout.operator("a3ob.rigging_skeletons_bones_lowercase", icon='SYNTAX_OFF')
         layout.separator()
         layout.operator("a3ob.rigging_skeletons_bones_clear", text="Delete All Bones", icon='TRASH')
 
 
-class A3OB_PT_rigging(bpy.types.Panel, PanelHeaderLinkMixin):
+class A3OB_PT_rigging(PanelWithHelpLink):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Object Builder"
@@ -596,11 +642,11 @@ class A3OB_PT_rigging(bpy.types.Panel, PanelHeaderLinkMixin):
     bl_options = {'DEFAULT_CLOSED'}
 
     doc_url = "https://mrcmodding.gitbook.io/arma-3-object-builder/tools/rigging"
-    
+
     @classmethod
     def poll(cls, context):
         return True
-    
+
     def draw(self, context):
         layout = self.layout
         scene_props = context.scene.a3ob_rigging
@@ -608,7 +654,15 @@ class A3OB_PT_rigging(bpy.types.Panel, PanelHeaderLinkMixin):
         row_skeletons = layout.row()
         col_skeletons_list = row_skeletons.column()
 
-        col_skeletons_list.template_list("A3OB_UL_rigging_skeletons", "A3OB_rigging_skeletons", scene_props, "skeletons", scene_props, "skeletons_index", rows=4)
+        col_skeletons_list.template_list(
+            "A3OB_UL_rigging_skeletons",
+            "A3OB_rigging_skeletons",
+            scene_props,
+            "skeletons",
+            scene_props,
+            "skeletons_index",
+            rows=4
+        )
 
         col_skeletons_operators = row_skeletons.column(align=True)
         col_skeletons_operators.operator("a3ob.rigging_skeletons_add", text="", icon='ADD')
@@ -620,9 +674,25 @@ class A3OB_PT_rigging(bpy.types.Panel, PanelHeaderLinkMixin):
         col_bones_list = row_bones.column()
 
         if is_valid_idx(scene_props.skeletons_index, scene_props.skeletons):
-            col_bones_list.template_list("A3OB_UL_rigging_bones", "A3OB_rigging_bones", scene_props.skeletons[scene_props.skeletons_index], "bones", scene_props.skeletons[scene_props.skeletons_index], "bones_index", rows=4)
+            col_bones_list.template_list(
+                "A3OB_UL_rigging_bones",
+                "A3OB_rigging_bones",
+                scene_props.skeletons[scene_props.skeletons_index],
+                "bones",
+                scene_props.skeletons[scene_props.skeletons_index],
+                "bones_index",
+                rows=4
+            )
         else:
-            col_bones_list.template_list("A3OB_UL_rigging_bones", "A3OB_rigging_bones", scene_props, "bones", scene_props, "bones_index", rows=4)
+            col_bones_list.template_list(
+                "A3OB_UL_rigging_bones",
+                "A3OB_rigging_bones",
+                scene_props,
+                "bones",
+                scene_props,
+                "bones_index",
+                rows=4
+            )
 
         col_bones_operators = row_bones.column(align=True)
         col_bones_operators.operator("a3ob.rigging_skeletons_bones_add", text="", icon='ADD')
@@ -632,7 +702,6 @@ class A3OB_PT_rigging(bpy.types.Panel, PanelHeaderLinkMixin):
         col_bones_operators.separator()
         col_bones_operators.operator("a3ob.rigging_skeletons_bones_move", text="", icon='TRIA_UP').direction = 'UP'
         col_bones_operators.operator("a3ob.rigging_skeletons_bones_move", text="", icon='TRIA_DOWN').direction = 'DOWN'
-
 
         layout.operator("a3ob.rigging_pivots_from_armature", icon_value=get_icon("op_pivots_from_armature"))
 
@@ -644,7 +713,7 @@ class A3OB_PT_rigging_weights(bpy.types.Panel):
     bl_label = "Weight Painting"
     bl_parent_id = "A3OB_PT_rigging"
     bl_options = {'DEFAULT_CLOSED'}
-    
+
     @classmethod
     def poll(cls, context):
         return True
@@ -654,12 +723,21 @@ class A3OB_PT_rigging_weights(bpy.types.Panel):
         layout = self.layout
 
         col_select = layout.column(align=True)
-        col_select.operator("a3ob.rigging_weights_select_overdetermined", icon_value=get_icon("op_weights_select_overdetermined"))
-        col_select.operator("a3ob.rigging_weights_select_unnormalized", icon_value=get_icon("op_weights_select_unnormalized"))
-        
+        col_select.operator(
+            "a3ob.rigging_weights_select_overdetermined",
+            icon_value=get_icon("op_weights_select_overdetermined")
+        )
+        col_select.operator(
+            "a3ob.rigging_weights_select_unnormalized",
+            icon_value=get_icon("op_weights_select_unnormalized")
+        )
+
         col_edit = layout.column(align=True)
         col_edit.operator("a3ob.rigging_weights_prune", icon_value=get_icon("op_weights_prune"))
-        col_edit.operator("a3ob.rigging_weights_prune_overdetermined", icon_value=get_icon("op_weights_prune_overdetermined"))
+        col_edit.operator(
+            "a3ob.rigging_weights_prune_overdetermined",
+            icon_value=get_icon("op_weights_prune_overdetermined")
+        )
         col_edit.operator("a3ob.rigging_weights_normalize", icon_value=get_icon("op_weights_normalize"))
 
         layout.operator("a3ob.rigging_weights_cleanup", icon_value=get_icon("op_weights_cleanup"))
@@ -701,14 +779,14 @@ def register():
 
     for cls in classes:
         bpy.utils.register_class(cls)
-    
+
     print("\t" + "Tool: Rigging")
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    
+
     props.unregister_props()
-    
+
     print("\t" + "Tool: Rigging")
