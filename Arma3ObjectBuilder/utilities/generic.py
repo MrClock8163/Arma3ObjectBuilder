@@ -194,20 +194,24 @@ class PBOPrefixError(Exception):
     pass
 
 
-def find_pboprefix(source_path):
+def find_pboprefix(source_path, project_root):
     """
-    Walk up the directory tree from source_path looking for a $PBOPREFIX$ file.
+    Find the $PBOPREFIX$ file for a given source path within a project.
+    Searches from the source file's directory up to (but not above) the project root.
     Returns (prefix_content, pboprefix_directory) if found, or None if not found.
     The search is case-insensitive on Windows.
     """
-    if not source_path:
+    if not source_path or not project_root:
         return None
     
     source_path = abspath(source_path)
-    current_dir = os.path.dirname(source_path) if os.path.isfile(source_path) else source_path
+    project_root = abspath(project_root).lower().rstrip(os.sep)
     
-    # Walk up the directory tree
-    while current_dir:
+    # Start from the directory containing the source file
+    current_dir = os.path.dirname(source_path)
+    
+    # Walk up the directory tree, but don't go above project root
+    while current_dir and current_dir.lower().startswith(project_root):
         # Check for $PBOPREFIX$ file (case-insensitive on Windows)
         try:
             for filename in os.listdir(current_dir):
@@ -239,11 +243,11 @@ def find_pboprefix(source_path):
 
 def make_relative(path, root, use_pboprefix=False, source_path=None):
     path = path.lower()
-    root = root.lower()
+    root_lower = root.lower()
     
     # If using PBOPREFIX, try to find and use it
     if use_pboprefix and source_path:
-        pboprefix_result = find_pboprefix(source_path)
+        pboprefix_result = find_pboprefix(source_path, root)
         if pboprefix_result:
             prefix, pboprefix_dir = pboprefix_result
             pboprefix_dir = pboprefix_dir.lower()
@@ -259,8 +263,8 @@ def make_relative(path, root, use_pboprefix=False, source_path=None):
                 "Add a $PBOPREFIX$ file to your addon folder or untick 'Use $PBOPREFIX$' in export settings."
             )
     
-    if root != "" and path.startswith(root):
-        return os.path.relpath(path, root)
+    if root_lower != "" and path.startswith(root_lower):
+        return os.path.relpath(path, root_lower)
     
     drive = os.path.splitdrive(path)[0]
     if drive:

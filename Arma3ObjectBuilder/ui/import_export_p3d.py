@@ -245,7 +245,7 @@ class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     )
     use_pboprefix: bpy.props.BoolProperty(
         name = "Use $PBOPREFIX$",
-        description = "Use $PBOPREFIX$ file to resolve relative paths (searches parent directories for $PBOPREFIX$ file and uses its content as the path prefix)",
+        description = "Use $PBOPREFIX$ file to define paths (searches parent directories for $PBOPREFIX$ file and uses its content as the path prefix)",
         default = False
     )
     preserve_normals: bpy.props.BoolProperty(
