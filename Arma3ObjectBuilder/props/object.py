@@ -255,8 +255,10 @@ class A3OB_PG_properties_object_proxy(bpy.types.PropertyGroup):
         update = proxy_name_update
     )
     
-    def to_placeholder(self, relative):
-        path = utils.format_path(utils.abspath(self.proxy_path), utils.abspath(get_prefs().project_root), relative, False)
+    def to_placeholder(self, relative, use_pboprefix=False):
+        proxy_path = utils.abspath(self.proxy_path)
+        path = utils.format_path(proxy_path, utils.abspath(get_prefs().project_root), relative, False,
+                                 use_pboprefix=use_pboprefix, source_path=proxy_path)
         if relative and len(path) > 0 and path[0] != "\\":
             path = "\\" + path
         

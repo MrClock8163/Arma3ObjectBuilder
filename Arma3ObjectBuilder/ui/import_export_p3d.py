@@ -243,6 +243,11 @@ class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         description = "Try to make file paths relative to the project root (at the very least, the drive letter is stripped)",
         default = True
     )
+    use_pboprefix: bpy.props.BoolProperty(
+        name = "Use $PBOPREFIX$",
+        description = "Use $PBOPREFIX$ file to resolve relative paths (searches parent directories for $PBOPREFIX$ file and uses its content as the path prefix)",
+        default = False
+    )
     preserve_normals: bpy.props.BoolProperty(
         name = "Custom Normals",
         description = "Export the custom split edge normals",
@@ -334,6 +339,10 @@ class A3OB_OP_export_p3d(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
                 else:
                     utils.op_report(self, {'WARNING'}, "Only exported %d/%d LODs (check the logs in the system console)" % (exported_count, lod_count))
 
+            except utils.PBOPrefixError as e:
+                utils.op_report(self, {'ERROR'}, str(e))
+                return {'CANCELLED'}
+
             finally:
                 if not get_prefs().preserve_preprocessed_lods:
                     export_p3d.cleanup_temp_collection(temp_collection) 
@@ -363,6 +372,9 @@ class A3OB_PT_export_p3d_main(bpy.types.Panel):
         operator = sfile.active_operator
 
         layout.prop(operator, "relative_paths")
+        row = layout.row()
+        row.prop(operator, "use_pboprefix")
+        row.enabled = operator.relative_paths
 
 
 class A3OB_PT_export_p3d_include(bpy.types.Panel):
