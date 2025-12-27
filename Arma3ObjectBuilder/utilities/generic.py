@@ -194,73 +194,57 @@ class PBOPrefixError(Exception):
     pass
 
 
-def find_pboprefix(source_path, project_root):
+def find_pboprefix(project_root):
     """
-    Find the $PBOPREFIX$ file for a given source path within a project.
-    Searches from the source file's directory up to (but not above) the project root.
-    Returns (prefix_content, pboprefix_directory) if found, or None if not found.
+    Find the $PBOPREFIX$ file in the project root directory.
+    Returns the prefix content if found, or None if not found.
     The search is case-insensitive on Windows.
     """
-    if not source_path or not project_root:
+    if not project_root:
         return None
     
-    source_path = abspath(source_path)
-    project_root = abspath(project_root).lower().rstrip(os.sep)
+    project_root = abspath(project_root)
     
-    # Start from the directory containing the source file
-    current_dir = os.path.dirname(source_path)
-    
-    # Walk up the directory tree, but don't go above project root
-    while current_dir and current_dir.lower().startswith(project_root):
-        # Check for $PBOPREFIX$ file (case-insensitive on Windows)
-        try:
-            for filename in os.listdir(current_dir):
-                if filename.lower() == "$pboprefix$":
-                    pboprefix_path = os.path.join(current_dir, filename)
-                    try:
-                        with open(pboprefix_path, 'r', encoding='utf-8') as f:
-                            content = f.read().strip()
-                            # Use first non-empty line
-                            for line in content.splitlines():
-                                line = line.strip()
-                                if line:
-                                    return (line, current_dir)
-                    except (IOError, OSError):
-                        pass
-                    break
-        except (IOError, OSError):
-            pass
-        
-        # Move up one directory
-        parent_dir = os.path.dirname(current_dir)
-        if parent_dir == current_dir:
-            # Reached root
-            break
-        current_dir = parent_dir
+    # Check for $PBOPREFIX$ file in project root (case-insensitive on Windows)
+    try:
+        for filename in os.listdir(project_root):
+            if filename.lower() == "$pboprefix$":
+                pboprefix_path = os.path.join(project_root, filename)
+                try:
+                    with open(pboprefix_path, 'r', encoding='utf-8') as f:
+                        content = f.read().strip()
+                        # Use first non-empty line
+                        for line in content.splitlines():
+                            line = line.strip()
+                            if line:
+                                return line
+                except (IOError, OSError):
+                    pass
+                break
+    except (IOError, OSError):
+        pass
     
     return None
 
 
-def make_relative(path, root, use_pboprefix=False, source_path=None):
+def make_relative(path, root, use_pboprefix=False):
     path = path.lower()
     root_lower = root.lower()
     
     # If using PBOPREFIX, try to find and use it
-    if use_pboprefix and source_path:
-        pboprefix_result = find_pboprefix(source_path, root)
-        if pboprefix_result:
-            prefix, pboprefix_dir = pboprefix_result
-            pboprefix_dir = pboprefix_dir.lower()
-            # Make path relative to the PBOPREFIX directory and prepend the prefix
-            if path.startswith(pboprefix_dir):
-                rel_path = os.path.relpath(path, pboprefix_dir)
+    if use_pboprefix:
+        prefix = find_pboprefix(root)
+        if prefix:
+            # Make path relative to the project root and prepend the prefix
+            if path.startswith(root_lower):
+                rel_path = os.path.relpath(path, root_lower)
                 # Combine prefix with relative path
                 return os.path.join(prefix, rel_path)
         else:
             # PBOPREFIX required but not found - raise error
             raise PBOPrefixError(
-                "Use $PBOPREFIX$ is enabled but no $PBOPREFIX$ file was found. "
-                "Add a $PBOPREFIX$ file to your addon folder or untick 'Use $PBOPREFIX$' in export settings."
+                "Use $PBOPREFIX$ is enabled but no $PBOPREFIX$ file was found in the project root. "
+                "Add a $PBOPREFIX$ file to your project root or untick 'Use $PBOPREFIX$' in export settings."
             )
     
     if root_lower != "" and path.startswith(root_lower):
@@ -273,12 +257,12 @@ def make_relative(path, root, use_pboprefix=False, source_path=None):
     return path
 
 
-def format_path(path, root = "", to_relative = True, extension = True, use_pboprefix = False, source_path = None):
+def format_path(path, root = "", to_relative = True, extension = True, use_pboprefix = False):
     path = replace_slashes(path.strip())
     
     if to_relative:
         root = replace_slashes(root.strip())
-        path = make_relative(path, root, use_pboprefix, source_path)
+        path = make_relative(path, root, use_pboprefix)
         
     if not extension:
         path = os.path.splitext(path)[0]

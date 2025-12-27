@@ -85,18 +85,16 @@ class A3OB_PG_properties_material(bpy.types.PropertyGroup):
         material = ""
 
         if self.texture_type == 'TEX':
-            texture_path = utils.abspath(self.texture_path)
-            texture = utils.format_path(texture_path, utils.abspath(addon_prefs.project_root), relative, 
-                                        use_pboprefix=use_pboprefix, source_path=texture_path)
+            texture = utils.format_path(utils.abspath(self.texture_path), utils.abspath(addon_prefs.project_root), relative, 
+                                        use_pboprefix=use_pboprefix)
         elif self.texture_type == 'COLOR':
             color = self.color_value
             texture = "#(argb,8,8,3)color(%.3f,%.3f,%.3f,%.3f,%s)" % (color[0], color[1], color[2], color[3], self.color_type)
         else:
             texture = self.color_raw
         
-        material_path = utils.abspath(self.material_path)
-        material = utils.format_path(material_path, utils.abspath(addon_prefs.project_root), relative,
-                                     use_pboprefix=use_pboprefix, source_path=material_path)
+        material = utils.format_path(utils.abspath(self.material_path), utils.abspath(addon_prefs.project_root), relative,
+                                     use_pboprefix=use_pboprefix)
 
         return texture, material
 
