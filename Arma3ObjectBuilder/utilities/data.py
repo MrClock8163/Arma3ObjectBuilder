@@ -820,5 +820,6 @@ common_data = {
     "procedurals": {
         "PIP": "#(argb,512,512,1)r2t(rendertarget0,1.0)"
     },
+    "selections": dict(translations_czech_english),
     "rvmat_templates": get_rvmat_templates()
 }

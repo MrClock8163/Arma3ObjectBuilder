@@ -266,7 +266,7 @@ class A3OB_AT_preferences(bpy.types.AddonPreferences):
     )
     custom_data: bpy.props.StringProperty(
         name = "Custom Data",
-        description = "Path to JSON file containing data for custom preset list items (common named properties and proxies)",
+        description = "Path to JSON file containing data for custom preset list items (common named properties, proxies and vertex group/selection names)",
         subtype = 'FILE_PATH'
     )
     # Defaults

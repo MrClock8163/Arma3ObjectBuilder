@@ -4,6 +4,7 @@ import bpy
 
 from .. import get_icon, addon_dir
 from ..utilities import structure as structutils
+from ..utilities import generic as utils
 from ..utilities import data
 
 
@@ -227,6 +228,45 @@ class A3OB_OT_redefine_vertex_group(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class A3OB_OT_vertex_group_add_common(bpy.types.Operator):
+    """Add a new vertex group with a common legacy (often Czech) name"""
+
+    bl_label = "Add Common Vertex Group"
+    bl_idname = "a3ob.vertex_group_add_common"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj and obj.type == 'MESH'
+
+    def invoke(self, context, event):
+        utils.load_common_data(context.scene)
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        scene_props = context.scene.a3ob_commons
+        layout = self.layout
+        layout.template_list("A3OB_UL_common_data_selections", "A3OB_common_selections", scene_props, "items", scene_props, "items_index", item_dyntip_propname="value")
+
+    def execute(self, context):
+        obj = context.active_object
+        scene_props = context.scene.a3ob_commons
+
+        if not utils.is_valid_idx(scene_props.items_index, scene_props.items):
+            return {'FINISHED'}
+
+        new_item = scene_props.items[scene_props.items_index]
+        if new_item.name in obj.vertex_groups:
+            self.report({'WARNING'}, "Vertex group \"%s\" already exists in %s" % (new_item.name, obj.name))
+            return {'FINISHED'}
+
+        group = obj.vertex_groups.new(name=new_item.name)
+        obj.vertex_groups.active_index = group.index
+
+        return {'FINISHED'}
+
+
 class A3OB_OT_open_changelog(bpy.types.Operator):
     """Open Arma 3 Object Builder add-on changelog"""
 
@@ -251,7 +291,8 @@ class A3OB_UL_common_data_base(bpy.types.UIList):
         'NAMEDPROPS': 'PROPERTIES',
         'MATERIALS_PENETRATION': 'SNAP_VOLUME',
         'PROCEDURALS': 'NODE_TEXTURE',
-        'PROXIES': 'EMPTY_AXIS'
+        'PROXIES': 'EMPTY_AXIS',
+        'SELECTIONS': 'GROUP_VERTEX'
     }
     # For some reason, these custom properties need to be defined on all
     # subclasses as well, otherwise they are not found and result in exceptions.
@@ -265,7 +306,8 @@ class A3OB_UL_common_data_base(bpy.types.UIList):
             ('NAMEDPROPS', "Named Property", "Named properties", 'PROPERTIES', 2),
             ('MATERIALS_PENETRATION', "Penetration", "Penetration materials", 'SNAP_VOLUME', 4),
             ('PROCEDURALS', "Procedural", "Procedural texture strings", 'NODE_TEXTURE', 8),
-            ('PROXIES', "Proxies", "Proxy models", 'EMPTY_AXIS', 16)
+            ('PROXIES', "Proxies", "Proxy models", 'EMPTY_AXIS', 16),
+            ('SELECTIONS', "Selections", "Common vertex group names", 'GROUP_VERTEX', 32)
         ),
         default = 'ALL'
     )
@@ -283,6 +325,8 @@ class A3OB_UL_common_data_base(bpy.types.UIList):
         text = item.name
         if item.type == 'NAMEDPROPS':
             text = "%s = %s" % (item.name, item.value)
+        elif item.type == 'SELECTIONS' and item.value:
+            text = "%s (%s)" % (item.name, item.value)
 
         layout.label(text=text, icon=self.icons.get(item.type, 'NONE'))
     
@@ -308,7 +352,13 @@ class A3OB_UL_common_data_base(bpy.types.UIList):
         flt_neworder = []
 
         if self.filter_name:
-            flt_flags = helper_funcs.filter_items_by_name(self.filter_name, self.bitflag_filter_item, mats, "name", reverse=self.use_filter_name_invert)
+            # match on either the name (eg.: Czech selection name) or the value (eg.: English translation)
+            flt_flags_name = helper_funcs.filter_items_by_name(self.filter_name, self.bitflag_filter_item, mats, "name")
+            flt_flags_value = helper_funcs.filter_items_by_name(self.filter_name, self.bitflag_filter_item, mats, "value")
+            flt_flags = [a | b for a, b in zip(flt_flags_name, flt_flags_value)]
+
+            if self.use_filter_name_invert:
+                flt_flags = [0 if flag else self.bitflag_filter_item for flag in flt_flags]
         
         if not flt_flags:
             flt_flags = [self.bitflag_filter_item] * len(mats)
@@ -409,6 +459,27 @@ class A3OB_UL_common_data_proxies(A3OB_UL_common_data_base):
         self.draw_filter_name(layout)
 
 
+class A3OB_UL_common_data_selections(A3OB_UL_common_data_base):
+    filter_type: bpy.props.EnumProperty(
+        name = "Type",
+        items = (
+            ('SELECTIONS', "Selections", "Common vertex group names", 'GROUP_VERTEX', 0),
+        ),
+        default = 'SELECTIONS'
+    )
+    use_filter_name_invert: bpy.props.BoolProperty(
+        name = "Invert",
+        description = "Invert name filtering"
+    )
+    use_filter_sort_alpha: bpy.props.BoolProperty(
+        name = "Sort By Name",
+        description = "Sort items by their name",
+        default = True
+    )
+    def draw_filter(self, context, layout):
+        self.draw_filter_name(layout)
+
+
 class A3OB_MT_object_builder_topo(bpy.types.Menu):
     """Object Builder topology functions"""
     
@@ -469,6 +540,8 @@ class A3OB_MT_vertex_groups(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
+        layout.operator("a3ob.vertex_group_add_common", icon='ADD')
+        layout.separator()
         layout.operator("a3ob.find_components", icon='STICKY_UVS_DISABLE')
         layout.separator()
         layout.operator("a3ob.vertex_group_redefine", icon='FILE_REFRESH')
@@ -505,12 +578,14 @@ classes = (
     A3OB_OT_cleanup_vertex_groups,
     A3OB_OT_translate_vertex_groups,
     A3OB_OT_redefine_vertex_group,
+    A3OB_OT_vertex_group_add_common,
     A3OB_OT_open_changelog,
     A3OB_UL_common_data_base,
     A3OB_UL_common_data_materials,
     A3OB_UL_common_data_namedprops,
     A3OB_UL_common_data_procedurals,
     A3OB_UL_common_data_proxies,
+    A3OB_UL_common_data_selections,
     A3OB_MT_object_builder,
     A3OB_MT_object_builder_topo,
     A3OB_MT_object_builder_faces,
