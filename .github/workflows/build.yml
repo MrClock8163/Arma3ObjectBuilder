@@ -1,0 +1,120 @@
+name: Build & Test
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint (flake8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install flake8
+        run: pip install flake8
+
+      # PEP8 enforcement is not fully rolled out yet (see issue #100), so lint
+      # failures are reported but do not fail the build for now.
+      - name: Run flake8
+        continue-on-error: true
+        run: flake8 Arma3ObjectBuilder --count --statistics
+
+  typecheck:
+    name: Type check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install mypy
+          pip install -r requirements.txt
+
+      # Full typing coverage is still in progress (see issue #95), so type
+      # errors are reported but do not fail the build for now.
+      - name: Run mypy
+        continue-on-error: true
+        run: mypy Arma3ObjectBuilder --ignore-missing-imports
+
+  test:
+    name: Test (Blender ${{ matrix.blender_version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+            archive_ext: tar.xz
+            blender_version: "4.5.13"
+            blender_short_version: "4.5"
+          - os: ubuntu-latest
+            platform: linux-x64
+            archive_ext: tar.xz
+            blender_version: "5.2.1"
+            blender_short_version: "5.2"
+          - os: windows-latest
+            platform: windows-x64
+            archive_ext: zip
+            blender_version: "4.5.13"
+            blender_short_version: "4.5"
+          - os: windows-latest
+            platform: windows-x64
+            archive_ext: zip
+            blender_version: "5.2.1"
+            blender_short_version: "5.2"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Blender
+        id: cache-blender
+        uses: actions/cache@v4
+        with:
+          path: blender-${{ matrix.blender_version }}-${{ matrix.platform }}
+          key: blender-${{ matrix.blender_version }}-${{ matrix.platform }}
+
+      - name: Download Blender
+        if: steps.cache-blender.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o blender.${{ matrix.archive_ext }} "https://download.blender.org/release/Blender${{ matrix.blender_short_version }}/blender-${{ matrix.blender_version }}-${{ matrix.platform }}.${{ matrix.archive_ext }}"
+          if [ "${{ matrix.archive_ext }}" = "zip" ]; then
+            unzip -q blender.zip
+          else
+            tar -xf blender.${{ matrix.archive_ext }}
+          fi
+
+      - name: Add Blender to PATH
+        run: echo "$GITHUB_WORKSPACE/blender-${{ matrix.blender_version }}-${{ matrix.platform }}" >> "$GITHUB_PATH"
+
+      - name: Build add-on package
+        run: blender --command extension build --source-dir Arma3ObjectBuilder --output-filepath "${{ github.workspace }}/a3ob.zip"
+
+      - name: Install add-on
+        run: |
+          ws="${GITHUB_WORKSPACE//\\//}"
+          blender -b --python-expr "import bpy; bpy.ops.extensions.package_install_files(filepath='$ws/a3ob.zip', repo='user_default', enable_on_install=True); bpy.ops.wm.save_userpref()"
+
+      - name: Run model.cfg tests
+        run: blender -b -noaudio --python tests/mcfg.py
+
+      - name: Run P3D tests
+        run: blender -b -noaudio --python tests/p3d.py
+
+      - name: Upload test outputs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-outputs-${{ matrix.blender_version }}-${{ matrix.os }}
+          path: tests/outputs/

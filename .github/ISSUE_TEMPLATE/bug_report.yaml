@@ -1,7 +1,7 @@
 name: Bug Report
 description: Report a bug with add-on
 title: "[Bug] "
-labels: ["bug"]
+labels: ["type: bug", "scope: user"]
 body:
   - type: markdown
     attributes:
@@ -28,6 +28,7 @@ body:
       options:
         - Release
         - Development (dev-branch live codebase)
+        - Other (please specify in the description)
     validations:
       required: true
   - type: textarea
